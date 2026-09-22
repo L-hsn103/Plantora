@@ -152,7 +152,6 @@
 
 .plant-card {
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   overflow: hidden;
   display: flex;
@@ -160,10 +159,14 @@
 }
 
 .plant-card__image {
-  width: 100%;
+  width: calc(100% - 24px);
   height: 180px;
+  margin: 12px auto 0;
+  display: block;
   object-fit: cover;
-  background-color: var(--color-bg-alt);
+  object-position: center;
+  border-radius: 58% 42% 55% 45% / 56% 46% 58% 42%;
+  box-shadow: 0 14px 18px -10px rgba(23, 48, 31, 0.32);
 }
 
 .plant-card__content {
