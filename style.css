@@ -1,9 +1,569 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* =============================================================
+   PLANTORA — HOME / LANDING PAGE STYLES
+   -------------------------------------------------------------
+   This file is organized top to bottom to match index.html:
+   1. Variables & reset
+   2. Base typography
+   3. Layout helpers (container, buttons)
+   4. Navbar
+   5. Hero
+   6. Features
+   7. How It Works
+   8. Final CTA
+   9. Footer
+   10. Responsive media queries
+   ============================================================= */
+
+/* -------------------------------------------------------------
+   1. VARIABLES & RESET
+   All colors, fonts and sizes live here so the theme can be
+   changed later without touching the rest of the file.
+   ------------------------------------------------------------- */
+:root {
+  /* Colors */
+  --color-bg: #f6f8f1;
+  --color-bg-alt: #eaf0e1;
+  --color-surface: #ffffff;
+  --color-primary: #2d5a3d;
+  --color-primary-dark: #17301f;
+  --color-accent: #6fa25a;
+  --color-accent-hover: #588048;
+  --color-gold: #e3b23c;
+  --color-text: #2b2b26;
+  --color-text-muted: #5c6355;
+  --color-border: #dce4d2;
+
+  /* Typography */
+  --font-heading: "Fraunces", serif;
+  --font-body: "Inter", sans-serif;
+
+  /* Shape & shadow */
+  --radius-md: 16px;
+  --radius-lg: 28px;
+  --shadow-soft: 0 20px 40px -20px rgba(23, 48, 31, 0.28);
 }
-html, body{
-    width: 100%;
-    height: 100%;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.6;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+/* Visible keyboard focus for accessibility */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* -------------------------------------------------------------
+   2. BASE TYPOGRAPHY
+   ------------------------------------------------------------- */
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.section-title {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+/* -------------------------------------------------------------
+   3. LAYOUT HELPERS
+   ------------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: 999px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.btn--primary {
+  background-color: var(--color-accent);
+  color: #ffffff;
+}
+
+.btn--primary:hover {
+  background-color: var(--color-accent-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+
+.btn--secondary {
+  background-color: transparent;
+  color: var(--color-primary-dark);
+  border: 1.5px solid var(--color-border);
+}
+
+.btn--secondary:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.btn--accent {
+  background-color: var(--color-gold);
+  color: var(--color-primary-dark);
+}
+
+.btn--accent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -20px rgba(227, 178, 60, 0.55);
+}
+
+/* -------------------------------------------------------------
+   4. NAVBAR
+   ------------------------------------------------------------- */
+.navbar {
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.1rem;
+  padding-bottom: 1.1rem;
+}
+
+.logo {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-links a {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  transition: color 0.15s ease;
+}
+
+.nav-links a:hover {
+  color: var(--color-primary);
+}
+
+/* -------------------------------------------------------------
+   5. HERO
+   ------------------------------------------------------------- */
+.hero {
+  padding: 5rem 0 6rem;
+  overflow: hidden;
+}
+
+.hero__inner {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+}
+
+.hero__content {
+  flex: 1;
+  max-width: 560px;
+}
+
+.hero__title {
+  font-size: 3rem;
+  margin-bottom: 1.25rem;
+}
+
+.hero__text {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  max-width: 46ch;
+  margin-bottom: 2.25rem;
+}
+
+.hero__actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* --- Decorative hero visual: an organic blob + floating leaves --- */
+.hero__visual {
+  flex: 1;
+  position: relative;
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero__blob {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  background: linear-gradient(160deg, var(--color-accent) 0%, var(--color-primary) 100%);
+  border-radius: 62% 38% 55% 45% / 55% 45% 60% 40%;
+  box-shadow: var(--shadow-soft);
+}
+
+/* Realistic plant photograph inside the blob. The image is clipped
+   to its own organic shape and inset on every side, so the green
+   blob stays visible as a frame around the plant. */
+.hero__plant {
+  position: absolute;
+  inset: 15px 10px 22px;
+  width: calc(100% - 20px);
+  height: calc(100% - 37px);
+  object-fit: cover;
+  object-position: center 40%;
+  border-radius: 58% 42% 50% 50% / 52% 48% 55% 45%;
+  filter: drop-shadow(0 16px 20px rgba(23, 48, 31, 0.35));
+}
+
+.hero__leaf {
+  position: absolute;
+  font-size: 2.5rem;
+  filter: drop-shadow(0 8px 12px rgba(23, 48, 31, 0.25));
+}
+
+.hero__leaf--one {
+  top: -18px;
+  left: 30px;
+  font-size: 3rem;
+}
+
+.hero__leaf--two {
+  bottom: 20px;
+  right: -10px;
+  font-size: 2.75rem;
+}
+
+.hero__leaf--three {
+  bottom: -22px;
+  left: 60px;
+  font-size: 3.5rem;
+}
+
+.hero__card {
+  position: absolute;
+  left: -30px;
+  bottom: 10px;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  padding: 1.1rem 1.4rem;
+  width: 190px;
+}
+
+.hero__card-title {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  margin-bottom: 0.4rem;
+}
+
+.hero__card-detail {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 0.2rem;
+}
+
+/* -------------------------------------------------------------
+   6. FEATURES
+   ------------------------------------------------------------- */
+.features {
+  padding: 5rem 0;
+  background-color: var(--color-bg-alt);
+}
+
+.features__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.feature-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 2rem 1.5rem;
+  text-align: left;
+  box-shadow: 0 12px 30px -18px rgba(23, 48, 31, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-soft);
+}
+
+.feature-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--color-bg-alt);
+  font-size: 1.4rem;
+  margin-bottom: 1.1rem;
+}
+
+.feature-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+}
+
+/* -------------------------------------------------------------
+   7. HOW IT WORKS
+   ------------------------------------------------------------- */
+.how-it-works {
+  padding: 6rem 0;
+}
+
+.steps {
+  display: flex;
+  justify-content: space-between;
+  gap: 2.5rem;
+  text-align: center;
+}
+
+.step {
+  flex: 1;
+}
+
+.step__number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--color-gold);
+  color: var(--color-primary-dark);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.step h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.6rem;
+}
+
+.step p {
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+  max-width: 30ch;
+  margin: 0 auto;
+}
+
+/* -------------------------------------------------------------
+   8. FINAL CTA
+   ------------------------------------------------------------- */
+.final-cta {
+  background-color: var(--color-primary-dark);
+  padding: 4.5rem 0;
+}
+
+.final-cta__inner {
+  text-align: center;
+}
+
+.final-cta h2 {
+  color: #ffffff;
+  font-size: 2rem;
+  margin-bottom: 1.75rem;
+}
+
+/* -------------------------------------------------------------
+   9. FOOTER
+   ------------------------------------------------------------- */
+.footer {
+  background-color: var(--color-bg-alt);
+  padding: 3rem 0 1.5rem;
+}
+
+.footer__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.footer__brand p:last-child {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  max-width: 32ch;
+}
+
+.logo--footer {
+  font-size: 1.25rem;
+}
+
+.footer__links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.footer__links a {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  transition: color 0.15s ease;
+}
+
+.footer__links a:hover {
+  color: var(--color-primary);
+}
+
+.footer__copyright {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+  padding-top: 1.5rem;
+}
+
+/* -------------------------------------------------------------
+   10. RESPONSIVE MEDIA QUERIES
+   ------------------------------------------------------------- */
+
+/* Tablet */
+@media (max-width: 900px) {
+  .hero__title {
+    font-size: 2.4rem;
+  }
+
+  .features__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .steps {
+    flex-wrap: wrap;
+  }
+
+  .step {
+    flex: 1 1 45%;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  /* Simplify navbar: hide the link list, keep logo + CTA button */
+  .nav-links {
+    display: none;
+  }
+
+  .hero__inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .hero__content {
+    max-width: 100%;
+  }
+
+  .hero__text {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero__actions {
+    justify-content: center;
+  }
+
+  .hero__visual {
+    min-height: 300px;
+  }
+
+  .hero__blob {
+    width: 240px;
+    height: 240px;
+  }
+
+  .hero__plant {
+    inset: 12px 8px 18px;
+    width: calc(100% - 16px);
+    height: calc(100% - 30px);
+  }
+
+  .hero__card {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: -20px;
+  }
+
+  .features__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .steps {
+    flex-direction: column;
+  }
+
+  .step {
+    flex: 1 1 100%;
+  }
+
+  .footer__inner {
+    flex-direction: column;
+  }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }

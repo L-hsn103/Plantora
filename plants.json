@@ -1,0 +1,202 @@
+{
+  "plants": [
+    {
+      "id": 1,
+      "name": "Snake Plant",
+      "scientificName": "Dracaena trifasciata",
+      "image": "https://placehold.co/400x300/6FA25A/ffffff?text=Snake+Plant",
+      "light": "Low",
+      "water": "Low",
+      "humidity": "Low to Average",
+      "temperature": "18–30°C",
+      "space": "Small to Medium",
+      "maintenance": "Low",
+      "difficulty": "Easy",
+      "size": "Medium",
+      "indoorSuitability": "Highly Suitable",
+      "description": "A tough, low-maintenance plant that tolerates low light and irregular watering, making it a great choice for beginners.",
+      "careGuide": {
+        "watering": "Water only when the soil is completely dry, roughly every 2–3 weeks.",
+        "fertilizer": "Feed with a diluted liquid fertilizer once every 1–2 months during spring and summer.",
+        "repotting": "Repot every 2–3 years, or once the roots outgrow the pot.",
+        "cleaning": "Wipe leaves with a damp cloth every few weeks to remove dust."
+      }
+    },
+    {
+      "id": 2,
+      "name": "Money Plant (Pothos)",
+      "scientificName": "Epipremnum aureum",
+      "image": "https://placehold.co/400x300/6FA25A/ffffff?text=Pothos",
+      "light": "Medium",
+      "water": "Medium",
+      "humidity": "Average",
+      "temperature": "18–29°C",
+      "space": "Small",
+      "maintenance": "Low",
+      "difficulty": "Easy",
+      "size": "Small",
+      "indoorSuitability": "Highly Suitable",
+      "description": "A fast-growing trailing vine that adapts well to most indoor spaces and is very forgiving for new plant owners.",
+      "careGuide": {
+        "watering": "Water when the top inch of soil feels dry, about once a week.",
+        "fertilizer": "Feed monthly with a balanced liquid fertilizer during the growing season.",
+        "repotting": "Repot every 1–2 years or when roots fill the pot.",
+        "cleaning": "Rinse leaves under water occasionally to keep them dust-free."
+      }
+    },
+    {
+      "id": 3,
+      "name": "Spider Plant",
+      "scientificName": "Chlorophytum comosum",
+      "image": "https://placehold.co/400x300/6FA25A/ffffff?text=Spider+Plant",
+      "light": "Medium",
+      "water": "Medium",
+      "humidity": "Average",
+      "temperature": "18–27°C",
+      "space": "Small",
+      "maintenance": "Low",
+      "difficulty": "Easy",
+      "size": "Small",
+      "indoorSuitability": "Highly Suitable",
+      "description": "A resilient plant known for its arching leaves and small offshoot 'babies', ideal for hanging baskets or shelves.",
+      "careGuide": {
+        "watering": "Water when the topsoil dries out, about once a week.",
+        "fertilizer": "Feed lightly once a month during spring and summer.",
+        "repotting": "Repot every 1–2 years as it grows quickly.",
+        "cleaning": "Trim brown leaf tips and dust leaves occasionally."
+      }
+    },
+    {
+      "id": 4,
+      "name": "Peace Lily",
+      "scientificName": "Spathiphyllum wallisii",
+      "image": "https://placehold.co/400x300/6FA25A/ffffff?text=Peace+Lily",
+      "light": "Low",
+      "water": "High",
+      "humidity": "High",
+      "temperature": "18–27°C",
+      "space": "Medium",
+      "maintenance": "Medium",
+      "difficulty": "Medium",
+      "size": "Medium",
+      "indoorSuitability": "Suitable",
+      "description": "An elegant flowering plant that thrives in shady spots and signals when it needs water by drooping slightly.",
+      "careGuide": {
+        "watering": "Keep soil consistently moist; water when the top inch feels dry, roughly twice a week.",
+        "fertilizer": "Feed every 6–8 weeks with a balanced liquid fertilizer.",
+        "repotting": "Repot once a year or when it becomes root-bound.",
+        "cleaning": "Wipe leaves gently to keep them glossy and dust-free."
+      }
+    },
+    {
+      "id": 5,
+      "name": "Aloe Vera",
+      "scientificName": "Aloe barbadensis miller",
+      "image": "https://placehold.co/400x300/6FA25A/ffffff?text=Aloe+Vera",
+      "light": "Bright",
+      "water": "Low",
+      "humidity": "Low",
+      "temperature": "13–27°C",
+      "space": "Small",
+      "maintenance": "Low",
+      "difficulty": "Easy",
+      "size": "Small",
+      "indoorSuitability": "Suitable",
+      "description": "A hardy succulent that stores water in its leaves, making it drought-tolerant and easy to care for.",
+      "careGuide": {
+        "watering": "Water deeply but infrequently; let the soil dry out completely between waterings.",
+        "fertilizer": "Feed once or twice a year with a cactus/succulent fertilizer.",
+        "repotting": "Repot every 2 years or when it outgrows its container.",
+        "cleaning": "Wipe leaves occasionally; avoid overwatering to prevent rot."
+      }
+    },
+    {
+      "id": 6,
+      "name": "ZZ Plant",
+      "scientificName": "Zamioculcas zamiifolia",
+      "image": "https://placehold.co/400x300/6FA25A/ffffff?text=ZZ+Plant",
+      "light": "Low",
+      "water": "Low",
+      "humidity": "Low to Average",
+      "temperature": "18–26°C",
+      "space": "Medium",
+      "maintenance": "Low",
+      "difficulty": "Easy",
+      "size": "Medium",
+      "indoorSuitability": "Highly Suitable",
+      "description": "A glossy, drought-tolerant plant that thrives on neglect, perfect for busy students and low-light rooms.",
+      "careGuide": {
+        "watering": "Water only when the soil is fully dry, roughly every 2–3 weeks.",
+        "fertilizer": "Feed sparingly, about once every 2 months during the growing season.",
+        "repotting": "Repot every 2–3 years, as growth is slow.",
+        "cleaning": "Dust leaves occasionally with a soft cloth."
+      }
+    },
+    {
+      "id": 7,
+      "name": "Areca Palm",
+      "scientificName": "Dypsis lutescens",
+      "image": "https://placehold.co/400x300/6FA25A/ffffff?text=Areca+Palm",
+      "light": "Bright",
+      "water": "Medium",
+      "humidity": "High",
+      "temperature": "18–29°C",
+      "space": "Large",
+      "maintenance": "Medium",
+      "difficulty": "Medium",
+      "size": "Large",
+      "indoorSuitability": "Suitable",
+      "description": "A graceful, feathery palm that adds a tropical feel and helps soften larger indoor spaces.",
+      "careGuide": {
+        "watering": "Water when the top inch of soil is dry, keeping soil lightly moist.",
+        "fertilizer": "Feed monthly during spring and summer with a balanced fertilizer.",
+        "repotting": "Repot every 2 years or when roots become crowded.",
+        "cleaning": "Mist or wipe the fronds occasionally to prevent dust buildup."
+      }
+    },
+    {
+      "id": 8,
+      "name": "Rubber Plant",
+      "scientificName": "Ficus elastica",
+      "image": "https://placehold.co/400x300/6FA25A/ffffff?text=Rubber+Plant",
+      "light": "Medium",
+      "water": "Medium",
+      "humidity": "Average",
+      "temperature": "16–27°C",
+      "space": "Large",
+      "maintenance": "Medium",
+      "difficulty": "Medium",
+      "size": "Large",
+      "indoorSuitability": "Suitable",
+      "description": "A bold plant with large, glossy leaves that makes a striking statement piece in any room.",
+      "careGuide": {
+        "watering": "Water when the top inch of soil feels dry, about once a week.",
+        "fertilizer": "Feed monthly during the growing season with a balanced fertilizer.",
+        "repotting": "Repot every 1–2 years to support its growth.",
+        "cleaning": "Wipe large leaves regularly to keep them shiny and dust-free."
+      }
+    },
+    {
+      "id": 9,
+      "name": "Lucky Bamboo",
+      "scientificName": "Dracaena sanderiana",
+      "image": "https://placehold.co/400x300/6FA25A/ffffff?text=Lucky+Bamboo",
+      "light": "Low",
+      "water": "High",
+      "humidity": "Average",
+      "temperature": "18–27°C",
+      "space": "Small",
+      "maintenance": "Low",
+      "difficulty": "Easy",
+      "size": "Small",
+      "indoorSuitability": "Highly Suitable",
+      "description": "A symbolic, low-maintenance plant often grown in water or moist soil, popular for desks and small spaces.",
+      "careGuide": {
+        "watering": "If grown in water, change it every 1–2 weeks and keep the roots submerged.",
+        "fertilizer": "Feed lightly every 2 months with a diluted liquid fertilizer.",
+        "repotting": "Change its container only when it outgrows its current space.",
+        "cleaning": "Rinse stalks and leaves occasionally with clean water."
+      }
+    }
+  ]
+}

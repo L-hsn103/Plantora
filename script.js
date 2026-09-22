@@ -1,0 +1,444 @@
+/* =============================================================
+   PLANTORA — script.js
+   -------------------------------------------------------------
+   This one file is shared by every page. It currently does
+   three jobs:
+
+     1. PLANT DATA        — tries to load plants.json first; if
+                              that fails (e.g. opened directly via
+                              file://) it falls back to the sample
+                              list below. Used by both Explore
+                              Plants and Plant Details.
+     2. EXPLORE PLANTS     — builds the plant cards, and handles
+                              search + filters (only runs on
+                              explore.html)
+     3. PLANT DETAILS      — reads the plant id from the page URL
+                              and fills in plant-details.html (only
+                              runs on plant-details.html)
+
+   Each section checks whether the elements it needs exist on the
+   current page before running, so this single file works safely
+   on index.html, explore.html and plant-details.html.
+
+   The page-specific parts only run after the data is ready, so
+   both Explore Plants and Plant Details always have the full list.
+   ============================================================= */
+
+/* -------------------------------------------------------------
+   1. PLANT DATA
+   -------------------------------------------------------------
+   The following array is the built-in fallback dataset, used when
+   plants.json can't be loaded (e.g. the page is opened straight
+   from the file system). If plants.json exists next to this file,
+   its contents take priority and replace this list.
+
+   This is also the schema your own plants.json should follow when
+   you replace it with the real data later.
+
+   NOTE ON IMAGES: these use placehold.co, a free placeholder
+   image service, so the page works immediately with no image
+   files needed. They are TEMPORARY — swap them for real local
+   images later.
+   ------------------------------------------------------------- */
+const plants = [
+  {
+    id: 1,
+    name: "Snake Plant",
+    scientificName: "Dracaena trifasciata",
+    image: "https://placehold.co/400x300/6FA25A/ffffff?text=Snake+Plant",
+    light: "Low",
+    water: "Low",
+    humidity: "Low to Average",
+    temperature: "18–30°C",
+    space: "Small to Medium",
+    maintenance: "Low",
+    difficulty: "Easy",
+    size: "Medium",
+    indoorSuitability: "Highly Suitable",
+    description:
+      "A tough, low-maintenance plant that tolerates low light and irregular watering, making it a great choice for beginners.",
+    careGuide: {
+      watering: "Water only when the soil is completely dry, roughly every 2–3 weeks.",
+      fertilizer: "Feed with a diluted liquid fertilizer once every 1–2 months during spring and summer.",
+      repotting: "Repot every 2–3 years, or once the roots outgrow the pot.",
+      cleaning: "Wipe leaves with a damp cloth every few weeks to remove dust.",
+    },
+  },
+  {
+    id: 2,
+    name: "Money Plant (Pothos)",
+    scientificName: "Epipremnum aureum",
+    image: "https://placehold.co/400x300/6FA25A/ffffff?text=Pothos",
+    light: "Medium",
+    water: "Medium",
+    humidity: "Average",
+    temperature: "18–29°C",
+    space: "Small",
+    maintenance: "Low",
+    difficulty: "Easy",
+    size: "Small",
+    indoorSuitability: "Highly Suitable",
+    description:
+      "A fast-growing trailing vine that adapts well to most indoor spaces and is very forgiving for new plant owners.",
+    careGuide: {
+      watering: "Water when the top inch of soil feels dry, about once a week.",
+      fertilizer: "Feed monthly with a balanced liquid fertilizer during the growing season.",
+      repotting: "Repot every 1–2 years or when roots fill the pot.",
+      cleaning: "Rinse leaves under water occasionally to keep them dust-free.",
+    },
+  },
+  {
+    id: 3,
+    name: "Spider Plant",
+    scientificName: "Chlorophytum comosum",
+    image: "https://placehold.co/400x300/6FA25A/ffffff?text=Spider+Plant",
+    light: "Medium",
+    water: "Medium",
+    humidity: "Average",
+    temperature: "18–27°C",
+    space: "Small",
+    maintenance: "Low",
+    difficulty: "Easy",
+    size: "Small",
+    indoorSuitability: "Highly Suitable",
+    description:
+      "A resilient plant known for its arching leaves and small offshoot 'babies', ideal for hanging baskets or shelves.",
+    careGuide: {
+      watering: "Water when the topsoil dries out, about once a week.",
+      fertilizer: "Feed lightly once a month during spring and summer.",
+      repotting: "Repot every 1–2 years as it grows quickly.",
+      cleaning: "Trim brown leaf tips and dust leaves occasionally.",
+    },
+  },
+  {
+    id: 4,
+    name: "Peace Lily",
+    scientificName: "Spathiphyllum wallisii",
+    image: "https://placehold.co/400x300/6FA25A/ffffff?text=Peace+Lily",
+    light: "Low",
+    water: "High",
+    humidity: "High",
+    temperature: "18–27°C",
+    space: "Medium",
+    maintenance: "Medium",
+    difficulty: "Medium",
+    size: "Medium",
+    indoorSuitability: "Suitable",
+    description:
+      "An elegant flowering plant that thrives in shady spots and signals when it needs water by drooping slightly.",
+    careGuide: {
+      watering: "Keep soil consistently moist; water when the top inch feels dry, roughly twice a week.",
+      fertilizer: "Feed every 6–8 weeks with a balanced liquid fertilizer.",
+      repotting: "Repot once a year or when it becomes root-bound.",
+      cleaning: "Wipe leaves gently to keep them glossy and dust-free.",
+    },
+  },
+  {
+    id: 5,
+    name: "Aloe Vera",
+    scientificName: "Aloe barbadensis miller",
+    image: "https://placehold.co/400x300/6FA25A/ffffff?text=Aloe+Vera",
+    light: "Bright",
+    water: "Low",
+    humidity: "Low",
+    temperature: "13–27°C",
+    space: "Small",
+    maintenance: "Low",
+    difficulty: "Easy",
+    size: "Small",
+    indoorSuitability: "Suitable",
+    description:
+      "A hardy succulent that stores water in its leaves, making it drought-tolerant and easy to care for.",
+    careGuide: {
+      watering: "Water deeply but infrequently; let the soil dry out completely between waterings.",
+      fertilizer: "Feed once or twice a year with a cactus/succulent fertilizer.",
+      repotting: "Repot every 2 years or when it outgrows its container.",
+      cleaning: "Wipe leaves occasionally; avoid overwatering to prevent rot.",
+    },
+  },
+  {
+    id: 6,
+    name: "ZZ Plant",
+    scientificName: "Zamioculcas zamiifolia",
+    image: "https://placehold.co/400x300/6FA25A/ffffff?text=ZZ+Plant",
+    light: "Low",
+    water: "Low",
+    humidity: "Low to Average",
+    temperature: "18–26°C",
+    space: "Medium",
+    maintenance: "Low",
+    difficulty: "Easy",
+    size: "Medium",
+    indoorSuitability: "Highly Suitable",
+    description:
+      "A glossy, drought-tolerant plant that thrives on neglect, perfect for busy students and low-light rooms.",
+    careGuide: {
+      watering: "Water only when the soil is fully dry, roughly every 2–3 weeks.",
+      fertilizer: "Feed sparingly, about once every 2 months during the growing season.",
+      repotting: "Repot every 2–3 years, as growth is slow.",
+      cleaning: "Dust leaves occasionally with a soft cloth.",
+    },
+  },
+  {
+    id: 7,
+    name: "Areca Palm",
+    scientificName: "Dypsis lutescens",
+    image: "https://placehold.co/400x300/6FA25A/ffffff?text=Areca+Palm",
+    light: "Bright",
+    water: "Medium",
+    humidity: "High",
+    temperature: "18–29°C",
+    space: "Large",
+    maintenance: "Medium",
+    difficulty: "Medium",
+    size: "Large",
+    indoorSuitability: "Suitable",
+    description:
+      "A graceful, feathery palm that adds a tropical feel and helps soften larger indoor spaces.",
+    careGuide: {
+      watering: "Water when the top inch of soil is dry, keeping soil lightly moist.",
+      fertilizer: "Feed monthly during spring and summer with a balanced fertilizer.",
+      repotting: "Repot every 2 years or when roots become crowded.",
+      cleaning: "Mist or wipe the fronds occasionally to prevent dust buildup.",
+    },
+  },
+  {
+    id: 8,
+    name: "Rubber Plant",
+    scientificName: "Ficus elastica",
+    image: "https://placehold.co/400x300/6FA25A/ffffff?text=Rubber+Plant",
+    light: "Medium",
+    water: "Medium",
+    humidity: "Average",
+    temperature: "16–27°C",
+    space: "Large",
+    maintenance: "Medium",
+    difficulty: "Medium",
+    size: "Large",
+    indoorSuitability: "Suitable",
+    description:
+      "A bold plant with large, glossy leaves that makes a striking statement piece in any room.",
+    careGuide: {
+      watering: "Water when the top inch of soil feels dry, about once a week.",
+      fertilizer: "Feed monthly during the growing season with a balanced fertilizer.",
+      repotting: "Repot every 1–2 years to support its growth.",
+      cleaning: "Wipe large leaves regularly to keep them shiny and dust-free.",
+    },
+  },
+  {
+    id: 9,
+    name: "Lucky Bamboo",
+    scientificName: "Dracaena sanderiana",
+    image: "https://placehold.co/400x300/6FA25A/ffffff?text=Lucky+Bamboo",
+    light: "Low",
+    water: "High",
+    humidity: "Average",
+    temperature: "18–27°C",
+    space: "Small",
+    maintenance: "Low",
+    difficulty: "Easy",
+    size: "Small",
+    indoorSuitability: "Highly Suitable",
+    description:
+      "A symbolic, low-maintenance plant often grown in water or moist soil, popular for desks and small spaces.",
+    careGuide: {
+      watering: "If grown in water, change it every 1–2 weeks and keep the roots submerged.",
+      fertilizer: "Feed lightly every 2 months with a diluted liquid fertilizer.",
+      repotting: "Change its container only when it outgrows its current space.",
+      cleaning: "Rinse stalks and leaves occasionally with clean water.",
+    },
+  },
+];
+
+/* -------------------------------------------------------------
+   JSON DATA LOADER
+   -------------------------------------------------------------
+   Tries to fetch plants.json and replaces the built-in list above
+   with whatever it contains. If the file is missing or the browser
+   blocks the request (common when opening via file://), the
+   built-in sample data is kept instead.
+   ------------------------------------------------------------- */
+async function loadPlantData() {
+  try {
+    const res = await fetch("plants.json");
+    if (!res.ok) throw new Error("plants.json unavailable");
+    const data = await res.json();
+    if (Array.isArray(data.plants) && data.plants.length > 0) {
+      plants.length = 0;
+      plants.push(...data.plants);
+    }
+  } catch {
+    // Keep the built-in sample data above.
+  }
+}
+
+/* -------------------------------------------------------------
+   2. EXPLORE PLANTS PAGE
+   -------------------------------------------------------------
+   Everything in this block only runs if #plant-grid exists on
+   the current page — so this file is safe to include everywhere.
+   ------------------------------------------------------------- */
+function initExplorePage() {
+  const plantGrid = document.getElementById("plant-grid");
+
+  if (!plantGrid) return;
+
+  const searchInput = document.getElementById("search-input");
+  const filterLight = document.getElementById("filter-light");
+  const filterWater = document.getElementById("filter-water");
+  const filterMaintenance = document.getElementById("filter-maintenance");
+  const filterSize = document.getElementById("filter-size");
+  const filterSuitability = document.getElementById("filter-suitability");
+  const noResultsMessage = document.getElementById("no-results");
+
+  // Turn one plant object into a card's HTML
+  function createPlantCard(plant) {
+    return `
+      <article class="plant-card">
+        <img class="plant-card__image" src="${plant.image}" alt="${plant.name}" />
+        <div class="plant-card__content">
+          <h3 class="plant-card__title">${plant.name}</h3>
+          <p class="plant-card__scientific">${plant.scientificName}</p>
+          <ul class="plant-card__meta">
+            <li>Light: ${plant.light}</li>
+            <li>Water: ${plant.water}</li>
+            <li>Maintenance: ${plant.maintenance}</li>
+          </ul>
+          <a href="plant-details.html?id=${plant.id}" class="btn btn--secondary plant-card__btn">View Details</a>
+        </div>
+      </article>
+    `;
+  }
+
+  // Draw a list of plants into the grid, and show/hide the
+  // "no results" message depending on how many were found
+  function renderPlants(list) {
+    plantGrid.innerHTML = list.map(createPlantCard).join("");
+    noResultsMessage.hidden = list.length > 0;
+  }
+
+  // Read the current search text + every filter dropdown, and
+  // return only the plants that match ALL of them at once
+  function getFilteredPlants() {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    const light = filterLight.value;
+    const water = filterWater.value;
+    const maintenance = filterMaintenance.value;
+    const size = filterSize.value;
+    const suitability = filterSuitability.value;
+
+    return plants.filter((plant) => {
+      const matchesSearch =
+        plant.name.toLowerCase().includes(searchTerm) ||
+        plant.scientificName.toLowerCase().includes(searchTerm);
+
+      const matchesLight = light === "All" || plant.light === light;
+      const matchesWater = water === "All" || plant.water === water;
+      const matchesMaintenance = maintenance === "All" || plant.maintenance === maintenance;
+      const matchesSize = size === "All" || plant.size === size;
+      const matchesSuitability = suitability === "All" || plant.indoorSuitability === suitability;
+
+      return (
+        matchesSearch &&
+        matchesLight &&
+        matchesWater &&
+        matchesMaintenance &&
+        matchesSize &&
+        matchesSuitability
+      );
+    });
+  }
+
+  // Re-run the filter + search logic and redraw the grid
+  function updateResults() {
+    renderPlants(getFilteredPlants());
+  }
+
+  // Run updateResults() every time the user types or changes a filter
+  searchInput.addEventListener("input", updateResults);
+  filterLight.addEventListener("change", updateResults);
+  filterWater.addEventListener("change", updateResults);
+  filterMaintenance.addEventListener("change", updateResults);
+  filterSize.addEventListener("change", updateResults);
+  filterSuitability.addEventListener("change", updateResults);
+
+  // Show every plant when the page first loads
+  renderPlants(plants);
+}
+
+/* -------------------------------------------------------------
+   3. PLANT DETAILS PAGE
+   -------------------------------------------------------------
+   Everything in this block only runs if #plant-name exists on
+   the current page (i.e. we're on plant-details.html).
+   ------------------------------------------------------------- */
+function initDetailsPage() {
+  const plantNameEl = document.getElementById("plant-name");
+
+  if (!plantNameEl) return;
+
+  // Read the "id" value from the page URL, e.g. plant-details.html?id=2
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedId = Number(urlParams.get("id"));
+
+  // Find the matching plant. If no id was given (or it doesn't
+  // match anything), fall back to the first plant (Snake Plant).
+  const plant = plants.find((p) => p.id === requestedId) || plants[0];
+
+  // --- Fill in the hero section ---
+  const imageEl = document.getElementById("plant-image");
+  imageEl.src = plant.image;
+  imageEl.alt = plant.name;
+
+  plantNameEl.textContent = plant.name;
+  document.getElementById("plant-scientific").textContent = plant.scientificName;
+  document.getElementById("plant-short-description").textContent = plant.description;
+
+  // --- Fill in the requirements grid ---
+  document.getElementById("req-light").textContent = plant.light;
+  document.getElementById("req-water").textContent = plant.water;
+  document.getElementById("req-humidity").textContent = plant.humidity;
+  document.getElementById("req-temperature").textContent = plant.temperature;
+  document.getElementById("req-space").textContent = plant.space;
+  document.getElementById("req-maintenance").textContent = plant.maintenance;
+  document.getElementById("req-difficulty").textContent = plant.difficulty;
+  document.getElementById("req-suitability").textContent = plant.indoorSuitability;
+
+  // --- Fill in "About This Plant" ---
+  document.getElementById("plant-description").textContent = plant.description;
+
+  // --- Fill in the Care Guide ---
+  document.getElementById("care-watering").textContent = plant.careGuide.watering;
+  document.getElementById("care-fertilizer").textContent = plant.careGuide.fertilizer;
+  document.getElementById("care-repotting").textContent = plant.careGuide.repotting;
+  document.getElementById("care-cleaning").textContent = plant.careGuide.cleaning;
+
+  // --- Fill in the Indoor Suitability banner ---
+  document.getElementById("suitability-value").textContent = plant.indoorSuitability;
+  document.getElementById("suitability-note").textContent =
+    plant.name +
+    " is " +
+    plant.indoorSuitability.toLowerCase() +
+    " for indoor spaces thanks to its " +
+    plant.difficulty.toLowerCase() +
+    " care needs.";
+
+  // --- "Add to My Plants" button ---
+  // This is just a prototype for now — the real My Plants system
+  // will be built later.
+  document.getElementById("add-to-my-plants").addEventListener("click", () => {
+    alert(plant.name + " added to My Plants!");
+  });
+}
+
+/* -------------------------------------------------------------
+   BOOT
+   -------------------------------------------------------------
+   Load the data first (plants.json if possible), then let each
+   page initialize its own widgets.
+   ------------------------------------------------------------- */
+(async function boot() {
+  await loadPlantData();
+  initExplorePage();
+  initDetailsPage();
+})();

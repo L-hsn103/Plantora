@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plant Details — Plantora</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Reuses style.css (shared theme) and explore.css (content-page styles) -->
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="explore.css" />
+</head>
+<body>
+
+  <!-- =========================================================
+       NAVBAR (same structure as index.html)
+       ========================================================= -->
+  <header class="navbar">
+    <div class="container navbar__inner">
+      <a href="index.html" class="logo">🌿 Plantora</a>
+
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="#">Recommendation</a>
+        <a href="#">My Plants</a>
+        <a href="index.html#about">About</a>
+      </nav>
+
+      <a href="#" class="btn btn--primary nav-cta">Get Started</a>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="container">
+      <a href="explore.html" class="back-link">&larr; Back to Explore Plants</a>
+    </div>
+
+    <!-- =========================================================
+         PLANT HERO — image + name + short description
+         All text here is filled in by script.js based on ?id= in the URL
+         ========================================================= -->
+    <section class="plant-hero">
+      <div class="container plant-hero__inner">
+        <img class="plant-hero__image" id="plant-image" src="" alt="" />
+
+        <div class="plant-hero__info">
+          <h1 id="plant-name">Plant name</h1>
+          <p class="plant-hero__scientific" id="plant-scientific">Scientific name</p>
+          <p class="plant-hero__description" id="plant-short-description">Short description</p>
+          <button class="btn btn--primary" id="add-to-my-plants">Add to My Plants</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PLANT REQUIREMENTS
+         ========================================================= -->
+    <section class="plant-requirements">
+      <div class="container">
+        <h2 class="section-title">Plant Requirements</h2>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-item__label">Light</span>
+            <span class="info-item__value" id="req-light"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Water</span>
+            <span class="info-item__value" id="req-water"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Humidity</span>
+            <span class="info-item__value" id="req-humidity"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Temperature</span>
+            <span class="info-item__value" id="req-temperature"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Space</span>
+            <span class="info-item__value" id="req-space"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Maintenance</span>
+            <span class="info-item__value" id="req-maintenance"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Difficulty</span>
+            <span class="info-item__value" id="req-difficulty"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Indoor Suitability</span>
+            <span class="info-item__value" id="req-suitability"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         ABOUT THIS PLANT
+         ========================================================= -->
+    <section class="plant-about">
+      <div class="container">
+        <h2 class="section-title">About This Plant</h2>
+        <p id="plant-description"></p>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         CARE GUIDE
+         ========================================================= -->
+    <section class="care-guide">
+      <div class="container">
+        <h2 class="section-title">Care Guide</h2>
+
+        <div class="care-guide__grid">
+          <div class="care-guide__item">
+            <h3>💧 Watering</h3>
+            <p id="care-watering"></p>
+          </div>
+          <div class="care-guide__item">
+            <h3>🌿 Fertilizing</h3>
+            <p id="care-fertilizer"></p>
+          </div>
+          <div class="care-guide__item">
+            <h3>🪴 Repotting</h3>
+            <p id="care-repotting"></p>
+          </div>
+          <div class="care-guide__item">
+            <h3>🧹 Cleaning</h3>
+            <p id="care-cleaning"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         INDOOR SUITABILITY
+         ========================================================= -->
+    <section class="suitability">
+      <div class="container">
+        <div class="suitability-banner">
+          <h2>Indoor Suitability</h2>
+          <p class="suitability-banner__value" id="suitability-value"></p>
+          <p class="suitability-banner__note" id="suitability-note"></p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================
+       FOOTER (same structure as index.html)
+       ========================================================= -->
+  <footer class="footer" id="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <p class="logo logo--footer">🌿 Plantora</p>
+        <p>Helping you grow a greener space, one plant at a time.</p>
+      </div>
+
+      <nav class="footer__links">
+        <a href="index.html">Home</a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="#">Recommendation</a>
+        <a href="#">My Plants</a>
+      </nav>
+    </div>
+
+    <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,438 @@
+/* =============================================================
+   PLANTORA — EXPLORE PLANTS & PLANT DETAILS STYLES
+   -------------------------------------------------------------
+   This file is loaded AFTER style.css on both explore.html and
+   plant-details.html, so it reuses the shared theme (colors,
+   fonts, navbar, buttons, footer) already defined there and only
+   adds the styles needed for these two pages.
+   -------------------------------------------------------------
+   Sections:
+   1. Supporting variables (safe to keep even if already defined
+      in style.css — same values, just here as a backup)
+   2. Navbar "active" link
+   3. Page header (Explore Plants title)
+   4. Search box
+   5. Filter bar
+   6. Plant card grid
+   7. No results message
+   8. Plant Details: hero, requirements grid, care guide, suitability
+   9. Responsive media queries
+   ============================================================= */
+
+/* -------------------------------------------------------------
+   1. SUPPORTING VARIABLES
+   The 4 main brand colors already exist in style.css:
+   --color-bg, --color-primary, --color-secondary, --color-accent
+   These extra ones support this page's cards/inputs and match the
+   Home page's existing tones.
+   ------------------------------------------------------------- */
+:root {
+  --color-surface: #ffffff;
+  --color-bg-alt: #eaf0e1;
+  --color-text: #2b2b26;
+  --color-text-muted: #5c6355;
+  --color-border: #dce4d2;
+  --radius-md: 16px;
+  --shadow-soft: 0 12px 30px -18px rgba(23, 48, 31, 0.2);
+}
+
+/* -------------------------------------------------------------
+   2. NAVBAR "ACTIVE" LINK
+   Highlights whichever page the visitor is currently on.
+   ------------------------------------------------------------- */
+.nav-links a.active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------
+   3. PAGE HEADER
+   ------------------------------------------------------------- */
+.explore-header {
+  padding: 3.5rem 0 2rem;
+  text-align: center;
+}
+
+.explore-header h1 {
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  font-size: 2.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.explore-header p {
+  color: var(--color-text-muted);
+  max-width: 46ch;
+  margin: 0 auto;
+}
+
+/* -------------------------------------------------------------
+   4. SEARCH BOX
+   ------------------------------------------------------------- */
+.explore-controls {
+  padding-bottom: 2.5rem;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.7rem 1.1rem;
+  max-width: 420px;
+  margin: 0 auto 1.75rem;
+}
+
+.search-box__icon {
+  font-size: 1rem;
+}
+
+.search-box__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+/* -------------------------------------------------------------
+   5. FILTER BAR
+   ------------------------------------------------------------- */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 150px;
+}
+
+.filter-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.filter-group select {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+}
+
+.filter-group select:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* -------------------------------------------------------------
+   6. PLANT CARD GRID
+   ------------------------------------------------------------- */
+.explore-results {
+  padding-bottom: 5rem;
+}
+
+.plant-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+}
+
+.plant-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.plant-card__image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  background-color: var(--color-bg-alt);
+}
+
+.plant-card__content {
+  padding: 1.25rem 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.plant-card__title {
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  font-size: 1.15rem;
+  margin-bottom: 0.2rem;
+}
+
+.plant-card__scientific {
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.9rem;
+}
+
+.plant-card__meta {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.plant-card__btn {
+  margin-top: auto;
+  text-align: center;
+}
+
+/* -------------------------------------------------------------
+   7. NO RESULTS MESSAGE
+   ------------------------------------------------------------- */
+.no-results {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 3rem 0;
+}
+
+/* -------------------------------------------------------------
+   8. PLANT DETAILS PAGE
+   ------------------------------------------------------------- */
+.back-link {
+  display: inline-block;
+  margin-top: 1.75rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.back-link:hover {
+  color: var(--color-primary);
+}
+
+/* --- Hero: image + name/description --- */
+.plant-hero {
+  padding: 2.5rem 0 3.5rem;
+}
+
+.plant-hero__inner {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+}
+
+.plant-hero__image {
+  width: 340px;
+  height: 260px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.plant-hero__info h1 {
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  font-size: 2.1rem;
+  margin-bottom: 0.35rem;
+}
+
+.plant-hero__scientific {
+  font-style: italic;
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+}
+
+.plant-hero__description {
+  color: var(--color-text);
+  max-width: 50ch;
+  margin-bottom: 1.5rem;
+}
+
+/* --- Requirements grid --- */
+.plant-requirements {
+  padding: 3rem 0;
+  background-color: var(--color-bg-alt);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.info-item {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.info-item__label {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.info-item__value {
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  font-size: 1.05rem;
+}
+
+/* --- About This Plant --- */
+.plant-about {
+  padding: 3.5rem 0;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.plant-about p {
+  color: var(--color-text);
+}
+
+/* --- Care Guide --- */
+.care-guide {
+  padding: 3rem 0 3.5rem;
+  background-color: var(--color-bg-alt);
+}
+
+.care-guide__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.care-guide__item {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1.75rem;
+}
+
+.care-guide__item h3 {
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.care-guide__item p {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+/* --- Indoor Suitability banner --- */
+.suitability {
+  padding: 3.5rem 0 4.5rem;
+}
+
+.suitability-banner {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 2rem 2.5rem;
+  text-align: center;
+}
+
+.suitability-banner h2 {
+  color: #ffffff;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.suitability-banner__value {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  color: var(--color-accent);
+  margin-bottom: 0.5rem;
+}
+
+.suitability-banner__note {
+  color: #eef3e7;
+  max-width: 52ch;
+  margin: 0 auto;
+  font-size: 0.92rem;
+}
+
+/* -------------------------------------------------------------
+   9. RESPONSIVE MEDIA QUERIES
+   ------------------------------------------------------------- */
+
+/* Tablet */
+@media (max-width: 900px) {
+  .plant-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .care-guide__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plant-hero__inner {
+    gap: 2rem;
+  }
+
+  .plant-hero__image {
+    width: 280px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    min-width: 0;
+  }
+
+  .plant-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plant-hero__inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .plant-hero__image {
+    width: 100%;
+    height: 220px;
+  }
+
+  .plant-hero__description {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .suitability-banner {
+    padding: 1.75rem 1.5rem;
+  }
+}
