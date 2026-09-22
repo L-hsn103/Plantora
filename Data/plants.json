@@ -4,7 +4,7 @@
       "id": 1,
       "name": "Snake Plant",
       "scientificName": "Dracaena trifasciata",
-      "image": "https://placehold.co/400x300/6FA25A/ffffff?text=Snake+Plant",
+      "image": "image/snake-plant.jpg",
       "light": "Low",
       "water": "Low",
       "humidity": "Low to Average",

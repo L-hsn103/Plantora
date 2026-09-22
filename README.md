@@ -17,18 +17,18 @@ Plantora is built with vanilla HTML, CSS, and JavaScript. It features a nature-i
 - **Hero Section** — Compelling headline, description, and dual CTAs with decorative organic visual
 - **Features Grid** — 4 benefit cards with hover effects
 - **How It Works** — 3-step process illustration
-- **Explore Plants** — Searchable, filterable plant catalog rendered from `plants.json`
+- **Explore Plants** — Searchable, filterable plant catalog rendered from `Data/plants.json`
 - **Plant Details** — Per-plant requirements & care guide on a separate page
 - **Sticky Navbar** — Logo, navigation links, and primary CTA (active page highlighted)
 - **Footer** — Brand info and navigation links
-- **URL loading** — `script.js` tries `plants.json` first, falling back to built-in sample data
+- **URL loading** — `script.js` tries `Data/plants.json` first, falling back to built-in sample data
 
 ## Tech Stack
 
 - **HTML5** — Semantic, accessible markup
 - **CSS3** — Custom properties (variables), Flexbox, Grid, media queries
 - **Vanilla JavaScript** — Data loading, search, filtering, and dynamic rendering
-- **JSON** — Plant data in `plants.json`
+- **JSON** — Plant data in `Data/plants.json`
 - **Google Fonts** — Fraunces (headings) + Inter (body)
 
 ## Project Structure
@@ -38,7 +38,7 @@ Plantora/
 ├── index.html         # Landing page
 ├── explore.html       # Plant catalog (search + filters)
 ├── plant-details.html # Individual plant detail page
-├── plants.json        # Plant data (single source of truth)
+├── Data/plants.json  # Plant data (single source of truth)
 ├── style.css          # Shared theme styles
 ├── explore.css        # Catalog + detail page styles
 ├── script.js          # Shared logic (data, catalog, details)
@@ -53,16 +53,16 @@ No build step or dependencies required.
 # Option 1: Open index.html directly in a browser
 open index.html
 
-# Option 2: Serve locally (recommended so plants.json loads over the network)
+# Option 2: Serve locally (recommended so Data/plants.json loads over the network)
 python -m http.server 8000
 # Then visit http://localhost:8000
 ```
 
-> **Note:** `script.js` fetches `plants.json`. When you open files directly via `file://`, some browsers block that request — in that case the built-in sample data in `script.js` is used instead.
+> **Note:** `script.js` fetches `Data/plants.json`. When you open files directly via `file://`, some browsers block that request — in that case the built-in sample data in `script.js` is used instead.
 
-## Plant Data (plants.json)
+## Plant Data (Data/plants.json)
 
-All plant info lives in `plants.json`. Add or edit entries there — both the catalog and detail pages will pick them up automatically. Each entry follows this schema:
+All plant info lives in `Data/plants.json`. Add or edit entries there — both the catalog and detail pages will pick them up automatically. Each entry follows this schema:
 
 ```json
 {

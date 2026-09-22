@@ -4,7 +4,7 @@
    This one file is shared by every page. It currently does
    three jobs:
 
-     1. PLANT DATA        — tries to load plants.json first; if
+     1. PLANT DATA        — tries to load Data/plants.json first; if
                               that fails (e.g. opened directly via
                               file://) it falls back to the sample
                               list below. Used by both Explore
@@ -28,11 +28,11 @@
    1. PLANT DATA
    -------------------------------------------------------------
    The following array is the built-in fallback dataset, used when
-   plants.json can't be loaded (e.g. the page is opened straight
-   from the file system). If plants.json exists next to this file,
+Data/plants.json can't be loaded (e.g. the page is opened straight
+    from the file system). If Data/plants.json exists next to this file,
    its contents take priority and replace this list.
 
-   This is also the schema your own plants.json should follow when
+   This is also the schema your own Data/plants.json should follow when
    you replace it with the real data later.
 
    NOTE ON IMAGES: these use placehold.co, a free placeholder
@@ -253,15 +253,15 @@ const plants = [
 /* -------------------------------------------------------------
    JSON DATA LOADER
    -------------------------------------------------------------
-   Tries to fetch plants.json and replaces the built-in list above
+   Tries to fetch Data/plants.json and replaces the built-in list above
    with whatever it contains. If the file is missing or the browser
    blocks the request (common when opening via file://), the
    built-in sample data is kept instead.
    ------------------------------------------------------------- */
 async function loadPlantData() {
   try {
-    const res = await fetch("plants.json");
-    if (!res.ok) throw new Error("plants.json unavailable");
+    const res = await fetch("Data/plants.json");
+    if (!res.ok) throw new Error("Data/plants.json unavailable");
     const data = await res.json();
     if (Array.isArray(data.plants) && data.plants.length > 0) {
       plants.length = 0;
@@ -434,7 +434,7 @@ function initDetailsPage() {
 /* -------------------------------------------------------------
    BOOT
    -------------------------------------------------------------
-   Load the data first (plants.json if possible), then let each
+   Load the data first (Data/plants.json if possible), then let each
    page initialize its own widgets.
    ------------------------------------------------------------- */
 (async function boot() {
