@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Plants — Plantora</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Reuse the shared Plantora theme: colors, fonts, navbar, buttons, footer -->
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* =============================================================
+       MY PLANTS PAGE — page-specific styles
+       -------------------------------------------------------------
+       Kept inline here since no second CSS file is allowed. Colors
+       and fonts reuse the variables already defined in style.css's
+       :root (with safe fallbacks, just in case a name differs).
+       ============================================================= */
+
+    /* Highlight "My Plants" as the active nav link */
+    .nav-links a.active {
+      color: var(--color-primary, #2d5a3d);
+      font-weight: 600;
+    }
+
+    .page-section {
+      padding: 3rem 0;
+    }
+
+    .page-section--alt {
+      background-color: var(--color-bg-alt, #eaf0e1);
+    }
+
+    .section-title {
+      font-family: var(--font-heading, "Fraunces", serif);
+      color: var(--color-primary, #2d5a3d);
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+    }
+
+    /* -------------------------------------------------------------
+       PAGE HEADER
+       ------------------------------------------------------------- */
+    .my-plants-header {
+      padding: 3rem 0 2.5rem;
+    }
+
+    .my-plants-header__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .my-plants-header h1 {
+      font-family: var(--font-heading, "Fraunces", serif);
+      color: var(--color-primary, #2d5a3d);
+      font-size: 2.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .my-plants-header p {
+      font-family: var(--font-body, "Inter", sans-serif);
+      color: var(--color-text-muted, #5c6355);
+    }
+
+    /* -------------------------------------------------------------
+       PLANT CARD GRID
+       ------------------------------------------------------------- */
+    .plant-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .plant-card {
+      background-color: #ffffff;
+      border: 1px solid var(--color-border, #dce4d2);
+      border-radius: 16px;
+      padding: 1.5rem 1.5rem 1.75rem;
+      box-shadow: 0 12px 30px -20px rgba(23, 48, 31, 0.2);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .plant-card__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .plant-card__header h3 {
+      font-family: var(--font-heading, "Fraunces", serif);
+      color: var(--color-primary, #2d5a3d);
+      font-size: 1.15rem;
+    }
+
+    .status-pill {
+      display: inline-block;
+      font-family: var(--font-body, "Inter", sans-serif);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 999px;
+      padding: 0.25rem 0.75rem;
+      white-space: nowrap;
+    }
+
+    .status-pill--healthy {
+      background-color: #e4f0dd;
+      color: var(--color-primary, #2d5a3d);
+    }
+
+    .status-pill--needs-water {
+      background-color: #fbf0d9;
+      color: #8a6414;
+    }
+
+    .plant-card__meta {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem;
+      font-family: var(--font-body, "Inter", sans-serif);
+      font-size: 0.9rem;
+      color: var(--color-text, #2b2b26);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .plant-card .btn {
+      margin-top: auto;
+      align-self: flex-start;
+    }
+
+    /* -------------------------------------------------------------
+       "KEEP YOUR PLANTS HEALTHY" SECTION
+       ------------------------------------------------------------- */
+    .section-intro {
+      font-family: var(--font-body, "Inter", sans-serif);
+      color: var(--color-text-muted, #5c6355);
+      max-width: 56ch;
+      margin-bottom: 2rem;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .action-card {
+      background-color: #ffffff;
+      border: 1px solid var(--color-border, #dce4d2);
+      border-radius: 16px;
+      padding: 1.75rem 1.5rem;
+      text-align: left;
+    }
+
+    .action-card__icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background-color: var(--color-bg-alt, #eaf0e1);
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    .action-card h3 {
+      font-family: var(--font-heading, "Fraunces", serif);
+      color: var(--color-primary, #2d5a3d);
+      font-size: 1.05rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .action-card p {
+      font-family: var(--font-body, "Inter", sans-serif);
+      color: var(--color-text-muted, #5c6355);
+      font-size: 0.9rem;
+    }
+
+    /* -------------------------------------------------------------
+       RESPONSIVE MEDIA QUERIES
+       ------------------------------------------------------------- */
+    @media (max-width: 900px) {
+      .plant-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .my-plants-header__inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .plant-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================
+       NAVBAR (same structure as other Plantora pages)
+       ========================================================= -->
+  <header class="navbar">
+    <div class="container navbar__inner">
+      <a href="index.html" class="logo">🌿 Plantora</a>
+
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="my-plants.html" class="active" aria-current="page">My Plants</a>
+        <a href="index.html#about">About</a>
+      </nav>
+
+      <a href="index.html" class="btn btn--secondary nav-cta">Logout</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- =========================================================
+         PAGE HEADER
+         ========================================================= -->
+    <section class="my-plants-header">
+      <div class="container my-plants-header__inner">
+        <div>
+          <h1>My Plants</h1>
+          <p>Keep track of your plants and stay on top of their care.</p>
+        </div>
+
+        <!-- Prototype only: shows a placeholder alert for now -->
+        <button
+          type="button"
+          class="btn btn--primary"
+          onclick="alert('Plant adding feature will be available soon.')"
+        >
+          + Add Plant
+        </button>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PLANT CARDS (sample data)
+         ========================================================= -->
+    <section class="page-section">
+      <div class="container">
+        <div class="plant-grid">
+
+          <article class="plant-card">
+            <div class="plant-card__header">
+              <h3>Snake Plant</h3>
+              <span class="status-pill status-pill--healthy">Healthy</span>
+            </div>
+            <ul class="plant-card__meta">
+              <li>Next watering: Today</li>
+              <li>Care: Low maintenance</li>
+            </ul>
+            <button
+              type="button"
+              class="btn btn--secondary"
+              onclick="alert('Plant details will be connected soon.')"
+            >
+              View Details
+            </button>
+          </article>
+
+          <article class="plant-card">
+            <div class="plant-card__header">
+              <h3>Money Plant</h3>
+              <span class="status-pill status-pill--needs-water">Needs Water</span>
+            </div>
+            <ul class="plant-card__meta">
+              <li>Next watering: Tomorrow</li>
+              <li>Care: Moderate maintenance</li>
+            </ul>
+            <button
+              type="button"
+              class="btn btn--secondary"
+              onclick="alert('Plant details will be connected soon.')"
+            >
+              View Details
+            </button>
+          </article>
+
+          <article class="plant-card">
+            <div class="plant-card__header">
+              <h3>Peace Lily</h3>
+              <span class="status-pill status-pill--healthy">Healthy</span>
+            </div>
+            <ul class="plant-card__meta">
+              <li>Next watering: In 3 days</li>
+              <li>Care: Moderate maintenance</li>
+            </ul>
+            <button
+              type="button"
+              class="btn btn--secondary"
+              onclick="alert('Plant details will be connected soon.')"
+            >
+              View Details
+            </button>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         KEEP YOUR PLANTS HEALTHY
+         ========================================================= -->
+    <section class="page-section page-section--alt">
+      <div class="container">
+        <h2 class="section-title">Keep Your Plants Healthy</h2>
+        <p class="section-intro">
+          Track watering, fertilizer, repotting, and plant health from one place.
+        </p>
+
+        <div class="action-grid">
+          <article class="action-card">
+            <span class="action-card__icon">💧</span>
+            <h3>Watering</h3>
+            <p>Keep track of your next watering.</p>
+          </article>
+
+          <article class="action-card">
+            <span class="action-card__icon">🌿</span>
+            <h3>Fertilizing</h3>
+            <p>Remember when your plants need fertilizer.</p>
+          </article>
+
+          <article class="action-card">
+            <span class="action-card__icon">🩺</span>
+            <h3>Plant Health</h3>
+            <p>Monitor the health and condition of your plants.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================
+       FOOTER (same structure as other pages)
+       ========================================================= -->
+  <footer class="footer" id="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <p class="logo logo--footer">🌿 Plantora</p>
+        <p>Helping you grow a greener space, one plant at a time.</p>
+      </div>
+
+      <nav class="footer__links">
+        <a href="index.html">Home</a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="my-plants.html">My Plants</a>
+        <a href="index.html#about">About</a>
+      </nav>
+    </div>
+
+    <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
+  </footer>
+
+</body>
+</html>
