@@ -218,7 +218,7 @@ function setupAuthForms() {
       e.preventDefault();
       const email = loginForm.querySelector("#email").value.trim();
       const password = loginForm.querySelector("#password").value;
-      const submitBtn = loginForm.querySelector("button[type="submit"]");
+      const submitBtn = loginForm.querySelector("button[type='submit']");
       const originalText = submitBtn.textContent;
 
       submitBtn.disabled = true;
@@ -242,7 +242,7 @@ function setupAuthForms() {
       const email = registerForm.querySelector("#email").value.trim();
       const password = registerForm.querySelector("#password").value;
       const confirmPassword = registerForm.querySelector("#confirm-password").value;
-      const submitBtn = registerForm.querySelector("button[type="submit"]");
+      const submitBtn = registerForm.querySelector("button[type='submit']");
       const originalText = submitBtn.textContent;
 
       if (password !== confirmPassword) {
@@ -302,7 +302,7 @@ function showAuthError(form, message) {
   } catch (err) {
     console.error("[Plantora Auth] Failed to initialize:", err);
     if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-      document.body.insertAdjacentHTML("afterbegin", "<div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:1rem;margin:1rem;border-radius:8px;font-family:Inter,sans-serif;max-width:600px;margin:1rem auto;"><strong>Firebase Auth not configured</strong><br>Edit <code>auth.js</code> and replace <code>firebaseConfig</code> with your project values from Firebase Console.<br><small>See comments at top of auth.js for setup steps.</small></div>");
+      document.body.insertAdjacentHTML('afterbegin', '<div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:1rem;margin:1rem;border-radius:8px;font-family:Inter,sans-serif;max-width:600px;margin:1rem auto;"><strong>Firebase Auth not configured</strong><br>Edit <code>auth.js</code> and replace <code>firebaseConfig</code> with your project values from Firebase Console.<br><small>See comments at top of auth.js for setup steps.</small></div>');
     }
   }
 })();
