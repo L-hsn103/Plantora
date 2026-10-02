@@ -20,13 +20,15 @@
 //   6. In Firebase Console -> Authentication -> Sign-in method:
 //      - Enable "Email/Password"
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCqlKl7j5yYvdsFKBVEBNjoKltMCBz9kRU",
+  authDomain: "plantora-87936.firebaseapp.com",
+  projectId: "plantora-87936",
+  storageBucket: "plantora-87936.firebasestorage.app",
+  messagingSenderId: "684642317612",
+  appId: "1:684642317612:web:19d446b36c9defd36a2889",
+  measurementId: "G-TF88N9Q5SJ"
 };
+
 // =============================================================
 // 2. INITIALIZE FIREBASE
 // =============================================================
