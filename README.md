@@ -1,150 +1,223 @@
-# Plantora
+# 🌱 Plantora
 
-A modern website for **Plantora** — a plant recommendation service that helps users discover indoor plants matching their space, environment, and lifestyle.
+> **“Helping You to Keep Plants Alive”**
 
-## Overview
+---
 
-Plantora is built with vanilla HTML, CSS, and JavaScript. It features a nature-inspired marketing landing page, plus a searchable plant catalog with a detail page for each plant — all data-driven from a JSON file.
+## 1. 👥 Project Team
 
-## Pages
+| Name | ID | Role |
+|---|---:|---|
+| Jannatul Bakiya | 05 | Team Leader & Project Manager |
+| Ateea Benta Alamin | 11 | Backend & Database Developer |
+| Marzia Hasan | 23 | API & Integration Developer |
+| Labib Hasan | 24 | Frontend & UI/UX Developer |
 
-- **`index.html`** — Landing page: hero, features grid, how-it-works steps, final CTA
-- **`explore.html`** — Plant catalog with live search + filters (light, water, maintenance, size, suitability)
-- **`plant-details.html`** — Individual plant info: requirements, care guide, indoor suitability (loaded via `?id=`)
+**Team Responsibility:**
+Our team is responsible for planning, designing, developing, testing, and documenting Plantora. The Team Leader manages the project plan and task distribution. All team members work together on the features, the user interface, and the final project report.
 
-## Features
+---
 
-- **Hero Section** — Compelling headline, description, and dual CTAs with decorative organic visual
-- **Features Grid** — 4 benefit cards with hover effects
-- **How It Works** — 3-step process illustration
-- **Explore Plants** — Searchable, filterable plant catalog rendered from `Data/plants.json`
-- **Plant Details** — Per-plant requirements & care guide on a separate page
-- **Sticky Navbar** — Logo, navigation links, and primary CTA (active page highlighted)
-- **Footer** — Brand info and navigation links
-- **URL loading** — `script.js` tries `Data/plants.json` first, falling back to built-in sample data
+## 2. 🔌 APIs We Will Use
 
-## Tech Stack
+### 🌿 Plant Information / Identification API
 
-- **HTML5** — Semantic, accessible markup
-- **CSS3** — Custom properties (variables), Flexbox, Grid, media queries
-- **Vanilla JavaScript** — Data loading, search, filtering, and dynamic rendering
-- **JSON** — Plant data in `Data/plants.json`
-- **Google Fonts** — Fraunces (headings) + Inter (body)
+> **Status:** `Plant Information / Plant Identification API — To Be Finalized`
 
-## Project Structure
+An external plant-related API will be used to:
 
+- 📸 Identify plants from uploaded images.
+- 🏷️ Provide plant names and basic information.
+- 🦠 Help detect or identify common plant diseases, where supported.
+- 🌿 Support plant-care information.
+
+> ⚠️ The final API has not been selected yet. Available features may vary depending on the service we choose.
+
+### 💳 bKash Payment API
+
+> **Status:** `Planned — Not Implemented Yet`
+
+The system may integrate the bKash Payment API for online plant purchases.
+
+The exact implementation will depend on:
+
+- API availability
+- Authentication
+- Merchant setup
+- Project requirements
+
+---
+
+## 3. 📖 Project Overview
+
+**Plantora** is a web-based plant management and plant-shopping platform. It helps users **discover, identify, purchase, and take care of indoor plants**.
+
+The system combines:
+
+| | Component |
+|---|---|
+| 🌿 | Plant information |
+| 📸 | Plant identification |
+| 🌱 | Personal plant library |
+| 🎯 | Personalized plant recommendations |
+| 🛒 | Plant purchasing |
+| 🔔 | Plant-care reminders |
+
+---
+
+## 4. 🧭 User Journey / Main Workflow
+
+### 1️⃣ Landing Page
+
+When a user first visits the website, they can see:
+
+- Different plants
+- Plant images
+- Plant names
+- Short/basic plant information
+- Login / Register buttons
+
+### 2️⃣ Login / Registration
+
+The user can create a new account or log into an existing account.
+
+### 3️⃣ Explore Plant Information
+
+After entering the system, users can browse plants and see useful information such as:
+
+- Plant name
+- Light requirements
+- Water requirements
+- Temperature
+- Humidity
+- Size
+- Maintenance
+- Difficulty level
+- Indoor suitability
+- Other important care information
+
+### 4️⃣ 📸 Plant Identification
+
+Users can take a picture or upload an image of a plant.
+
+The Plant Identification API will be used to:
+
+- Identify the plant name.
+- Provide available plant information.
+- Identify possible diseases/problems, where supported.
+
+> ℹ️ API capabilities may vary depending on the selected service.
+
+### 5️⃣ 🌱 My Plants Library
+
+Users will have a personal **“My Plants”** library. They can:
+
+- Add plants they already own.
+- View their saved plants.
+- Manage their plants.
+- Track care and reminder information for each plant.
+
+### 6️⃣ 🛒 Personalized Plant Recommendation & Purchase
+
+Users can purchase plants through the platform.
+
+Before recommending plants, the system will ask some basic but important questions, such as:
+
+- Available sunlight/light
+- Room temperature
+- Available space
+- Watering availability
+- How much time they can spend caring for plants
+- Preferred maintenance level
+- Plant size preference
+- Indoor/outdoor suitability
+- Experience level
+- Other relevant plant-care requirements
+
+Based on the answers, Plantora will recommend plants that match the user's environment and preferences. The user can then select and purchase a suitable plant.
+
+### 7️⃣ 💳 Online Payment
+
+During purchase, Plantora **may** integrate the bKash Payment API or another suitable payment gateway.
+
+> ⚠️ This is a planned idea only. Payment integration has **not** been implemented yet.
+
+### 8️⃣ 🔔 Plant-Care Reminders
+
+Plantora will provide reminders for each plant. Examples:
+
+- 💧 Watering
+- 🌱 Repotting
+- 🧪 Fertilizing
+- ✂️ Pruning
+- Other necessary plant-care activities
+
+The user will receive a popup/reminder on the scheduled day.
+
+### 9️⃣ 📅 Upcoming Reminder Box
+
+A reminder box will appear on the website interface. It shows upcoming plant-care activities for about:
+
+- The next **3 days**, or
+- The next **1 week**
+
+**Example:**
+
+```text
+───────────────────────────────
+ 🌱 Upcoming Plant Care       
+───────────────────────────────
+ Today    — 💧 Water Money Plant  
+ Tomorrow — 🧪 Fertilize Rose     
+ Oct 5    — 🌿 Repot Snake Plant  
+────────────────────────────────
 ```
-Plantora/
-├── index.html         # Landing page
-├── explore.html       # Plant catalog (search + filters)
-├── plant-details.html # Individual plant detail page
-├── Data/plants.json  # Plant data (single source of truth)
-├── style.css          # Shared theme styles
-├── explore.css        # Catalog + detail page styles
-├── script.js          # Shared logic (data, catalog, details)
-└── README.md          # This file
-```
 
-## Getting Started
+### 🔟 ✅ Reminder Confirmation
 
-No build step or dependencies required.
+When a reminder appears, the user can mark it as completed using a checkbox/tick mark.
 
-```bash
-# Option 1: Open index.html directly in a browser
-open index.html
+If the user ticks the reminder as completed:
 
-# Option 2: Serve locally (recommended so Data/plants.json loads over the network)
-python -m http.server 8000
-# Then visit http://localhost:8000
-```
+- The popup for that specific reminder will **not** appear again for the same scheduled task.
+- The reminder will be marked as **completed** in the user's plant library/reminder system.
 
-> **Note:** `script.js` fetches `Data/plants.json`. When you open files directly via `file://`, some browsers block that request — in that case the built-in sample data in `script.js` is used instead.
+---
 
-## Plant Data (Data/plants.json)
+## 5. 🔮 Optional Future Feature
 
-All plant info lives in `Data/plants.json`. Add or edit entries there — both the catalog and detail pages will pick them up automatically. Each entry follows this schema:
+### 🤖 AI Plant Care Chatbot — Future Update
 
-```json
-{
-  "id": 1,
-  "name": "Snake Plant",
-  "scientificName": "Dracaena trifasciata",
-  "image": "image/snake-plant.jpg",
-  "light": "Very Low",
-  "water": "Very Low",
-  "humidity": "Low",
-  "temperature": "Warm",
-  "space": "Medium",
-  "maintenance": "Very Low",
-  "difficulty": "Very Easy",
-  "size": "Medium",
-  "indoorSuitability": "Highly Suitable",
-  "description": "A short, friendly overview of the plant.",
-  "careGuide": {
-    "watering": "How often and how much to water.",
-    "fertilizer": "When and how to feed.",
-    "repotting": "When to repot.",
-    "cleaning": "How to keep it clean and dust-free."
-  }
-}
-```
+> **Label:** `Future Enhancement — Not Included in Current Version`
 
-### Allowed values
+This is an **optional** feature and is **not** part of the current core implementation.
 
-Keep the wording consistent, because the catalog filters match these fields by exact value:
+A future chatbot could help users:
 
-| Field | Values |
-| --- | --- |
-| `light` | Very Low, Low, Medium, High, Very High |
-| `water` | Very Low, Low, Medium, High, Very High |
-| `humidity` | Very Low, Low, Medium, High, Very High |
-| `temperature` | Mild, Moderate, Warm |
-| `space` | Very Small, Small, Medium, Large, Very Large |
-| `maintenance` | Very Low, Low, Medium, High |
-| `difficulty` | Very Easy, Easy, Moderate, Hard |
-| `size` | Tiny, Small, Medium, Large |
-| `indoorSuitability` | Highly Suitable, Suitable, Moderately Suitable |
+- Ask plant-care questions.
+- Get personalized plant-care advice.
+- Troubleshoot plant problems.
+- Ask about watering, sunlight, fertilizer, pests, etc.
 
-The Explore page builds its filter dropdowns from whatever values are actually
-present in the data, so a new value shows up automatically. Only the *order* of
-the scale lives in `script.js` (`FILTER_FIELDS`).
+---
 
-The `image` field currently uses free placeholder images — swap them for real local images later.
+## 6. 📋 Core Features Summary
 
-> **Note:** `script.js` also contains a copy of this data as a fallback for
-> `file://` usage. Keep the two in sync when the JSON changes.
+| Feature | Description | Version |
+|---|---|---|
+| 🌿 Plant Information | Browse plant details | Current |
+| 📸 Plant Identification | Identify plants from images | Current |
+| 🦠 Disease Detection | Identify possible plant diseases where the API supports it | Current |
+| 🌱 My Plants | Personal plant library | Current |
+| 🎯 Plant Recommendation | Recommend plants based on user requirements | Current |
+| 🛒 Plant Purchase | Purchase recommended plants | Current |
+| 💳 Payment | Possible bKash/API integration | Planned |
+| 🔔 Reminders | Watering, fertilizer, repotting, etc. | Current |
+| 📅 Upcoming Care | View upcoming 3-day/1-week tasks | Current |
+| 🤖 Chatbot | Optional future feature | Future |
 
-## Responsive Breakpoints
+---
 
-- **Desktop** — ≥ 900px (4-column features, 3-column card grid, side-by-side hero)
-- **Tablet** — ≤ 900px (2-column features/cards, wrapped filters)
-- **Mobile** — ≤ 640px (single column, simplified navbar, stacked hero)
+---
 
-## Design System
-
-Colors, typography, spacing, and shadows are defined as CSS custom properties in `style.css` `:root` for easy theming:
-
-```css
-:root {
-  --color-bg: #f6f8f1;
-  --color-primary: #2d5a3d;
-  --color-accent: #6fa25a;
-  --color-gold: #e3b23c;
-  --font-heading: "Fraunces", serif;
-  --font-body: "Inter", sans-serif;
-  --radius-md: 16px;
-  --shadow-soft: 0 20px 40px -20px rgba(23, 48, 31, 0.28);
-}
-```
-
-## Accessibility
-
-- Semantic HTML5 elements
-- Visible focus states for keyboard navigation
-- `prefers-reduced-motion` support
-- Sufficient color contrast ratios
-- Alt text on card images
-
-## License
-
-Student project — all rights reserved.
+🌱 *Plantora — Helping You to Keep Plants Alive*
