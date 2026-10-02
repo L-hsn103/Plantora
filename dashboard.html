@@ -14,6 +14,7 @@
 
   <!-- Reuse the shared Plantora theme: colors, fonts, navbar, buttons, footer -->
   <link rel="stylesheet" href="style.css" />
+  <script src="auth.js" defer></script>
 
   <style>
     /* =============================================================
@@ -375,7 +376,7 @@
     }
   </style>
 </head>
-<body>
+<body data-requires-auth="true">
 
   <!-- =========================================================
        NAVBAR (logged-in version — same structure as other pages)
