@@ -69,14 +69,14 @@ All plant info lives in `Data/plants.json`. Add or edit entries there — both t
   "id": 1,
   "name": "Snake Plant",
   "scientificName": "Dracaena trifasciata",
-  "image": "https://placehold.co/400x300/6FA25A/ffffff?text=Snake+Plant",
-  "light": "Low",
-  "water": "Low",
-  "humidity": "Low to Average",
-  "temperature": "18–30°C",
-  "space": "Small to Medium",
-  "maintenance": "Low",
-  "difficulty": "Easy",
+  "image": "image/snake-plant.jpg",
+  "light": "Very Low",
+  "water": "Very Low",
+  "humidity": "Low",
+  "temperature": "Warm",
+  "space": "Medium",
+  "maintenance": "Very Low",
+  "difficulty": "Very Easy",
   "size": "Medium",
   "indoorSuitability": "Highly Suitable",
   "description": "A short, friendly overview of the plant.",
@@ -89,7 +89,30 @@ All plant info lives in `Data/plants.json`. Add or edit entries there — both t
 }
 ```
 
+### Allowed values
+
+Keep the wording consistent, because the catalog filters match these fields by exact value:
+
+| Field | Values |
+| --- | --- |
+| `light` | Very Low, Low, Medium, High, Very High |
+| `water` | Very Low, Low, Medium, High, Very High |
+| `humidity` | Very Low, Low, Medium, High, Very High |
+| `temperature` | Mild, Moderate, Warm |
+| `space` | Very Small, Small, Medium, Large, Very Large |
+| `maintenance` | Very Low, Low, Medium, High |
+| `difficulty` | Very Easy, Easy, Moderate, Hard |
+| `size` | Tiny, Small, Medium, Large |
+| `indoorSuitability` | Highly Suitable, Suitable, Moderately Suitable |
+
+The Explore page builds its filter dropdowns from whatever values are actually
+present in the data, so a new value shows up automatically. Only the *order* of
+the scale lives in `script.js` (`FILTER_FIELDS`).
+
 The `image` field currently uses free placeholder images — swap them for real local images later.
+
+> **Note:** `script.js` also contains a copy of this data as a fallback for
+> `file://` usage. Keep the two in sync when the JSON changes.
 
 ## Responsive Breakpoints
 
