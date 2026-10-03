@@ -704,8 +704,168 @@ function initExplorePage() {
     renderPlants(getFilteredPlants());
   }
 
-  // Run updateResults() every time the user types or changes a filter
-  searchInput.addEventListener("input", updateResults);
+  /* ---------------------------------------------------------
+     Search suggestions (autocomplete)
+     ---------------------------------------------------------
+     Typing shows up to 6 matching plant names under the box:
+     names (or scientific names) that START with the typed text
+     come first, then ones that merely contain it, alphabetical
+     within each group. Typing letters like "s" therefore suggests
+     Snake Plant, Spider Plant, ... as expected.
+     --------------------------------------------------------- */
+  const suggestionsList = document.getElementById("search-suggestions");
+  const SUGGESTION_LIMIT = 6;
+  let activeSuggestion = -1; // highlighted row, -1 = none yet
+
+  function getSuggestions(term) {
+    const t = term.toLowerCase();
+    // 0 = the plant's own name starts with the typed text,
+    // 1 = scientific name starts with it (or the name contains it),
+    // 2 = only the scientific name contains it
+    const tiers = [[], [], []];
+    plants.forEach((plant) => {
+      const name = plant.name.toLowerCase();
+      const sci = plant.scientificName.toLowerCase();
+      if (name.startsWith(t)) tiers[0].push(plant);
+      else if (sci.startsWith(t) || name.includes(t)) tiers[1].push(plant);
+      else if (sci.includes(t)) tiers[2].push(plant);
+    });
+    const byName = (a, b) => a.name.localeCompare(b.name);
+    return tiers
+      .flatMap((tier) => tier.sort(byName))
+      .slice(0, SUGGESTION_LIMIT);
+  }
+
+  // Wrap the first occurrence of the typed text in <mark>
+  function highlightMatch(text, term) {
+    const idx = text.toLowerCase().indexOf(term.toLowerCase());
+    if (idx === -1) return text;
+    return (
+      text.slice(0, idx) +
+      "<mark>" +
+      text.slice(idx, idx + term.length) +
+      "</mark>" +
+      text.slice(idx + term.length)
+    );
+  }
+
+  function hideSuggestions() {
+    suggestionsList.hidden = true;
+    suggestionsList.innerHTML = "";
+    activeSuggestion = -1;
+    searchInput.setAttribute("aria-expanded", "false");
+    searchInput.removeAttribute("aria-activedescendant");
+  }
+
+  function renderSuggestions(list) {
+    const term = searchInput.value.trim();
+    if (!term || !list.length) {
+      hideSuggestions();
+      return;
+    }
+    activeSuggestion = -1;
+    suggestionsList.innerHTML = list
+      .map(
+        (plant, i) => `
+          <li
+            class="search-suggestions__item"
+            id="sug-${i}"
+            role="option"
+            aria-selected="false"
+            data-name="${plant.name}"
+          >
+            <span class="search-suggestions__name">${highlightMatch(plant.name, term)}</span>
+            <span class="search-suggestions__sci">${highlightMatch(plant.scientificName, term)}</span>
+          </li>
+        `
+      )
+      .join("");
+    suggestionsList.hidden = false;
+    searchInput.setAttribute("aria-expanded", "true");
+  }
+
+  function setActiveSuggestion(index) {
+    const items = suggestionsList.querySelectorAll(".search-suggestions__item");
+    if (!items.length) return;
+    // Wrap around: past the end goes back to row 1, before row 1 to the last
+    activeSuggestion = index < 0 ? items.length - 1 : index % items.length;
+    items.forEach((item, i) => {
+      const isActive = i === activeSuggestion;
+      item.classList.toggle("is-active", isActive);
+      item.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    const active = items[activeSuggestion];
+    searchInput.setAttribute("aria-activedescendant", active.id);
+    if (typeof active.scrollIntoView === "function") {
+      active.scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  // Fill the search box with the chosen plant and filter the grid
+  function acceptSuggestion(item) {
+    searchInput.value = item.dataset.name;
+    hideSuggestions();
+    updateResults();
+  }
+
+  // Typing re-filters the grid AND refreshes the suggestion list
+  searchInput.addEventListener("input", () => {
+    updateResults();
+    renderSuggestions(getSuggestions(searchInput.value.trim()));
+  });
+
+  // Keyboard: ArrowUp / ArrowDown move the highlight, Enter accepts,
+  // Escape closes. Arrow keys reopen the list if it was closed.
+  searchInput.addEventListener("keydown", (e) => {
+    const openIfClosed = () => {
+      if (!suggestionsList.hidden) return true;
+      renderSuggestions(getSuggestions(searchInput.value.trim()));
+      return !suggestionsList.hidden;
+    };
+
+    if (e.key === "ArrowDown") {
+      if (openIfClosed()) {
+        e.preventDefault();
+        setActiveSuggestion(activeSuggestion + 1);
+      }
+    } else if (e.key === "ArrowUp") {
+      if (openIfClosed()) {
+        e.preventDefault();
+        setActiveSuggestion(activeSuggestion - 1);
+      }
+    } else if (e.key === "Enter") {
+      const items = suggestionsList.querySelectorAll(".search-suggestions__item");
+      if (!suggestionsList.hidden && items.length) {
+        e.preventDefault();
+        acceptSuggestion(items[activeSuggestion >= 0 ? activeSuggestion : 0]);
+      }
+    } else if (e.key === "Escape" && !suggestionsList.hidden) {
+      e.preventDefault();
+      hideSuggestions();
+    }
+  });
+
+  // Clicking the input again re-opens suggestions for what's typed
+  searchInput.addEventListener("focus", () => {
+    const term = searchInput.value.trim();
+    if (term) renderSuggestions(getSuggestions(term));
+  });
+
+  // Clicking away closes the list
+  searchInput.addEventListener("blur", hideSuggestions);
+
+  // Clicking a row: mousedown keeps the input focused (so blur can't
+  // hide the list first), then click fills the search box
+  suggestionsList.addEventListener("mousedown", (e) => e.preventDefault());
+  suggestionsList.addEventListener("click", (e) => {
+    const item = e.target.closest(".search-suggestions__item");
+    if (item) acceptSuggestion(item);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest && !e.target.closest(".search-box")) hideSuggestions();
+  });
+
   filters.forEach(({ element }) => element.addEventListener("change", updateResults));
 
   // Show every plant when the page first loads
