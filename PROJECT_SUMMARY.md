@@ -21,7 +21,7 @@ Derived from the git history (`git shortlog`), not from assumption.
 | **Labib Hasan** (24) | Explore catalogue, search & filters, plant details page, UI/theme styling | `explore.css`, `style.css`, `script.js`, `explore.html`, `plant-details.html`, hero image |
 | **Jannatul Bakiya** (05) | Plant database, plant images, project documentation | `Data/plants.json` (20 plants), all 20 `image/plant/*.webp`, `README.md` |
 | **Marzia Hasan** (23) | API & integration — *no commits yet; plant identification API still unselected* | — |
-| **Ateea + frontend pair** | Firestore data layer, shop, checkout, sample-data removal, unified navbar | `store.js`, `plant-data.js`, `shop.js`, `shop.html`, `checkout.html`, `firestore.rules` — **still uncommitted, needs an author assigned** |
+| **Ateea + frontend pair** | Firestore data layer, shop, checkout, sample-data removal, unified navbar | `store.js`, `plant-data.js`, `shop.js`, `shop.html`, `checkout.html`, `firestore.rules` — committed as `L-hsn103` and pushed to `origin/main` (`79e38ce`) |
 
 Some pages were touched by more than one member while integrating features (for example `dashboard.html`, `explore.html` and `my-plants.html`), so ownership there is shared rather than exclusive.
 
@@ -229,8 +229,8 @@ Plantora/
 ├── register.html           # Registration page
 ├── dashboard.html          # User dashboard (protected)
 ├── my-plants.html          # User's plant collection (protected)
-├── admin.html              # ⚠ EMPTY STUB - admin portal not built
-├── admin.js                # ⚠ EMPTY FILE (0 bytes)
+├── admin.html              # Placeholder notes only - admin portal not built
+├── admin.js                # Placeholder notes only - admin portal not built
 ├── style.css               # Shared theme, landing page, empty states
 ├── explore.css             # Explore & plant-details styles
 ├── script.js               # Explore + plant-details rendering
@@ -239,6 +239,7 @@ Plantora/
 ├── store.js                # Firestore data layer + care schedule maths
 ├── shop.js                 # Page controllers (shop, dashboard, my-plants)
 ├── firestore.rules         # Firestore security rules (not yet published)
+├── .gitignore              # Node, Firebase CLI, editor and OS files
 ├── Data/
 │   └── plants.json         # 20 plants with care info
 └── image/
@@ -279,6 +280,10 @@ Plantora/
 
 ## Setup Instructions
 
+Steps 1–4 below are **assigned to Ateea Benta Alamin (Backend & Database)**. The
+frontend cannot be tested until they are done. Steps 5–6 are for whoever is running
+the site locally.
+
 ### 1. Firebase Console
 - Project: `plantora-87936`
 - **Authentication** → Sign-in method → enable **Email/Password**
@@ -313,7 +318,7 @@ Works on any static host (Netlify, Vercel, Firebase Hosting, GitHub Pages). Add 
 4. **"Add to My Plants" on `plant-details.html` is still an `alert()`** (`script.js:775`). Nothing on any page can add a plant yet.
 5. **No automated tests.** The `_setBackendForTests()` hook in `store.js` exists for offline testing but no test file uses it.
 6. **`nextDue` uses the browser clock**, so clock skew shifts reminders. A real fix computes dates in Cloud Functions.
-7. **`admin.html` / `admin.js` are empty placeholders.** They are not linked from any page.
+7. **`admin.html` / `admin.js` contain placeholder notes only.** The admin portal is not built and neither file is linked from any page.
 
 ---
 
@@ -329,8 +334,17 @@ Works on any static host (Netlify, Vercel, Firebase Hosting, GitHub Pages). Add 
 ---
 
 ## Recent Git History
+All work below is pushed to `origin/main`.
+
 | Commit | Message |
 |--------|---------|
+| `f876caf` | docs: record current status, Firestore schema and contributions |
+| `cf8225f` | chore: remove unused snake-plant.jpg |
+| `76ae7ab` | refactor: remove placeholder sample data, wire dashboard and My Plants to real data |
+| `a9b2fbe` | refactor: unify navbar and footer, add Shop and Dashboard links |
+| `acd3a64` | feat: add plant shop and demo checkout |
+| `79e38ce` | feat(data): add Firestore data layer, demo inventory seed and rules |
+| `4ea7286` | chore: add .gitignore and document the unbuilt admin portal |
 | `ec0df1e` | Add PROJECT_SUMMARY.md documentation |
 | `5368452` | Fix quote escaping in auth.js |
 | `05fccf4` | Add user profile dropdown to navbar |
@@ -339,7 +353,7 @@ Works on any static host (Netlify, Vercel, Firebase Hosting, GitHub Pages). Add 
 | `82a4d00` | Integrate auth.js across all pages |
 | `2b036db` | Add Firebase Auth (auth.js) |
 
-**Uncommitted work** (never run in a browser): the Firestore data layer and rules, the shop and checkout pages, removal of all sample data from the dashboard and My Plants, the three-state rendering, the unified navbar/footer, and the auth-aware Home link.
+**Pushed but never run in a browser:** the Firestore data layer and rules, the shop and checkout pages, removal of all sample data from the dashboard and My Plants, the three-state rendering, the unified navbar/footer, and the auth-aware Home link.
 
 ---
 
