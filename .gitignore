@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Firebase (CLI deploys; none are used by the site itself)
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+
+# Local overrides
+*.local.json
+*.local.html
+
+# Editor & OS cruft
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
