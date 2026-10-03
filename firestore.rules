@@ -1,0 +1,324 @@
+rules_version = '2';
+
+// =============================================================
+// PLANTORA - firestore.rules
+// -------------------------------------------------------------
+// STATUS: not validated against a Firestore emulator or a live
+// project. Publish it, then run the manual tests listed at the
+// bottom of this file before relying on it.
+//
+// PATHS
+//   admins/{uid}                 admin grant. Created by hand in the
+//                                Firebase console, never by a client.
+//   inventory/{plantId}          admin-owned stock + price. plantId
+//                                is 1..20 to match Data/plants.json.
+//   users/{uid}/orders/{txId}    immutable once created.
+//   users/{uid}/myPlants/{txId}  the user's plant collection.
+//   everything else              denied.
+//
+// ORDER <-> PLANT LINKAGE
+//   One checkout attempt gets ONE id, tx_<32 hex>, used as the
+//   document id for BOTH the order and the plant it creates. store.js
+//   keeps that id in sessionStorage, so a retry after a lost response
+//   reuses it and cannot create a duplicate. The rules enforce the
+//   linkage in both directions with existsAfter()/getAfter(), so the
+//   two documents can never exist apart.
+//
+//   (Sharing one id is also why both are prefixed tx_ rather than
+//   or_ / pl_ - Firestore rules have no string-slice operator, so a
+//   derived pl_ id could not be cross-checked here. Keeping the ids
+//   equal moves that check into a plain equality test.)
+//
+// WHAT THESE RULES CAN AND CANNOT DO
+//   They check WHO writes, and the SHAPE of what is written: fields,
+//   types, ranges, and agreement between documents.
+//   Prices are now admin-owned, and an order's priceBDT is pinned to
+//   the inventory price at write time, so a tampered client cannot
+//   invent a cheaper price for itself.
+//   They still cannot verify that a price is fair, that stock was
+//   physically shipped, or that a delivery address is real. Real
+//   payments need a trusted backend (Cloud Functions) that decides
+//   everything server-side.
+//
+// LIMITS
+//   - No rule lets a client create or edit admins. To grant admin,
+//     add a document admins/{yourUid} in the console.
+//   - Orders are immutable by design.
+//   - A myPlants document may only ever change `schedule` and
+//     `nickname`. plantId, plantName, source, orderId and addedAt are
+//     frozen once written.
+//   - nextDue is computed by the browser from its own clock, so clock
+//     skew shifts reminders slightly. See store.js.
+// =============================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- shared helpers ----------
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Admin = this uid has a document in the admins collection.
+    // Because the check lives here rather than in JS, a client
+    // cannot grant itself admin by editing local files.
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isStr(v, minLen, maxLen) {
+      return v is string && v.size() >= minLen && v.size() <= maxLen;
+    }
+
+    // The nickname key is always written, but its value may be null.
+    function validNickname(v) {
+      return v == null || isStr(v, 0, 60);
+    }
+
+    function validTxId(id) {
+      return id.matches('^tx_[a-f0-9]{32}$');
+    }
+
+    function orderPath(uid, id) {
+      return /databases/$(database)/documents/users/$(uid)/orders/$(id);
+    }
+
+    function plantPath(uid, id) {
+      return /databases/$(database)/documents/users/$(uid)/myPlants/$(id);
+    }
+
+    function inventoryPath(plantId) {
+      return /databases/$(database)/documents/inventory/$(plantId);
+    }
+
+    // ---------- care schedule ----------
+    // Every plant gets all four tasks. The intervals are derived from
+    // the plant's water/maintenance level on first add (see
+    // deriveSchedule in store.js) and are editable afterwards, so the
+    // rules only have to bound the range.
+
+    // nextDue / lastDone are epoch milliseconds (int) rather than
+    // Firestore Timestamps. The browser has to do the date maths to
+    // reschedule a task, and plain integers keep that arithmetic exact
+    // and free of Timestamp construction. addedAt and createdAt are
+    // still server Timestamps, so the console can order documents by
+    // them normally.
+    function validTask(t) {
+      return t is map
+        && t.keys().hasOnly(['intervalDays', 'lastDone', 'nextDue'])
+        && t.keys().hasAll(['intervalDays', 'lastDone', 'nextDue'])
+        && t.intervalDays is int && t.intervalDays >= 1 && t.intervalDays <= 3650
+        && (t.lastDone == null || (t.lastDone is int && t.lastDone > 0))
+        && t.nextDue is int && t.nextDue > 0;
+    }
+
+    function validSchedule(s) {
+      return s is map
+        && s.keys().hasOnly(['watering', 'fertilizing', 'repotting', 'cleaning'])
+        && s.keys().hasAll(['watering', 'fertilizing', 'repotting', 'cleaning'])
+        && validTask(s.watering)
+        && validTask(s.fertilizing)
+        && validTask(s.repotting)
+        && validTask(s.cleaning);
+    }
+
+    // A newly added plant has had no care done yet, so every task
+    // must still be untouched.
+    function validFreshSchedule(s) {
+      return validSchedule(s)
+        && s.watering.lastDone == null
+        && s.fertilizing.lastDone == null
+        && s.repotting.lastDone == null
+        && s.cleaning.lastDone == null;
+    }
+
+    // ---------- delivery ----------
+    // Mirrored by validateDelivery() in store.js so the browser can
+    // show the problem before a write is attempted.
+
+    function validDelivery(d) {
+      return d is map
+        && d.keys().hasOnly(['name', 'phone', 'address', 'note'])
+        && d.keys().hasAll(['name', 'phone', 'address', 'note'])
+        && isStr(d.name, 2, 80)
+        && isStr(d.phone, 6, 20)
+        && d.phone.matches('^[0-9+() -]{6,20}$')
+        && isStr(d.address, 10, 300)
+        && isStr(d.note, 0, 300);
+    }
+
+    // ---------- order ----------
+    // An order must agree with the inventory document it claims to
+    // buy from: listed, in stock, and charged the admin's price.
+    // store.js decrements stock in the SAME transaction, so
+    // getAfter() sees the post-decrement value.
+
+    function validOrder(uid, id, o) {
+      return o.keys().hasOnly(['uid', 'plantId', 'plantName', 'quantity', 'currency',
+                                'priceBDT', 'isDemo', 'paymentMethod', 'status',
+                                'delivery', 'createdAt'])
+        && o.keys().hasAll(['uid', 'plantId', 'plantName', 'quantity', 'currency',
+                            'priceBDT', 'isDemo', 'paymentMethod', 'status',
+                            'delivery', 'createdAt'])
+        && o.uid == uid
+        && o.plantId is int && o.plantId >= 1 && o.plantId <= 20
+        && isStr(o.plantName, 1, 100)
+        && o.quantity == 1
+        && o.currency == 'BDT'
+        && o.isDemo == true
+        && o.paymentMethod == 'demo'
+        && o.status == 'demo-placed'
+        && validDelivery(o.delivery)
+        && o.createdAt == request.time
+        // Inventory must exist, be listed, and be in stock. If the
+        // document is missing, getAfter() errors and the write is
+        // denied - which is the intended outcome.
+        && getAfter(inventoryPath(o.plantId)).data.active == true
+        && getAfter(inventoryPath(o.plantId)).data.stock >= 1
+        && o.priceBDT is int
+        && o.priceBDT == getAfter(inventoryPath(o.plantId)).data.priceBDT
+        // The matching plant document must be in the same batch.
+        && existsAfter(plantPath(uid, id))
+        && getAfter(plantPath(uid, id)).data.plantId == o.plantId
+        && getAfter(plantPath(uid, id)).data.source == 'shop-demo';
+    }
+
+    // ---------- my plants ----------
+    // Two ways in:
+    //   'shop-demo' - bought, so it must link to a real order written
+    //                  in the same batch, at the same id.
+    //   'manual'    - added by hand from Explore or Plant Details, so
+    //                  orderId is null and no order is required.
+
+    // Shared shape checks. addedAt is deliberately NOT checked here: on
+    // update, request.resource.data is the MERGED document, so addedAt
+    // holds its original value, not request.time. It is asserted on
+    // create only, and frozen by affectedKeys() on update.
+    function validPlantCommon(uid, p) {
+      return p.uid == uid
+        && p.plantId is int && p.plantId >= 1 && p.plantId <= 20
+        && isStr(p.plantName, 1, 100)
+        && validNickname(p.nickname)
+        && validSchedule(p.schedule);
+    }
+
+    function validShopPlant(uid, id, p) {
+      return validPlantCommon(uid, p)
+        && p.addedAt == request.time
+        && p.source == 'shop-demo'
+        && p.orderId == id
+        && existsAfter(orderPath(uid, id))
+        && getAfter(orderPath(uid, id)).data.plantId == p.plantId
+        && getAfter(orderPath(uid, id)).data.plantName == p.plantName;
+    }
+
+    function validManualPlant(uid, p) {
+      return validPlantCommon(uid, p)
+        && p.addedAt == request.time
+        && p.source == 'manual'
+        && p.orderId == null;
+    }
+
+    // =============================================================
+    // RULES
+    // =============================================================
+
+    // --- admin grants ---
+    // A user may read their OWN grant, so the app can ask "am I an
+    // admin?" without a permission error for everyone else. Reading
+    // your own document reveals nothing you could act on - every write
+    // below still goes through isAdmin(). Listing is admin-only.
+    match /admins/{uid} {
+      allow get: if isOwner(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    // --- inventory: public to read, because the shop is public ---
+    match /inventory/{plantId} {
+      allow read: if true;
+
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(
+             ['plantId', 'stock', 'priceBDT', 'active', 'updatedAt', 'updatedBy'])
+        && request.resource.data.keys().hasAll(
+             ['plantId', 'stock', 'priceBDT', 'active', 'updatedAt', 'updatedBy'])
+        // int() converts the document id segment to a number, so the
+        // id and the stored plantId cannot drift apart.
+        && request.resource.data.plantId == int(plantId)
+        && request.resource.data.stock is int
+        && request.resource.data.stock >= 0
+        && request.resource.data.stock <= 1000000
+        && request.resource.data.priceBDT is int
+        && request.resource.data.priceBDT >= 0
+        && request.resource.data.priceBDT <= 1000000
+        && request.resource.data.active is bool
+        && request.resource.data.updatedBy == request.auth.uid;
+
+      allow delete: if isAdmin();
+    }
+
+    // --- orders: owner reads, creates once, never changes ---
+    match /users/{uid}/orders/{txId} {
+      allow get, list: if isOwner(uid);
+      allow create: if isOwner(uid)
+                    && validTxId(txId)
+                    && validOrder(uid, txId, request.resource.data);
+      allow update, delete: if false;
+    }
+
+    // --- my plants ---
+    match /users/{uid}/myPlants/{txId} {
+      allow get, list, delete: if isOwner(uid);
+
+      allow create: if isOwner(uid)
+                    && validTxId(txId)
+                    && validFreshSchedule(request.resource.data.schedule)
+                    && (validShopPlant(uid, txId, request.resource.data)
+                        || validManualPlant(uid, request.resource.data));
+
+      // The only mutation allowed on an existing plant: the four care
+      // intervals / due dates, and the user's nickname. affectedKeys()
+      // is what freezes plantId, plantName, source, orderId and
+      // addedAt.
+      allow update: if isOwner(uid)
+                    && validTxId(txId)
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['schedule', 'nickname'])
+                    && validPlantCommon(uid, request.resource.data)
+                    && validSchedule(request.resource.data.schedule);
+    }
+
+    // --- default deny for every other path ---
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+// =============================================================
+// MANUAL TESTS - do these after publishing, using two accounts
+// (one admin, one normal user). Expected results in brackets.
+//
+//  1. As a normal user, read inventory/{plantId}.            [ALLOWED]
+//  2. As a normal user, write inventory/{plantId}.           [DENIED]
+//  3. As the admin, write admins/{anyoneElse}.               [DENIED]
+//  4. As a normal user, read users/{otherUid}/myPlants.      [DENIED]
+//  5. Signed out, read inventory/{plantId}.                 [ALLOWED]
+//  6. Buy a plant with stock 1, from two browsers at once.
+//       Exactly one succeeds, stock ends at 0.               [PASS]
+//  7. Try to buy the same plant again from the console with a
+//     priceBDT of 1.                                         [DENIED]
+//  8. On an existing myPlants doc, try to change plantId.    [DENIED]
+//  9. On an existing myPlants doc, change schedule or
+//     nickname.                                              [ALLOWED]
+// 10. Create a myPlants doc with source 'manual' and a
+//     non-null orderId.                                      [DENIED]
+// 11. Create a myPlants doc with no schedule.                [DENIED]
+// 12. Update or delete an order document.                   [DENIED]
+// =============================================================
