@@ -14,7 +14,13 @@
 
   <!-- Reuse the shared Plantora theme: colors, fonts, navbar, buttons, footer -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Load order matters: auth.js, then plant-data.js, store.js, then
+       shop.js (which renders this page's collection). -->
   <script src="auth.js" defer></script>
+  <script src="plant-data.js" defer></script>
+  <script src="store.js" defer></script>
+  <script src="shop.js" defer></script>
 
   <style>
     /* =============================================================
@@ -226,13 +232,18 @@
       <a href="index.html" class="logo">🌿 Plantora</a>
 
       <nav class="nav-links">
-        <a href="index.html">Home</a>
+        <a href="index.html" data-nav-home>Home</a>
         <a href="explore.html">Explore Plants</a>
+        <a href="shop.html">Shop</a>
+        <a href="dashboard.html" data-nav-dashboard>Dashboard</a>
         <a href="my-plants.html" class="active" aria-current="page">My Plants</a>
         <a href="index.html#about">About</a>
-      </nav>
+    </nav>
 
-      <a href="index.html" class="btn btn--secondary nav-cta">Logout</a>
+      <div class="navbar__actions">
+        <a href="my-plants.html" class="btn btn--secondary">My Plants</a>
+        <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
+      </div>
     </div>
   </header>
 
@@ -248,78 +259,23 @@
           <p>Keep track of your plants and stay on top of their care.</p>
         </div>
 
-        <!-- Prototype only: shows a placeholder alert for now -->
-        <button
-          type="button"
-          class="btn btn--primary"
-          onclick="alert('Plant adding feature will be available soon.')"
-        >
-          + Add Plant
-        </button>
+        <!-- Adding a plant needs the database, so this goes to Explore
+             Plants rather than a placeholder alert. -->
+        <a href="explore.html" class="btn btn--primary">+ Add Plant</a>
       </div>
     </section>
 
     <!-- =========================================================
-         PLANT CARDS (sample data)
+         PLANT CARDS
+         Filled by shop.js from the signed-in user's Firestore
+         collection. Shows an empty state when the collection is
+         empty and a distinct error state when the database cannot be
+         reached - never placeholder plants.
          ========================================================= -->
     <section class="page-section">
       <div class="container">
-        <div class="plant-grid">
-
-          <article class="plant-card">
-            <div class="plant-card__header">
-              <h3>Snake Plant</h3>
-              <span class="status-pill status-pill--healthy">Healthy</span>
-            </div>
-            <ul class="plant-card__meta">
-              <li>Next watering: Today</li>
-              <li>Care: Low maintenance</li>
-            </ul>
-            <button
-              type="button"
-              class="btn btn--secondary"
-              onclick="alert('Plant details will be connected soon.')"
-            >
-              View Details
-            </button>
-          </article>
-
-          <article class="plant-card">
-            <div class="plant-card__header">
-              <h3>Money Plant</h3>
-              <span class="status-pill status-pill--needs-water">Needs Water</span>
-            </div>
-            <ul class="plant-card__meta">
-              <li>Next watering: Tomorrow</li>
-              <li>Care: Moderate maintenance</li>
-            </ul>
-            <button
-              type="button"
-              class="btn btn--secondary"
-              onclick="alert('Plant details will be connected soon.')"
-            >
-              View Details
-            </button>
-          </article>
-
-          <article class="plant-card">
-            <div class="plant-card__header">
-              <h3>Peace Lily</h3>
-              <span class="status-pill status-pill--healthy">Healthy</span>
-            </div>
-            <ul class="plant-card__meta">
-              <li>Next watering: In 3 days</li>
-              <li>Care: Moderate maintenance</li>
-            </ul>
-            <button
-              type="button"
-              class="btn btn--secondary"
-              onclick="alert('Plant details will be connected soon.')"
-            >
-              View Details
-            </button>
-          </article>
-
+        <div id="my-plants-grid">
+          <p class="section-note">Loading your plants…</p>
         </div>
       </div>
     </section>
@@ -371,6 +327,7 @@
       <nav class="footer__links">
         <a href="index.html">Home</a>
         <a href="explore.html">Explore Plants</a>
+        <a href="shop.html">Shop</a>
         <a href="my-plants.html">My Plants</a>
         <a href="index.html#about">About</a>
       </nav>

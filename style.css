@@ -152,6 +152,132 @@ h3 {
 }
 
 /* -------------------------------------------------------------
+   3b. EMPTY STATES
+   Used wherever a Firestore-backed list has nothing to show, or
+   cannot be reached. The error variant is deliberately styled
+   differently from the empty variant: "you own no plants" and
+   "we could not ask the database" are different answers and must
+   not look the same.
+   ------------------------------------------------------------- */
+.empty-state {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  background-color: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.empty-state__icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin-bottom: 0.85rem;
+}
+
+.empty-state__title {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state__text {
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+  max-width: 44ch;
+  margin: 0 auto 1.5rem;
+}
+
+.empty-state--error {
+  border-style: solid;
+  background-color: #fbf0d9;
+  border-color: #ecd9a6;
+}
+
+.empty-state--error .empty-state__title {
+  color: #8a6414;
+}
+
+.empty-state--error .empty-state__text {
+  color: #6e500f;
+}
+
+/* -------------------------------------------------------------
+   3c. MY PLANTS CARD EXTRAS
+   ------------------------------------------------------------- */
+.my-plant__image {
+  display: block;
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 12px;
+  background-color: var(--color-bg-alt);
+  margin-bottom: 1rem;
+}
+
+.my-plant__image img,
+.mini-plant-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.my-plant__image .thumb-fallback,
+.mini-plant-card__image .thumb-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 1.4rem;
+  background-color: var(--color-bg-alt);
+}
+
+.my-plant__sci {
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.6rem;
+}
+
+/* Marks how a plant entered the collection: bought, or added by hand. */
+.source-badge {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.source-badge--purchase {
+  background-color: #e4f0dd;
+  color: var(--color-primary);
+}
+
+.source-badge--manual {
+  background-color: #eef2f7;
+  color: #4a5568;
+}
+
+.sample-seeder {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--color-border);
+}
+
+.sample-seeder__status {
+  font-size: 0.82rem;
+  color: #991b1b;
+  margin-top: 0.6rem;
+}
+
+.section-note {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 1rem;
+}
+
+/* -------------------------------------------------------------
    4. NAVBAR
    ------------------------------------------------------------- */
 .navbar {
@@ -180,6 +306,15 @@ h3 {
 .nav-links {
   display: flex;
   gap: 2rem;
+}
+
+/* Holds the header's buttons so the flex navbar keeps three groups
+   (logo / links / actions) instead of spreading the buttons apart.
+   auth.js swaps .nav-cta inside this wrapper for the user dropdown. */
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
 .nav-links a {
@@ -497,11 +632,40 @@ h3 {
   }
 }
 
+/* Tablet: the navbar now carries six links plus two buttons, so tighten
+   the spacing before it runs out of room. */
+@media (max-width: 1040px) {
+  .nav-links {
+    gap: 1.1rem;
+  }
+
+  .nav-links a {
+    font-size: 0.88rem;
+  }
+
+  .navbar__actions .btn {
+    padding: 0.7rem 1.15rem;
+    font-size: 0.88rem;
+  }
+}
+
 /* Mobile */
 @media (max-width: 640px) {
   /* Simplify navbar: hide the link list, keep logo + CTA button */
   .nav-links {
     display: none;
+  }
+
+  /* The nav links are hidden here, so the header buttons are the only
+     way to reach My Plants on a phone. Shrink them instead of hiding
+     one, so nothing becomes unreachable. */
+  .navbar__actions {
+    gap: 0.4rem;
+  }
+
+  .navbar__actions .btn {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.82rem;
   }
 
   .hero__inner {

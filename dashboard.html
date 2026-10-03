@@ -14,7 +14,14 @@
 
   <!-- Reuse the shared Plantora theme: colors, fonts, navbar, buttons, footer -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Load order matters: auth.js, then plant-data.js, store.js, then
+       shop.js (which renders the My Plants summary and Upcoming Care
+       on this page). -->
   <script src="auth.js" defer></script>
+  <script src="plant-data.js" defer></script>
+  <script src="store.js" defer></script>
+  <script src="shop.js" defer></script>
 
   <style>
     /* =============================================================
@@ -90,7 +97,7 @@
       margin-bottom: 0;
     }
 
-    .demo-badge {
+    .count-badge {
       font-family: var(--font-body, "Inter", sans-serif);
       font-size: 0.75rem;
       font-weight: 600;
@@ -100,6 +107,12 @@
       border-radius: 999px;
       padding: 0.3rem 0.8rem;
       white-space: nowrap;
+    }
+
+    /* The empty/error states drawn by shop.js need room to breathe
+       between the section heading and the button below it. */
+    .dashboard-section__body {
+      margin-bottom: 1.75rem;
     }
 
     /* -------------------------------------------------------------
@@ -386,15 +399,21 @@
       <a href="dashboard.html" class="logo">🌿 Plantora</a>
 
       <nav class="nav-links">
-        <a href="dashboard.html" class="active" aria-current="page">Home</a>
+        <a href="index.html" data-nav-home>Home</a>
         <a href="explore.html">Explore Plants</a>
-        <a href="#">Recommendation</a>
-        <a href="#">My Plants</a>
-        <a href="#">Knowledge</a>
-        <a href="#">About</a>
-      </nav>
+        <a href="shop.html">Shop</a>
+        <a href="dashboard.html" data-nav-dashboard class="active" aria-current="page">Dashboard</a>
+        <a href="my-plants.html">My Plants</a>
+        <a href="index.html#about">About</a>
+    </nav>
 
-      <a href="index.html" class="btn btn--secondary nav-cta">Logout</a>
+      <!-- Two actions: a real page link, plus the .nav-cta slot that
+           auth.js swaps for the signed-in user's profile dropdown.
+           The wrapper keeps them side by side inside the flex navbar. -->
+      <div class="navbar__actions">
+        <a href="my-plants.html" class="btn btn--secondary">My Plants</a>
+        <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
+      </div>
     </div>
   </header>
 
@@ -407,7 +426,7 @@
       <div class="container dashboard-hero__inner">
         <h1>Welcome Back, Plant Lover!</h1>
         <p>Manage your plants, discover suitable plants, and keep up with their care.</p>
-        <a href="#" class="btn btn--primary">Find My Plant</a>
+        <a href="#recommendation" class="btn btn--primary">Find My Plant</a>
       </div>
     </section>
 
@@ -424,14 +443,14 @@
             <span class="quick-action-card__icon">🌱</span>
             <h3>Find My Plant</h3>
             <p>Get plant recommendations based on your space and lifestyle.</p>
-            <a href="#" class="btn btn--secondary">Get Recommendation</a>
+            <a href="#recommendation" class="btn btn--secondary">Get Recommendation</a>
           </article>
 
           <article class="quick-action-card">
             <span class="quick-action-card__icon">🪴</span>
             <h3>My Plants</h3>
             <p>Keep track of the plants you own and their care status.</p>
-            <a href="#" class="btn btn--secondary">View My Plants</a>
+            <a href="my-plants.html" class="btn btn--secondary">View My Plants</a>
           </article>
 
           <article class="quick-action-card">
@@ -445,7 +464,7 @@
             <span class="quick-action-card__icon">💧</span>
             <h3>Care &amp; Reminders</h3>
             <p>Stay updated with watering, fertilizing, and other plant care tasks.</p>
-            <a href="#" class="btn btn--secondary">View Reminders</a>
+            <a href="#upcoming-care-section" class="btn btn--secondary">View Reminders</a>
           </article>
 
         </div>
@@ -460,35 +479,14 @@
 
         <div class="section-header-row">
           <h2 class="section-title">My Plants</h2>
-          <span class="demo-badge">Sample data</span>
+          <span class="count-badge" id="dash-plant-count">Loading…</span>
         </div>
 
-        <div class="mini-plant-grid">
-
-          <div class="mini-plant-card">
-            <span class="mini-plant-card__image" aria-hidden="true">🌿</span>
-            <div class="mini-plant-card__info">
-              <h3>Snake Plant</h3>
-              <span class="status-pill status-pill--healthy">Healthy</span>
-            </div>
-          </div>
-
-          <div class="mini-plant-card">
-            <span class="mini-plant-card__image" aria-hidden="true">🍃</span>
-            <div class="mini-plant-card__info">
-              <h3>Money Plant</h3>
-              <span class="status-pill status-pill--needs-water">Needs Water</span>
-            </div>
-          </div>
-
-          <div class="mini-plant-card">
-            <span class="mini-plant-card__image" aria-hidden="true">🌸</span>
-            <div class="mini-plant-card__info">
-              <h3>Peace Lily</h3>
-              <span class="status-pill status-pill--healthy">Healthy</span>
-            </div>
-          </div>
-
+        <!-- Filled by shop.js from Firestore. Shows the signed-in
+             user's own plants, or an empty/error state - never
+             placeholder data. -->
+        <div id="dash-plants" class="dashboard-section__body">
+          <p class="section-note">Loading your plants…</p>
         </div>
 
         <a href="my-plants.html" class="btn btn--secondary">View All My Plants</a>
@@ -498,45 +496,34 @@
     <!-- =========================================================
          UPCOMING CARE
          ========================================================= -->
-    <section class="dashboard-section">
+    <section class="dashboard-section" id="upcoming-care-section">
       <div class="container">
         <h2 class="section-title">Upcoming Care</h2>
 
-        <ul class="care-list">
-          <li class="care-list__item">
-            <span class="care-list__plant">Snake Plant</span>
-            <span class="care-list__task">Watering</span>
-            <span class="care-list__when care-list__when--today">Today</span>
-          </li>
-          <li class="care-list__item">
-            <span class="care-list__plant">Money Plant</span>
-            <span class="care-list__task">Watering</span>
-            <span class="care-list__when">Tomorrow</span>
-          </li>
-          <li class="care-list__item">
-            <span class="care-list__plant">Peace Lily</span>
-            <span class="care-list__task">Fertilizing</span>
-            <span class="care-list__when">In 3 days</span>
-          </li>
-        </ul>
+        <!-- Filled by shop.js from the care schedules stored with each
+             of the user's plants. Nothing is hardcoded, so a task only
+             appears when a real plant is due for it. -->
+        <div id="upcoming-care">
+          <p class="section-note">Loading care tasks…</p>
+        </div>
       </div>
     </section>
 
     <!-- =========================================================
          RECOMMENDATION BANNER
          ========================================================= -->
-    <section class="recommendation-banner">
+    <section class="recommendation-banner" id="recommendation">
       <div class="container recommendation-banner__inner">
         <h2>Find the Right Plant for Your Space</h2>
         <p>Tell Plantora about your room, environment, and lifestyle to discover plants that suit you.</p>
-        <a href="#" class="btn btn--accent">Start Recommendation</a>
+        <a href="explore.html" class="btn btn--accent">Browse Plants Instead</a>
       </div>
     </section>
 
     <!-- =========================================================
          KNOWLEDGE BASE
          ========================================================= -->
-    <section class="dashboard-section">
+    <section class="dashboard-section" id="knowledge">
       <div class="container">
         <h2 class="section-title">Plant Care Knowledge</h2>
 
@@ -548,7 +535,9 @@
           <span class="knowledge-topic">Pests</span>
         </div>
 
-        <a href="#" class="btn btn--secondary">Explore Knowledge Base</a>
+        <!-- No knowledge-base pages exist yet, so the topic chips above are
+             the content. A "Learn more" button here would be a dead
+             link, so it is left out until real articles exist. -->
       </div>
     </section>
 
@@ -578,10 +567,11 @@
       </div>
 
       <nav class="footer__links">
-        <a href="dashboard.html">Home</a>
+        <a href="index.html">Home</a>
         <a href="explore.html">Explore Plants</a>
-        <a href="#">Recommendation</a>
-        <a href="#">My Plants</a>
+        <a href="shop.html">Shop</a>
+        <a href="my-plants.html">My Plants</a>
+        <a href="index.html#about">About</a>
       </nav>
     </div>
 
