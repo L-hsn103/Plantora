@@ -106,6 +106,10 @@ function handlePostLoginRedirect() {
 // 6. NAVBAR SYNC - UPDATE LINKS BASED ON AUTH STATE
 // =============================================================
 function updateNavbarForAuth(isLoggedIn) {
+  // The Home link points somewhere different depending on who is
+  // signed in, so this runs first and independently of .nav-cta.
+  updateNavHomeLinks(isLoggedIn);
+
   const navCta = document.querySelector(".nav-cta");
 
   if (!navCta) return;
@@ -141,6 +145,50 @@ function updateNavbarForAuth(isLoggedIn) {
     setupUserMenu();
   } else {
     navCta.outerHTML = '<a href="login.html" class="btn btn--primary nav-cta">Get Started</a>';
+  }
+}
+
+// =============================================================
+// 6b. HOME / DASHBOARD LINKS
+// -------------------------------------------------------------
+// Signed out, "Home" means the public landing page. Signed in it
+// means the user's dashboard, which is where they actually want to
+// go. Both links are marked up with data-nav-home /
+// data-nav-dashboard; this swaps Home's href and keeps the "current
+// page" highlight honest.
+//
+// On the landing page there is a conflict: once signed in, Home points
+// at the dashboard, so Home can no longer be the page you are on. The
+// highlight moves to Dashboard so the navbar never looks broken, but
+// aria-current is deliberately NOT moved with it - neither Home nor
+// Dashboard points at index.html at that moment, and announcing
+// aria-current="page" for a link that goes somewhere else misleads
+// screen readers. The highlight is purely visual here.
+// =============================================================
+function updateNavHomeLinks(isLoggedIn) {
+  const homeLink = document.querySelector("[data-nav-home]");
+  const dashboardLink = document.querySelector("[data-nav-dashboard]");
+
+  if (!homeLink) return;
+
+  const isLandingPage =
+    window.location.pathname === "/" ||
+    window.location.pathname === "" ||
+    /(^|\/)index\.html$/.test(window.location.pathname);
+
+  homeLink.setAttribute("href", isLoggedIn ? "dashboard.html" : "index.html");
+
+  if (!isLandingPage) return; // every other page's markers are correct as authored
+
+  if (isLoggedIn) {
+    // Home is no longer this page. Move the highlight to Dashboard.
+    homeLink.removeAttribute("aria-current");
+    homeLink.classList.remove("active");
+    if (dashboardLink) dashboardLink.classList.add("active");
+  } else {
+    homeLink.setAttribute("aria-current", "page");
+    homeLink.classList.add("active");
+    if (dashboardLink) dashboardLink.classList.remove("active");
   }
 }
 
