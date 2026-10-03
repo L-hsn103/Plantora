@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop Plants — Plantora</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="explore.css" />
+  <!-- Load order matters: auth.js, then plant-data.js, store.js, then shop.js -->
+  <script src="auth.js" defer></script>
+  <script src="plant-data.js" defer></script>
+  <script src="store.js" defer></script>
+  <script src="shop.js" defer></script>
+
+  <style>
+    .demo-note {
+      background: #fbf0d9; color: #8a6414; border: 1px solid #ecd9a6;
+      border-radius: 12px; padding: 0.75rem 1rem; margin-top: 1rem;
+      font-size: 0.9rem; max-width: 60ch;
+    }
+    /* room for the notice box + grid below it */
+    #shop-notice:empty { display: none; }
+    .shop-price { color: var(--color-primary); margin: 0.5rem 0 0.15rem; font-size: 1.05rem; }
+    .shop-stock { font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 1rem; }
+    .shop-stock--low { color: #8a6414; font-weight: 600; }
+    .shop-stock--out { color: #991b1b; font-weight: 600; }
+    .shop-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .shop-actions .btn { margin-top: 0; }
+    .shop-actions button[disabled] {
+      background: var(--color-border); color: var(--color-text-muted);
+      cursor: not-allowed; transform: none; box-shadow: none;
+    }
+    /* Notice above the grid. The preview variant is deliberately
+       loud: until an admin sets up inventory, the numbers on the
+       cards are demo seed data and must not look authoritative. */
+    .shop-notice {
+      border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1.75rem;
+      font-size: 0.88rem; max-width: 70ch;
+    }
+    .shop-notice--preview {
+      background: #fbf0d9; color: #6e500f; border: 1px solid #ecd9a6;
+    }
+    .shop-notice--live {
+      background: #e4f0dd; color: var(--color-primary); border: 1px solid #cfe0c4;
+    }
+    .shop-image-fallback {
+      display: flex; align-items: center; justify-content: center; font-size: 3rem;
+      background: var(--color-bg-alt); aspect-ratio: 4 / 3; width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container navbar__inner">
+      <a href="index.html" class="logo">🌿 Plantora</a>
+
+      <nav class="nav-links">
+        <a href="index.html" data-nav-home>Home</a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="shop.html" class="active" aria-current="page">Shop</a>
+        <a href="dashboard.html" data-nav-dashboard>Dashboard</a>
+        <a href="my-plants.html">My Plants</a>
+        <a href="index.html#about">About</a>
+    </nav>
+      <div class="navbar__actions">
+        <a href="my-plants.html" class="btn btn--secondary">My Plants</a>
+        <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="explore-header">
+      <div class="container">
+        <h1>Plant Shop</h1>
+        <p>Pick a plant and check out. You'll need to log in to place an order.</p>
+        <p class="demo-note">
+          <strong>Demo shop:</strong> prices are illustrative (BDT) and no real payment is taken.
+        </p>
+      </div>
+    </section>
+
+    <section class="explore-results">
+      <div class="container">
+        <!-- shop.js owns every state here: a preview/live notice, then
+             the grid, or a single empty/error box. There is no
+             hardcoded "Loading..." paragraph, because a stale one was
+             showing up next to the real message. -->
+        <div id="shop-notice"></div>
+        <div class="plant-grid" id="shop-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <p class="logo logo--footer">🌿 Plantora</p>
+        <p>Helping you grow a greener space, one plant at a time.</p>
+      </div>
+
+      <nav class="footer__links">
+        <a href="index.html">Home</a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="shop.html">Shop</a>
+        <a href="my-plants.html">My Plants</a>
+        <a href="index.html#about">About</a>
+      </nav>
+    </div>
+
+    <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
+  </footer>
+
+</body>
+</html>
