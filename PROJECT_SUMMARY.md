@@ -19,7 +19,8 @@ Derived from the git history (`git shortlog`), not from assumption.
 |---|---|---|
 | **Ateea Benta Alamin** (11) | Login system, authentication, Firebase setup, navbar account menu | `auth.js`, `login.html`, `register.html`, Firebase project config, auth wiring across every page |
 | **Labib Hasan** (24) | Explore catalogue, search & filters, plant details page, UI/theme styling | `explore.css`, `style.css`, `script.js`, `explore.html`, `plant-details.html`, hero image |
-| **Jannatul Bakiya** (05) | Plant database, plant images, project documentation | `Data/plants.json` (20 plants), all 20 `image/plant/*.webp`, `README.md` |
+| **Jannatul Bakiya** (05) | Plant database, plant images, recommendation quiz, project documentation | `Data/plants.json` (20 plants), all 20 `image/plant/*.webp`, `recommendation.html` + `recommendation.js`, `README.md` |
+| **Labib Hasan** (24) | Landing/nav redesign, About sections, logo + favicon, flash-free auth UI | `auth-ui.js`, `index.html`, `style.css` auth-state rules, `image/Plantora_log.png`, navbar across all pages — commit `ff33532` |
 | **Marzia Hasan** (23) | API & integration — *no commits yet; plant identification API still unselected* | — |
 | **Ateea + frontend pair** | Firestore data layer, shop, checkout, sample-data removal, unified navbar | `store.js`, `plant-data.js`, `shop.js`, `shop.html`, `checkout.html`, `firestore.rules` — committed as `L-hsn103` and pushed to `origin/main` (`79e38ce`) |
 
@@ -34,11 +35,12 @@ Read this before trusting anything below.
 | Area | State |
 |---|---|
 | HTML / CSS / JS syntax | Checked with `node --check` and static link/structure analysis |
+| Auth UI state machine | Checked with a throwaway jsdom smoke test (32 assertions: signed-in/out on explore, index, dashboard, logout, repeat-run idempotency) — **script not committed, lives outside the repo** |
 | Landing, Explore, Plant Details | Working (previously verified) |
-| Firebase Auth (login/register) | Code written; **not re-verified since the navbar changes** |
+| Firebase Auth (login/register) | Code written; **not re-verified in a browser since the auth.js / auth-ui.js split** |
 | Firestore data layer (`store.js`, `firestore.rules`) | **Written but never executed.** No Firestore database exists on the project yet |
 | Shop, Checkout, Dashboard, My Plants data | Depends entirely on Firestore; untested |
-| Automated tests | **None.** No test framework, no `package.json`, no CI |
+| Automated tests in the repo | **None.** No test framework, no `package.json`, no CI |
 
 Everything marked untested can only be confirmed by running the site with `npx serve` and a real Firebase project.
 
@@ -47,11 +49,12 @@ Everything marked untested can only be confirmed by running the site with `npx s
 ## Features Implemented
 
 ### 1. Landing Page (index.html)
-- Hero section with plant visual
-- Features grid (4 cards)
-- How it works (3-step process)
+- Hero with plant visual; marketing CTAs **Log In** · **Explore Plants** (they become **Go to Dashboard** once signed in)
+- Features grid (4 cards), How it works (3-step process)
+- **About section** (`#about`) — the target of every About link while signed out
 - Final CTA section
-- Navbar with logo and navigation links
+- Navbar: logo image + **Home · Explore Plants · Shop · About** and the Get Started slot
+- The old floating "Your Room" info card was removed
 
 ### 2. Explore Plants (explore.html)
 - Search plants by name or scientific name
@@ -67,30 +70,48 @@ Everything marked untested can only be confirmed by running the site with `npx s
 - Indoor Suitability banner
 - "Add to My Plants" button — **still a placeholder `alert()`, not connected to the database**
 
-### 4. Authentication (auth.js)
+### 4. Authentication (auth.js + auth-ui.js)
+**Split by responsibility**
+
+| File | Loads | Owns |
+|---|---|---|
+| `auth.js` | `<head>`, `defer` | Firebase config/init, auth-state listener, route protection, login/register forms, friendly error messages |
+| `auth-ui.js` | plain `<script>` before `</body>` | DOM + storage only: navbar, About links, landing CTAs, dashboard greeting, profile menu — exposed as `window.PlantoraUI` |
+
+`auth-ui.js` runs **during page parse**, so the cached signed-in state is on screen before Firebase (or the network) answers. `auth.js` then calls `PlantoraUI.updateNavbarForAuth()` to confirm or correct it.
+
 **Firebase Authentication with Email/Password**
 - Login page (login.html) — email/password form
 - Register page (register.html) — name, email, password, confirm password
 - Firebase project: `plantora-87936`
-- Session mirror in `sessionStorage`
 - Forms bind automatically via `#login-form` / `#register-form`
 - Friendly error messages mapped from Firebase error codes
+
+**Session cache (no signed-out flash)**
+- The user is mirrored to `sessionStorage` (this tab) **and** `localStorage` (every other tab), and cleared from both on sign-out — a freshly opened tab starts signed-in instead of flashing the signed-out navbar
+- An inline snippet in `<head>` sets `html.is-auth` from that cache **before the body renders**
+- `style.css` state rules then do the visible part with no JavaScript at all: `My Plants` appears, `Get Started` hides, and paired label spans swap (`Home`/`Dashboard`, `Log In`/`Get Started` → `Go to Dashboard`)
+- `auth-ui.js` fills in the parts CSS cannot: hrefs, current-page highlight, the personalised greeting and the profile menu
 
 **Route Protection**
 - `dashboard.html` and `my-plants.html` require login (`data-requires-auth="true"` on `<body>`)
 - `checkout.html` is also protected
 - Other pages are public
-- Redirect back to the original page via `?redirect=`
+- Redirect back to the original page via `?redirect=` (reads both storage mirrors)
 
 **Navbar profile dropdown**
 - Signed out: "Get Started" button
 - Signed in: display name + 👤 dropdown, showing the account email, with a Logout button
-- Closes on outside click, ARIA attributes present
+- Closes on outside click, ARIA attributes present, injected once (a repeat call cannot duplicate it)
 
-**Auth-aware Home link**
-- Signed out, "Home" goes to the landing page
-- Signed in, "Home" goes to the dashboard
+**Auth-aware first nav slot**
+- Signed out: **Home → index.html**, first position
+- Signed in: **Dashboard → dashboard.html**, first position (same slot, the words are CSS-toggled spans)
 - The highlight moves with it, but `aria-current` is only set where it is factually true
+
+**Auth-aware About**
+- Signed out: `index.html#about` — the landing About section
+- Signed in: `dashboard.html#about` (`#about` on the dashboard itself), so a logged-in user is never sent back to the marketing page
 
 ### 5. Shop (shop.html)
 - Public listing of all 20 plants with prices and stock
@@ -105,11 +126,12 @@ Everything marked untested can only be confirmed by running the site with `npx s
 - Clearly marked as taking no real money
 
 ### 7. Dashboard (dashboard.html)
-- Welcome hero with "Find My Plant" CTA
+- Welcome hero, personalised from the cached session: **"Welcome Back, name!"** (falls back to "Welcome Back, Plant Lover!" when signed out), with the "Find My Plant" CTA
 - Quick Actions grid (4 cards)
 - **My Plants** summary — real plants from the database, with a live count
 - **Upcoming Care** — real care tasks due within 7 days, grouped by date
 - Recommendation banner, Plant Care Knowledge topics, Explore Plant Library CTA
+- **About section** (`#about`, `.about--plain`) — where the About link points for signed-in users
 - **All sample data has been removed.** Empty and error states replace the old hardcoded cards
 
 ### 8. My Plants (my-plants.html)
@@ -130,10 +152,21 @@ Every Firestore-backed list renders one of three states, and they are deliberate
 
 Collapsing the last two would tell a user they own no plants when the truth is that the database could not be reached.
 
-### 10. Consistent navigation (all 7 pages)
-One navbar across `index`, `explore`, `plant-details`, `shop`, `checkout`, `dashboard`, `my-plants`:
+### 10. Consistent navigation (8 pages)
+One navbar across `index`, `explore`, `plant-details`, `shop`, `checkout`, `recommendation`, `dashboard`, `my-plants` (`login` / `register` use their own card layout):
 
-**Home · Explore Plants · Shop · Dashboard · My Plants · About**, plus a `My Plants` button and the auth slot. One identical footer everywhere. Current page marked with `aria-current="page"`. There are **no dead `#` links** in the project.
+| | Signed out | Signed in |
+|---|---|---|
+| Links | Home · Explore Plants · Shop · About | Dashboard · Explore Plants · Shop · My Plants · About |
+| Right slot | Get Started | 👤 name dropdown (email + Logout) |
+
+- The landing page carries `navbar--landing`: its links are centred between logo and CTA and stay visible on small screens
+- **My Plants** is `data-nav-private` — hidden in the markup, revealed only for signed-in users (CSS first, JS confirmed)
+- One identical footer everywhere, current page marked with `aria-current="page"`, **no dead `#` links**
+
+### 11. Branding
+- `image/Plantora_log.png` is the site mark: navbar logo, footer logo, login/register card logo, and the **favicon on every page** (`<link rel="icon">`, all 11 HTML files)
+- Section icons are still emoji
 
 ---
 
@@ -207,7 +240,7 @@ They check who writes and the shape of the data. They cannot verify that a price
 - **Database**: Cloud Firestore (written, not yet deployed)
 - **Plant catalogue**: `Data/plants.json`, 20 plants
 - **Fonts**: Google Fonts (Fraunces for headings, Inter for body)
-- **Icons**: Emoji-based (no icon library)
+- **Logo / favicon**: `image/Plantora_log.png` (nav, footer, auth cards, browser tab); section icons are emoji
 - **No build step, no bundler, no `package.json`**
 
 ### JavaScript style
@@ -220,21 +253,24 @@ Two styles coexist, which is inconsistent but intentional during the handover:
 ## Project Structure
 ```text
 Plantora/
-├── index.html              # Landing page
+├── index.html              # Landing page (hero, features, how it works, About, CTA)
 ├── explore.html            # Browse plants with search/filter
 ├── plant-details.html      # Detailed plant view
 ├── shop.html               # Plant shop with prices and stock (public)
 ├── checkout.html           # Demo checkout (protected)
+├── recommendation.html     # Recommendation quiz + results
+├── recommendation.js       # Quiz flow + result rendering
 ├── login.html              # Login page
 ├── register.html           # Registration page
-├── dashboard.html          # User dashboard (protected)
+├── dashboard.html          # User dashboard (protected, includes About section)
 ├── my-plants.html          # User's plant collection (protected)
 ├── admin.html              # Placeholder notes only - admin portal not built
 ├── admin.js                # Placeholder notes only - admin portal not built
-├── style.css               # Shared theme, landing page, empty states
+├── style.css               # Shared theme, landing page, auth-state rules, empty states
 ├── explore.css             # Explore & plant-details styles
 ├── script.js               # Explore + plant-details rendering
-├── auth.js                 # Firebase auth, navbar, route protection
+├── auth.js                 # Firebase: init, listener, route protection, forms
+├── auth-ui.js              # DOM + storage: navbar, About/CTA links, greeting, user menu
 ├── plant-data.js           # Catalogue loader + demo inventory seed
 ├── store.js                # Firestore data layer + care schedule maths
 ├── shop.js                 # Page controllers (shop, dashboard, my-plants)
@@ -243,12 +279,14 @@ Plantora/
 ├── Data/
 │   └── plants.json         # 20 plants with care info
 └── image/
+    ├── Plantora_log.png    # Site mark: navbar, footer, auth cards, favicon
     ├── hero-plant.jpg
     └── plant/              # 20 .webp images, one per plant
 ```
 
-**Script load order on every data-bearing page:**
-`auth.js` → `plant-data.js` → `store.js` → `shop.js`
+**Script order on every page:**
+- `<head>`: `auth.js`, `plant-data.js`, `store.js`, `shop.js` — all `defer` — plus the inline snippet that sets `html.is-auth` from the cached session **before first paint**
+- before `</body>`: `auth-ui.js` (plain script, so it runs during parse, not after a deferred fetch)
 
 ---
 
@@ -316,7 +354,7 @@ Works on any static host (Netlify, Vercel, Firebase Hosting, GitHub Pages). Add 
 2. **`script.js` duplicates all 20 plants.** `plants.json` and `script.js` are two sources for the same data and can drift. This has already happened once: at `script.js:500` the Bunny Ears Cactus points at `boston-fern.webp`. It is currently masked because `Data/plants.json` overwrites the built-in list on load, so the bug only shows if the JSON fails to load. **Fix: delete the built-in array and read from `plant-data.js`.**
 3. **`login.html` and `register.html` still display "This is an early prototype — login is not yet functional."** This copy is wrong; login does work. Never corrected.
 4. **"Add to My Plants" on `plant-details.html` is still an `alert()`** (`script.js:775`). Nothing on any page can add a plant yet.
-5. **No automated tests.** The `_setBackendForTests()` hook in `store.js` exists for offline testing but no test file uses it.
+5. **No automated tests in the repo.** The `_setBackendForTests()` hook in `store.js` exists for offline testing but no test file uses it. The auth-UI smoke test (32 jsdom assertions) was written in a temp directory, run once, and deliberately not committed — there is still no `package.json`.
 6. **`nextDue` uses the browser clock**, so clock skew shifts reminders. A real fix computes dates in Cloud Functions.
 7. **`admin.html` / `admin.js` contain placeholder notes only.** The admin portal is not built and neither file is linked from any page.
 
@@ -338,6 +376,9 @@ All work below is pushed to `origin/main`.
 
 | Commit | Message |
 |--------|---------|
+| `ff33532` | feat: auth-aware navbar and About sections, logo branding, flash-free signed-in state |
+| `b158131` | Add plant recommendation system with dashboard integration |
+| `462c7bc` | docs: correct stale status claims in project summary |
 | `f876caf` | docs: record current status, Firestore schema and contributions |
 | `cf8225f` | chore: remove unused snake-plant.jpg |
 | `76ae7ab` | refactor: remove placeholder sample data, wire dashboard and My Plants to real data |
@@ -353,7 +394,7 @@ All work below is pushed to `origin/main`.
 | `82a4d00` | Integrate auth.js across all pages |
 | `2b036db` | Add Firebase Auth (auth.js) |
 
-**Pushed but never run in a browser:** the Firestore data layer and rules, the shop and checkout pages, removal of all sample data from the dashboard and My Plants, the three-state rendering, the unified navbar/footer, and the auth-aware Home link.
+**Pushed but never run in a browser:** the Firestore data layer and rules, the shop and checkout pages, removal of all sample data from the dashboard and My Plants, the three-state rendering, the unified navbar/footer, the auth-aware nav, the `auth.js` / `auth-ui.js` split and the flash-free signed-in first paint (that last part only has the jsdom smoke test).
 
 ---
 
