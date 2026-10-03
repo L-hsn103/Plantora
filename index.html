@@ -15,27 +15,34 @@
 
   <link rel="stylesheet" href="style.css" />
   <script src="auth.js" defer></script>
+  <link rel="icon" type="image/png" href="image/Plantora_log.png" />
+
+  <!-- Signed-in state before first paint; auth-ui.js keeps it in sync -->
+  <script>
+    try {
+      if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
+        document.documentElement.classList.add("is-auth");
+      }
+    } catch (err) {}
+  </script>
 </head>
 <body>
 
   <!-- =========================================================
        NAVBAR
        ========================================================= -->
-  <header class="navbar">
+  <header class="navbar navbar--landing">
     <div class="container navbar__inner">
-      <a href="#home" class="logo">🌿 Plantora</a>
+      <a href="#home" class="logo"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</a>
 
-      <!-- Nav links: hidden on small screens, see media query in style.css -->
+      <!-- Nav links: hidden on small screens except on this landing page -->
       <nav class="nav-links">
-        <a href="index.html" data-nav-home class="active" aria-current="page">Home</a>
+        <a href="index.html" data-nav-home class="active" aria-current="page"><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html">Explore Plants</a>
         <a href="shop.html">Shop</a>
-        <a href="dashboard.html" data-nav-dashboard>Dashboard</a>
-        <a href="my-plants.html">My Plants</a>
         <a href="index.html#about">About</a>
-    </nav>
+      </nav>
       <div class="navbar__actions">
-        <a href="my-plants.html" class="btn btn--secondary">My Plants</a>
         <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
       </div>
     </div>
@@ -56,13 +63,13 @@
             environment, and lifestyle — and makes plant care easier.
           </p>
           <div class="hero__actions">
-            <a href="login.html" class="btn btn--primary">Log In</a>
+            <a href="login.html" class="btn btn--primary" data-auth-cta><span class="cta-label cta-label--out">Log In</span><span class="cta-label cta-label--in">Go to Dashboard</span></a>
             <a href="explore.html" class="btn btn--secondary">Explore Plants</a>
           </div>
         </div>
 
         <!-- Decorative visual: an organic "blob" shape holding a realistic
-             plant photo, with floating leaves and a small info card. -->
+             plant photo, with floating leaves. -->
         <div class="hero__visual">
           <div class="hero__blob">
             <img class="hero__plant" src="image/hero-plant.jpg" alt="Monstera deliciosa indoor plant" />
@@ -71,11 +78,6 @@
             <span class="hero__leaf hero__leaf--three">🪴</span>
           </div>
 
-          <div class="hero__card">
-            <p class="hero__card-title">Your Room</p>
-            <p class="hero__card-detail">☀️ Bright, indirect light</p>
-            <p class="hero__card-detail">💧 Water twice a week</p>
-          </div>
         </div>
 
       </div>
@@ -148,12 +150,46 @@
     </section>
 
     <!-- =========================================================
+         ABOUT SECTION
+         ========================================================= -->
+    <section class="about" id="about">
+      <div class="container">
+        <h2 class="section-title">About Plantora</h2>
+        <p class="about__lead">
+          Plantora helps you find the right indoor plant for your space and keeps
+          its care simple. Tell us about your room, get matched plants, and track
+          watering and light in one place.
+        </p>
+
+        <div class="about__grid">
+          <article class="about__card">
+            <span class="about__icon">🌱</span>
+            <h3>What We Do</h3>
+            <p>We match plants to your light, space and routine, so you buy one that actually thrives.</p>
+          </article>
+
+          <article class="about__card">
+            <span class="about__icon">🤝</span>
+            <h3>Who It's For</h3>
+            <p>First-time plant owners and collectors who want guidance without the guesswork.</p>
+          </article>
+
+          <article class="about__card">
+            <span class="about__icon">🎓</span>
+            <h3>Student Project</h3>
+            <p>Plantora is built as a student project — feedback and ideas are always welcome.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
          FINAL CTA SECTION
          ========================================================= -->
     <section class="final-cta">
       <div class="container final-cta__inner">
         <h2>Ready to Find Your Perfect Plant?</h2>
-        <a href="login.html" class="btn btn--accent">Get Started</a>
+        <a href="login.html" class="btn btn--accent" data-auth-cta><span class="cta-label cta-label--out">Get Started</span><span class="cta-label cta-label--in">Go to Dashboard</span></a>
       </div>
     </section>
 
@@ -162,11 +198,11 @@
   <!-- =========================================================
        FOOTER
        ========================================================= -->
-  <footer class="footer" id="about">
+  <footer class="footer" id="footer">
     <div class="container footer__inner">
 
       <div class="footer__brand">
-        <p class="logo logo--footer">🌿 Plantora</p>
+        <p class="logo logo--footer"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</p>
         <p>Helping you grow a greener space, one plant at a time.</p>
       </div>
 
@@ -183,5 +219,6 @@
     <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
   </footer>
 
+  <script src="auth-ui.js"></script>
 </body>
 </html>

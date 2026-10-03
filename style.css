@@ -9,9 +9,10 @@
    5. Hero
    6. Features
    7. How It Works
-   8. Final CTA
-   9. Footer
-   10. Responsive media queries
+   8. About
+   9. Final CTA
+   10. Footer
+   11. Responsive media queries
    ============================================================= */
 
 /* -------------------------------------------------------------
@@ -63,6 +64,12 @@ body {
 img {
   max-width: 100%;
   display: block;
+}
+
+/* Author display rules (.btn, .nav-links a) would otherwise beat the UA
+   style for [hidden]; the signed-out navbar relies on it. */
+[hidden] {
+  display: none !important;
 }
 
 a {
@@ -297,15 +304,32 @@ h3 {
 }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   font-family: var(--font-heading);
   font-size: 1.4rem;
   font-weight: 600;
   color: var(--color-primary-dark);
 }
 
+/* Site mark (image/Plantora_log.png) used in nav, footer and auth cards */
+.logo__img {
+  width: 1.7rem;
+  height: 1.7rem;
+  object-fit: contain;
+}
+
 .nav-links {
   display: flex;
   gap: 2rem;
+}
+
+/* Landing navbar: only three short links, centered between the logo
+   and the Get Started button. */
+.navbar--landing .nav-links {
+  flex: 1;
+  justify-content: center;
 }
 
 /* Holds the header's buttons so the flex navbar keeps three groups
@@ -326,6 +350,36 @@ h3 {
 
 .nav-links a:hover {
   color: var(--color-primary);
+}
+
+/* -------------------------------------------------------------
+   SIGNED-IN STATE AT FIRST PAINT
+   html.is-auth is set by the inline <head> snippet from the cached
+   session (and kept in sync by auth-ui.js), so signed-in visitors
+   never see the signed-out navbar flash by. The word swaps live in
+   paired spans: --out is the signed-out label, --in the signed-in one.
+   ------------------------------------------------------------- */
+html.is-auth [data-nav-private] {
+  display: inline !important;
+}
+
+html.is-auth .nav-cta {
+  display: none !important;
+}
+
+.nav-label--in,
+.cta-label--in {
+  display: none;
+}
+
+html.is-auth .nav-label--out,
+html.is-auth .cta-label--out {
+  display: none;
+}
+
+html.is-auth .nav-label--in,
+html.is-auth .cta-label--in {
+  display: inline;
 }
 
 /* -------------------------------------------------------------
@@ -420,30 +474,6 @@ h3 {
   bottom: -22px;
   left: 60px;
   font-size: 3.5rem;
-}
-
-.hero__card {
-  position: absolute;
-  left: -30px;
-  bottom: 10px;
-  background-color: var(--color-surface);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-soft);
-  padding: 1.1rem 1.4rem;
-  width: 190px;
-}
-
-.hero__card-title {
-  font-family: var(--font-heading);
-  font-weight: 600;
-  color: var(--color-primary-dark);
-  margin-bottom: 0.4rem;
-}
-
-.hero__card-detail {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  margin-top: 0.2rem;
 }
 
 /* -------------------------------------------------------------
@@ -541,7 +571,59 @@ h3 {
 }
 
 /* -------------------------------------------------------------
-   8. FINAL CTA
+   8. ABOUT
+   ------------------------------------------------------------- */
+.about {
+  padding: 5.5rem 0;
+  background-color: var(--color-bg-alt);
+  scroll-margin-top: 6rem;
+}
+
+.about__lead {
+  max-width: 62ch;
+  margin: 0 auto 2.75rem;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.about__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.about__card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+}
+
+.about__icon {
+  display: block;
+  font-size: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.about__card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.about__card p {
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+}
+
+/* Dashboard variant: its neighbouring blocks use --color-bg-alt, so the
+   About band switches to the page background to keep the rhythm. */
+.about--plain {
+  background-color: var(--color-bg);
+}
+
+/* -------------------------------------------------------------
+   9. FINAL CTA
    ------------------------------------------------------------- */
 .final-cta {
   background-color: var(--color-primary-dark);
@@ -559,7 +641,7 @@ h3 {
 }
 
 /* -------------------------------------------------------------
-   9. FOOTER
+   10. FOOTER
    ------------------------------------------------------------- */
 .footer {
   background-color: var(--color-bg-alt);
@@ -586,6 +668,21 @@ h3 {
   font-size: 1.25rem;
 }
 
+.logo--footer .logo__img {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+
+/* Auth cards show the mark above the wordmark, centred */
+.login-card__logo .logo__img,
+.register-card__logo .logo__img {
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  margin: 0 auto 0.75rem;
+}
+
 .footer__links {
   display: flex;
   gap: 1.5rem;
@@ -610,7 +707,7 @@ h3 {
 }
 
 /* -------------------------------------------------------------
-   10. RESPONSIVE MEDIA QUERIES
+   11. RESPONSIVE MEDIA QUERIES
    ------------------------------------------------------------- */
 
 /* Tablet */
@@ -668,6 +765,20 @@ h3 {
     font-size: 0.82rem;
   }
 
+  /* Landing navbar has no action buttons and only three short links,
+     so keep them visible instead of collapsing the whole header. */
+  .navbar--landing .nav-links {
+    display: flex;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .navbar--landing .nav-links a {
+    display: inline-block;
+    font-size: 0.82rem;
+  }
+
   .hero__inner {
     flex-direction: column;
     text-align: center;
@@ -701,13 +812,11 @@ h3 {
     height: calc(100% - 30px);
   }
 
-  .hero__card {
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: -20px;
+  .features__grid {
+    grid-template-columns: 1fr;
   }
 
-  .features__grid {
+  .about__grid {
     grid-template-columns: 1fr;
   }
 

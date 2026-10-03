@@ -153,6 +153,16 @@
       text-align: center;
     }
   </style>
+  <link rel="icon" type="image/png" href="image/Plantora_log.png" />
+
+  <!-- Signed-in state before first paint; auth-ui.js keeps it in sync -->
+  <script>
+    try {
+      if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
+        document.documentElement.classList.add("is-auth");
+      }
+    } catch (err) {}
+  </script>
 </head>
 <body>
 
@@ -161,7 +171,7 @@
     <a href="index.html" class="register-back-link">&larr; Back to Home</a>
 
     <div class="register-card">
-      <p class="register-card__logo">🌿 Plantora</p>
+      <p class="register-card__logo"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</p>
 
       <h1>Create Account</h1>
       <p class="register-card__intro">
@@ -200,5 +210,6 @@
     <p class="register-note">This is an early prototype — registration is not yet functional.</p>
   </div>
 
+  <script src="auth-ui.js"></script>
 </body>
 </html>

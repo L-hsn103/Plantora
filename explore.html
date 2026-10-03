@@ -18,6 +18,16 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="explore.css" />
   <script src="auth.js" defer></script>
+  <link rel="icon" type="image/png" href="image/Plantora_log.png" />
+
+  <!-- Signed-in state before first paint; auth-ui.js keeps it in sync -->
+  <script>
+    try {
+      if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
+        document.documentElement.classList.add("is-auth");
+      }
+    } catch (err) {}
+  </script>
 </head>
 <body>
 
@@ -26,18 +36,16 @@
        ========================================================= -->
   <header class="navbar">
     <div class="container navbar__inner">
-      <a href="index.html" class="logo">🌿 Plantora</a>
+      <a href="index.html" class="logo"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</a>
 
       <nav class="nav-links">
-        <a href="index.html" data-nav-home>Home</a>
+        <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html" class="active" aria-current="page">Explore Plants</a>
         <a href="shop.html">Shop</a>
-        <a href="dashboard.html" data-nav-dashboard>Dashboard</a>
-        <a href="my-plants.html">My Plants</a>
+        <a href="my-plants.html" data-nav-private hidden>My Plants</a>
         <a href="index.html#about">About</a>
     </nav>
       <div class="navbar__actions">
-        <a href="my-plants.html" class="btn btn--secondary">My Plants</a>
         <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
       </div>
     </div>
@@ -140,7 +148,7 @@
   <footer class="footer" id="footer">
     <div class="container footer__inner">
       <div class="footer__brand">
-        <p class="logo logo--footer">🌿 Plantora</p>
+        <p class="logo logo--footer"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</p>
         <p>Helping you grow a greener space, one plant at a time.</p>
       </div>
 
@@ -157,5 +165,6 @@
   </footer>
 
   <script src="script.js" defer></script>
+  <script src="auth-ui.js"></script>
 </body>
 </html>
