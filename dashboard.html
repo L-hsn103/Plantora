@@ -24,17 +24,7 @@
   <script src="shop.js" defer></script>
 
   <style>
-    /* =============================================================
-       DASHBOARD — page-specific styles
-       -------------------------------------------------------------
-       Kept inline here since no second CSS file is allowed. Colors
-       and fonts reuse the variables already defined in style.css's
-       :root (with safe fallbacks, just in case a name differs).
-       -------------------------------------------------------------
-       Sections: navbar active link, hero, quick actions,
-       my plants summary, upcoming care, recommendation banner,
-       knowledge base, explore library CTA, responsive queries.
-       ============================================================= */
+    /* DASHBOARD — page-specific styles*/
 
     /* --- Reuse the "active" nav link look from other pages --- */
     .nav-links a.active {
@@ -49,9 +39,7 @@
       margin-bottom: 1.5rem;
     }
 
-    /* -------------------------------------------------------------
-       WELCOME HERO
-       ------------------------------------------------------------- */
+    /* WELCOME HERO */
     .dashboard-hero {
       background-color: var(--color-bg-alt, #eaf0e1);
       padding: 3.5rem 0;
@@ -74,9 +62,7 @@
       margin-bottom: 1.75rem;
     }
 
-    /* -------------------------------------------------------------
-       SHARED SECTION SPACING
-       ------------------------------------------------------------- */
+    /* SHARED SECTION SPACING */
     .dashboard-section {
       padding: 3.5rem 0;
     }
@@ -115,9 +101,7 @@
       margin-bottom: 1.75rem;
     }
 
-    /* -------------------------------------------------------------
-       QUICK ACTIONS
-       ------------------------------------------------------------- */
+    /* QUICK ACTIONS */
     .quick-actions__grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -275,9 +259,7 @@
       color: #8a6414;
     }
 
-    /* -------------------------------------------------------------
-       RECOMMENDATION BANNER
-       ------------------------------------------------------------- */
+    /* RECOMMENDATION BANNER */
     .recommendation-banner {
       background-color: var(--color-primary, #2d5a3d);
       padding: 3.5rem 0;
@@ -302,9 +284,7 @@
       margin-bottom: 1.75rem;
     }
 
-    /* -------------------------------------------------------------
-       KNOWLEDGE BASE
-       ------------------------------------------------------------- */
+    /*  KNOWLEDGE BASE */
     .knowledge-topics {
       display: flex;
       flex-wrap: wrap;
@@ -323,9 +303,7 @@
       padding: 0.5rem 1.1rem;
     }
 
-    /* -------------------------------------------------------------
-       EXPLORE PLANT LIBRARY CTA
-       ------------------------------------------------------------- */
+    /* EXPLORE PLANT LIBRARY CTA */
     .explore-library-cta__inner {
       display: flex;
       align-items: center;
@@ -346,9 +324,7 @@
       max-width: 46ch;
     }
 
-    /* -------------------------------------------------------------
-       RESPONSIVE MEDIA QUERIES
-       ------------------------------------------------------------- */
+    /*  RESPONSIVE MEDIA QUERIES  */
     @media (max-width: 900px) {
       .quick-actions__grid {
         grid-template-columns: repeat(2, 1fr);
@@ -401,9 +377,7 @@
 </head>
 <body data-requires-auth="true">
 
-  <!-- =========================================================
-       NAVBAR (logged-in version — same structure as other pages)
-       ========================================================= -->
+  <!-- NAVBAR (logged-in version — same structure as other pages) -->
   <header class="navbar">
     <div class="container navbar__inner">
       <a href="dashboard.html" class="logo"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</a>
@@ -426,9 +400,7 @@
 
   <main>
 
-    <!-- =========================================================
-         WELCOME HERO
-         ========================================================= -->
+    <!-- WELCOME HERO -->
     <section class="dashboard-hero">
       <div class="container dashboard-hero__inner">
         <h1 id="dash-welcome">Welcome Back, Plant Lover!</h1>
@@ -437,9 +409,7 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         QUICK ACTIONS
-         ========================================================= -->
+    <!-- QUICK ACTIONS -->
     <section class="dashboard-section">
       <div class="container">
         <h2 class="section-title">Quick Actions</h2>
@@ -478,9 +448,7 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         MY PLANTS SUMMARY
-         ========================================================= -->
+    <!--  MY PLANTS SUMMARY -->
     <section class="dashboard-section dashboard-section--alt">
       <div class="container">
 
@@ -500,25 +468,17 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         UPCOMING CARE
-         ========================================================= -->
+    <!-- UPCOMING CARE -->
     <section class="dashboard-section" id="upcoming-care-section">
       <div class="container">
         <h2 class="section-title">Upcoming Care</h2>
-
-        <!-- Filled by shop.js from the care schedules stored with each
-             of the user's plants. Nothing is hardcoded, so a task only
-             appears when a real plant is due for it. -->
         <div id="upcoming-care">
           <p class="section-note">Loading care tasks…</p>
         </div>
       </div>
     </section>
 
-    <!-- =========================================================
-         RECOMMENDATION BANNER
-         ========================================================= -->
+    <!-- RECOMMENDATION BANNER -->
     <section class="recommendation-banner" id="recommendation">
       <div class="container recommendation-banner__inner">
         <h2>Find the Right Plant for Your Space</h2>
@@ -527,9 +487,7 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         KNOWLEDGE BASE
-         ========================================================= -->
+    <!-- KNOWLEDGE BASE -->
     <section class="dashboard-section" id="knowledge">
       <div class="container">
         <h2 class="section-title">Plant Care Knowledge</h2>
@@ -541,16 +499,10 @@
           <span class="knowledge-topic">Root Problems</span>
           <span class="knowledge-topic">Pests</span>
         </div>
-
-        <!-- No knowledge-base pages exist yet, so the topic chips above are
-             the content. A "Learn more" button here would be a dead
-             link, so it is left out until real articles exist. -->
       </div>
     </section>
 
-    <!-- =========================================================
-         EXPLORE PLANT LIBRARY CTA
-         ========================================================= -->
+    <!-- EXPLORE PLANT LIBRARY CTA -->
     <section class="dashboard-section dashboard-section--alt explore-library-cta">
       <div class="container explore-library-cta__inner">
         <div>
@@ -561,10 +513,7 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         ABOUT (signed-in users reach it from the About link instead
-         of being sent back to the public landing page)
-         ========================================================= -->
+    <!-- ABOUT  -->
     <section class="about about--plain" id="about">
       <div class="container">
         <h2 class="section-title">About Plantora</h2>
@@ -598,9 +547,7 @@
 
   </main>
 
-  <!-- =========================================================
-       FOOTER (same structure as other pages)
-       ========================================================= -->
+  <!-- FOOTER (same structure as other pages) -->
   <footer class="footer" id="footer">
     <div class="container footer__inner">
       <div class="footer__brand">

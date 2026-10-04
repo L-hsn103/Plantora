@@ -18,13 +18,6 @@
   <script src="auth.js" defer></script>
 
   <style>
-    /* =============================================================
-       LOGIN PAGE — page-specific styles
-       -------------------------------------------------------------
-       Kept inline here since no second CSS file is allowed.
-       Colors/fonts reuse the variables already defined in
-       style.css's :root (with safe fallbacks, just in case).
-       ============================================================= */
 
     .login-page {
       min-height: 100vh;
@@ -120,7 +113,6 @@
       outline-offset: 2px;
     }
 
-    /* Make the shared .btn class behave properly on a <button> element */
     .login-form .btn {
       width: 100%;
       text-align: center;
@@ -155,7 +147,6 @@
   </style>
   <link rel="icon" type="image/png" href="image/Plantora_log.png" />
 
-  <!-- Signed-in state before first paint; auth-ui.js keeps it in sync -->
   <script>
     try {
       if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {

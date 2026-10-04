@@ -1,46 +1,4 @@
-/* =============================================================
-   PLANTORA — script.js
-   -------------------------------------------------------------
-   This one file is shared by every page. It currently does
-   three jobs:
 
-     1. PLANT DATA        — tries to load Data/plants.json first; if
-                              that fails (e.g. opened directly via
-                              file://) it falls back to the sample
-                              list below. Used by both Explore
-                              Plants and Plant Details.
-     2. EXPLORE PLANTS     — builds the plant cards, and handles
-                              search + filters (only runs on
-                              explore.html)
-     3. PLANT DETAILS      — reads the plant id from the page URL
-                              and fills in plant-details.html (only
-                              runs on plant-details.html)
-
-   Each section checks whether the elements it needs exist on the
-   current page before running, so this single file works safely
-   on index.html, explore.html and plant-details.html.
-
-   The page-specific parts only run after the data is ready, so
-   both Explore Plants and Plant Details always have the full list.
-   ============================================================= */
-
-/* -------------------------------------------------------------
-   1. PLANT DATA
-   -------------------------------------------------------------
-The following array is the built-in fallback dataset, used when
-   Data/plants.json can't be loaded (e.g. the page is opened straight
-   from the file system). If Data/plants.json exists next to this file,
-   its contents take priority and replace this list.
-
-   IMPORTANT: this list is a copy of Data/plants.json, so both must be
-   kept in sync. Whenever the JSON changes, copy the new entries over
-   here too — otherwise the file:// version of the site shows old data.
-
-   NOTE ON IMAGES: most entries use placehold.co, a free placeholder
-   image service, so the page works immediately with no image
-   files needed. They are TEMPORARY — swap them for real local
-   images later.
-   ------------------------------------------------------------- */
 const plants = [
   {
     id: 1,
@@ -704,24 +662,14 @@ function initExplorePage() {
     renderPlants(getFilteredPlants());
   }
 
-  /* ---------------------------------------------------------
-     Search suggestions (autocomplete)
-     ---------------------------------------------------------
-     Typing shows up to 6 matching plant names under the box:
-     names (or scientific names) that START with the typed text
-     come first, then ones that merely contain it, alphabetical
-     within each group. Typing letters like "s" therefore suggests
-     Snake Plant, Spider Plant, ... as expected.
-     --------------------------------------------------------- */
+  /* Search suggestions */
   const suggestionsList = document.getElementById("search-suggestions");
   const SUGGESTION_LIMIT = 6;
   let activeSuggestion = -1; // highlighted row, -1 = none yet
 
   function getSuggestions(term) {
     const t = term.toLowerCase();
-    // 0 = the plant's own name starts with the typed text,
-    // 1 = scientific name starts with it (or the name contains it),
-    // 2 = only the scientific name contains it
+
     const tiers = [[], [], []];
     plants.forEach((plant) => {
       const name = plant.name.toLowerCase();
@@ -801,21 +749,17 @@ function initExplorePage() {
     }
   }
 
-  // Fill the search box with the chosen plant and filter the grid
   function acceptSuggestion(item) {
     searchInput.value = item.dataset.name;
     hideSuggestions();
     updateResults();
   }
 
-  // Typing re-filters the grid AND refreshes the suggestion list
   searchInput.addEventListener("input", () => {
     updateResults();
     renderSuggestions(getSuggestions(searchInput.value.trim()));
   });
 
-  // Keyboard: ArrowUp / ArrowDown move the highlight, Enter accepts,
-  // Escape closes. Arrow keys reopen the list if it was closed.
   searchInput.addEventListener("keydown", (e) => {
     const openIfClosed = () => {
       if (!suggestionsList.hidden) return true;
@@ -845,17 +789,13 @@ function initExplorePage() {
     }
   });
 
-  // Clicking the input again re-opens suggestions for what's typed
   searchInput.addEventListener("focus", () => {
     const term = searchInput.value.trim();
     if (term) renderSuggestions(getSuggestions(term));
   });
 
-  // Clicking away closes the list
   searchInput.addEventListener("blur", hideSuggestions);
 
-  // Clicking a row: mousedown keeps the input focused (so blur can't
-  // hide the list first), then click fills the search box
   suggestionsList.addEventListener("mousedown", (e) => e.preventDefault());
   suggestionsList.addEventListener("click", (e) => {
     const item = e.target.closest(".search-suggestions__item");
@@ -872,23 +812,15 @@ function initExplorePage() {
   renderPlants(plants);
 }
 
-/* -------------------------------------------------------------
-   3. PLANT DETAILS PAGE
-   -------------------------------------------------------------
-   Everything in this block only runs if #plant-name exists on
-   the current page (i.e. we're on plant-details.html).
-   ------------------------------------------------------------- */
+/* 3. PLANT DETAILS PAGE */
 function initDetailsPage() {
   const plantNameEl = document.getElementById("plant-name");
 
   if (!plantNameEl) return;
 
-  // Read the "id" value from the page URL, e.g. plant-details.html?id=2
   const urlParams = new URLSearchParams(window.location.search);
   const requestedId = Number(urlParams.get("id"));
 
-  // Find the matching plant. If no id was given (or it doesn't
-  // match anything), fall back to the first plant (Snake Plant).
   const plant = plants.find((p) => p.id === requestedId) || plants[0];
 
   // --- Fill in the hero section ---
@@ -929,20 +861,13 @@ function initDetailsPage() {
     plant.difficulty.toLowerCase() +
     " care needs.";
 
-  // --- "Add to My Plants" button ---
-  // This is just a prototype for now — the real My Plants system
-  // will be built later.
+
   document.getElementById("add-to-my-plants").addEventListener("click", () => {
     alert(plant.name + " added to My Plants!");
   });
 }
 
-/* -------------------------------------------------------------
-   BOOT
-   -------------------------------------------------------------
-   Load the data first (Data/plants.json if possible), then let each
-   page initialize its own widgets.
-   ------------------------------------------------------------- */
+/* BOOT */
 (async function boot() {
   await loadPlantData();
   initExplorePage();

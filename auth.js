@@ -1,26 +1,4 @@
-/* =============================================================
-   PLANTORA - Firebase Auth (auth.js)
-   -------------------------------------------------------------
-   Firebase side of authentication for Plantora.
-   - Add <script src="auth.js" defer> to each page.
-   - Add <script src="auth-ui.js"></script> before </body> too:
-     auth-ui.js paints the cached signed-in UI during parse, this
-     file confirms/corrects it once Firebase answers.
-   - Protect a page by adding data-requires-auth="true" to <body>.
-   ============================================================= */
 
-// =============================================================
-// 1. FIREBASE CONFIG - REPLACE WITH YOUR PROJECT VALUES
-// =============================================================
-// GET THESE FROM: Firebase Console -> Project Settings -> General -> Your apps -> Web app
-// If you don't have a Firebase project yet:
-//   1. Go to https://console.firebase.google.com/
-//   2. Click "Add project" -> name it (e.g., "plantora-auth")
-//   3. Disable Google Analytics (optional)
-//   4. Once created, click the web icon (</>) to register a web app
-//   5. Copy the config object below and paste it here
-//   6. In Firebase Console -> Authentication -> Sign-in method:
-//      - Enable "Email/Password"
 const firebaseConfig = {
   apiKey: "AIzaSyCqlKl7j5yYvdsFKBVEBNjoKltMCBz9kRU",
   authDomain: "plantora-87936.firebaseapp.com",
@@ -31,9 +9,7 @@ const firebaseConfig = {
   measurementId: "G-TF88N9Q5SJ"
 };
 
-// =============================================================
 // 2. INITIALIZE FIREBASE
-// =============================================================
 let auth = null;
 
 async function initFirebase() {
@@ -53,9 +29,7 @@ async function initFirebase() {
 
   setupAuthStateListener();
 }
-// =============================================================
 // 3. AUTH STATE LISTENER - RUNS ON EVERY PAGE
-// =============================================================
 function setupAuthStateListener() {
   window.__plantoraAuth.onAuthStateChanged(async (user) => {
     if (user) {
@@ -64,9 +38,6 @@ function setupAuthStateListener() {
         email: user.email,
         displayName: user.displayName
       });
-      // sessionStorage: this tab. localStorage: every other tab, so a
-      // freshly opened page starts signed-in instead of flashing the
-      // signed-out navbar.
       sessionStorage.setItem("plantora_user", payload);
       localStorage.setItem("plantora_user", payload);
       syncAuthUi(true);
@@ -101,9 +72,7 @@ function getCachedUser() {
     return null;
   }
 }
-// =============================================================
 // 4. ROUTE PROTECTION - CHECK data-requires-auth
-// =============================================================
 function protectPageIfNeeded() {
   const body = document.body;
   const requiresAuth = body.dataset.requiresAuth === "true";
@@ -116,10 +85,7 @@ function protectPageIfNeeded() {
     }
   }
 }
-
-// =============================================================
 // 5. REDIRECT AFTER LOGIN - HANDLE ?redirect= PARAM
-// =============================================================
 function handlePostLoginRedirect() {
   const urlParams = new URLSearchParams(window.location.search);
   const redirect = urlParams.get("redirect");
@@ -132,9 +98,7 @@ function handlePostLoginRedirect() {
     window.location.href = "dashboard.html";
   }
 }
-// =============================================================
 // 6. LOGIN / REGISTER FORM HANDLERS (AUTO-BIND)
-// =============================================================
 function setupAuthForms() {
   const loginForm = document.getElementById("login-form");
   if (loginForm) {
@@ -188,9 +152,7 @@ function setupAuthForms() {
     });
   }
 }
-// =============================================================
 // 7. HELPER FUNCTIONS
-// =============================================================
 function getFriendlyErrorMessage(code) {
   const messages = {
     "auth/user-not-found": "No account found with this email.",
@@ -216,12 +178,7 @@ function showAuthError(form, message) {
 
   setTimeout(() => errorDiv.remove(), 5000);
 }
-// =============================================================
 // 8. BOOT - START EVERYTHING
-// =============================================================
-// The cached signed-in UI is applied by auth-ui.js while the page
-// parses; Firebase confirms (or corrects) it via syncAuthUi().
-
 (async function boot() {
   try {
     await initFirebase();

@@ -1,25 +1,4 @@
-/* =============================================================
-   PLANTORA — HOME / LANDING PAGE STYLES
-   -------------------------------------------------------------
-   This file is organized top to bottom to match index.html:
-   1. Variables & reset
-   2. Base typography
-   3. Layout helpers (container, buttons)
-   4. Navbar
-   5. Hero
-   6. Features
-   7. How It Works
-   8. About
-   9. Final CTA
-   10. Footer
-   11. Responsive media queries
-   ============================================================= */
 
-/* -------------------------------------------------------------
-   1. VARIABLES & RESET
-   All colors, fonts and sizes live here so the theme can be
-   changed later without touching the rest of the file.
-   ------------------------------------------------------------- */
 :root {
   /* Colors */
   --color-bg: #f6f8f1;
@@ -88,9 +67,7 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
-/* -------------------------------------------------------------
-   2. BASE TYPOGRAPHY
-   ------------------------------------------------------------- */
+/* 2. BASE TYPOGRAPHY */
 h1,
 h2,
 h3 {
@@ -106,9 +83,7 @@ h3 {
   margin-bottom: 3rem;
 }
 
-/* -------------------------------------------------------------
-   3. LAYOUT HELPERS
-   ------------------------------------------------------------- */
+/* 3. LAYOUT HELPERS */
 .container {
   width: 100%;
   max-width: 1160px;
@@ -158,14 +133,7 @@ h3 {
   box-shadow: 0 20px 40px -20px rgba(227, 178, 60, 0.55);
 }
 
-/* -------------------------------------------------------------
-   3b. EMPTY STATES
-   Used wherever a Firestore-backed list has nothing to show, or
-   cannot be reached. The error variant is deliberately styled
-   differently from the empty variant: "you own no plants" and
-   "we could not ask the database" are different answers and must
-   not look the same.
-   ------------------------------------------------------------- */
+/*  EMPTY STATES */
 .empty-state {
   text-align: center;
   padding: 2.5rem 1.5rem;
@@ -206,9 +174,7 @@ h3 {
   color: #6e500f;
 }
 
-/* -------------------------------------------------------------
-   3c. MY PLANTS CARD EXTRAS
-   ------------------------------------------------------------- */
+/*  MY PLANTS CARD EXTRAS */
 .my-plant__image {
   display: block;
   width: 100%;
@@ -284,9 +250,7 @@ h3 {
   margin-top: 1rem;
 }
 
-/* -------------------------------------------------------------
-   4. NAVBAR
-   ------------------------------------------------------------- */
+/* 4. NAVBAR */
 .navbar {
   background-color: var(--color-bg);
   border-bottom: 1px solid var(--color-border);
@@ -325,16 +289,11 @@ h3 {
   gap: 2rem;
 }
 
-/* Landing navbar: only three short links, centered between the logo
-   and the Get Started button. */
 .navbar--landing .nav-links {
   flex: 1;
   justify-content: center;
 }
 
-/* Holds the header's buttons so the flex navbar keeps three groups
-   (logo / links / actions) instead of spreading the buttons apart.
-   auth.js swaps .nav-cta inside this wrapper for the user dropdown. */
 .navbar__actions {
   display: flex;
   align-items: center;
@@ -352,13 +311,7 @@ h3 {
   color: var(--color-primary);
 }
 
-/* -------------------------------------------------------------
-   SIGNED-IN STATE AT FIRST PAINT
-   html.is-auth is set by the inline <head> snippet from the cached
-   session (and kept in sync by auth-ui.js), so signed-in visitors
-   never see the signed-out navbar flash by. The word swaps live in
-   paired spans: --out is the signed-out label, --in the signed-in one.
-   ------------------------------------------------------------- */
+/*  SIGNED-IN STATE AT FIRST PAINT */
 html.is-auth [data-nav-private] {
   display: inline !important;
 }
@@ -382,9 +335,7 @@ html.is-auth .cta-label--in {
   display: inline;
 }
 
-/* -------------------------------------------------------------
-   5. HERO
-   ------------------------------------------------------------- */
+/* 5. HERO */
 .hero {
   padding: 5rem 0 6rem;
   overflow: hidden;
@@ -438,9 +389,6 @@ html.is-auth .cta-label--in {
   box-shadow: var(--shadow-soft);
 }
 
-/* Realistic plant photograph inside the blob. The image is clipped
-   to its own organic shape and inset on every side, so the green
-   blob stays visible as a frame around the plant. */
 .hero__plant {
   position: absolute;
   inset: 15px 10px 22px;
@@ -476,9 +424,7 @@ html.is-auth .cta-label--in {
   font-size: 3.5rem;
 }
 
-/* -------------------------------------------------------------
-   6. FEATURES
-   ------------------------------------------------------------- */
+/* 6. FEATURES */
 .features {
   padding: 5rem 0;
   background-color: var(--color-bg-alt);
@@ -526,9 +472,7 @@ html.is-auth .cta-label--in {
   color: var(--color-text-muted);
 }
 
-/* -------------------------------------------------------------
-   7. HOW IT WORKS
-   ------------------------------------------------------------- */
+/*  7. HOW IT WORKS */
 .how-it-works {
   padding: 6rem 0;
 }
@@ -570,9 +514,7 @@ html.is-auth .cta-label--in {
   margin: 0 auto;
 }
 
-/* -------------------------------------------------------------
-   8. ABOUT
-   ------------------------------------------------------------- */
+/*  8. ABOUT */
 .about {
   padding: 5.5rem 0;
   background-color: var(--color-bg-alt);
@@ -615,16 +557,12 @@ html.is-auth .cta-label--in {
   font-size: 0.92rem;
   color: var(--color-text-muted);
 }
-
-/* Dashboard variant: its neighbouring blocks use --color-bg-alt, so the
-   About band switches to the page background to keep the rhythm. */
+ 
 .about--plain {
   background-color: var(--color-bg);
 }
 
-/* -------------------------------------------------------------
-   9. FINAL CTA
-   ------------------------------------------------------------- */
+/* 9. FINAL CTA */
 .final-cta {
   background-color: var(--color-primary-dark);
   padding: 4.5rem 0;
@@ -640,9 +578,7 @@ html.is-auth .cta-label--in {
   margin-bottom: 1.75rem;
 }
 
-/* -------------------------------------------------------------
-   10. FOOTER
-   ------------------------------------------------------------- */
+/*  10. FOOTER */
 .footer {
   background-color: var(--color-bg-alt);
   padding: 3rem 0 1.5rem;
@@ -706,9 +642,7 @@ html.is-auth .cta-label--in {
   padding-top: 1.5rem;
 }
 
-/* -------------------------------------------------------------
-   11. RESPONSIVE MEDIA QUERIES
-   ------------------------------------------------------------- */
+/*  11. RESPONSIVE MEDIA QUERIES */
 
 /* Tablet */
 @media (max-width: 900px) {
@@ -729,8 +663,6 @@ html.is-auth .cta-label--in {
   }
 }
 
-/* Tablet: the navbar now carries six links plus two buttons, so tighten
-   the spacing before it runs out of room. */
 @media (max-width: 1040px) {
   .nav-links {
     gap: 1.1rem;
@@ -753,9 +685,6 @@ html.is-auth .cta-label--in {
     display: none;
   }
 
-  /* The nav links are hidden here, so the header buttons are the only
-     way to reach My Plants on a phone. Shrink them instead of hiding
-     one, so nothing becomes unreachable. */
   .navbar__actions {
     gap: 0.4rem;
   }
@@ -765,8 +694,6 @@ html.is-auth .cta-label--in {
     font-size: 0.82rem;
   }
 
-  /* Landing navbar has no action buttons and only three short links,
-     so keep them visible instead of collapsing the whole header. */
   .navbar--landing .nav-links {
     display: flex;
     gap: 0.9rem;

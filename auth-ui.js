@@ -1,22 +1,4 @@
-/* =============================================================
-   PLANTORA - Auth UI (auth-ui.js)
-   -------------------------------------------------------------
-   Storage-driven page UI. No Firebase, no network: it reads the
-   cached session and updates the DOM, so the signed-in state is
-   applied while the page is still parsing instead of after
-   auth.js (deferred) + Firebase have answered.
 
-   Load it as a plain <script src="auth-ui.js"></script> before </body>.
-   auth.js (defer, in <head>) calls window.PlantoraUI.updateNavbarForAuth()
-   whenever Firebase reports a real auth-state change.
-
-   First paint is covered by the inline <head> snippet that sets
-   html.is-auth + the state rules in style.css; this file keeps the
-   class, hrefs, highlights, greeting and user menu in sync with it.
-   ============================================================= */
-
-// Cached session, sessionStorage first (per tab), localStorage as the
-// cross-tab mirror written by auth.js.
 function readCachedUser() {
   try {
     return JSON.parse(
@@ -29,20 +11,6 @@ function readCachedUser() {
   }
 }
 
-// =============================================================
-// HOME / DASHBOARD LINK
-// -------------------------------------------------------------
-// The first nav slot (data-nav-home) shows "Home" while signed out and
-// "Dashboard" while signed in - the words live in two spans that CSS
-// toggles through html.is-auth, so this only owns the href and the
-// current-page highlight. Never touch textContent here: it would wipe
-// those spans.
-//
-// On the landing page while signed in the highlight is purely visual -
-// the link points at dashboard.html, not index.html, so aria-current is
-// deliberately not set: announcing aria-current="page" for a link that
-// goes somewhere else misleads screen readers.
-// =============================================================
 function updateNavHomeLinks(isLoggedIn) {
   const homeLink = document.querySelector("[data-nav-home]");
   if (!homeLink) return;
@@ -64,22 +32,13 @@ function updateNavHomeLinks(isLoggedIn) {
   }
 }
 
-// =============================================================
-// PRIVATE NAV ITEMS - ONLY FOR SIGNED-IN USERS
-// -------------------------------------------------------------
-// Links marked data-nav-private start hidden in the markup; CSS
-// (html.is-auth [data-nav-private]) shows them at first paint, and the
-// hidden attribute keeps them correct for no-JS visitors.
-// =============================================================
+
 function syncPrivateNavItems(isLoggedIn) {
   document.querySelectorAll("[data-nav-private]").forEach((el) => {
     el.hidden = !isLoggedIn;
   });
 }
 
-// Landing marketing CTAs (hero "Log In", final "Get Started") point at
-// the dashboard once signed in. The labels are spans toggled by CSS -
-// only the href is handled here.
 function updateLandingCtas(isLoggedIn) {
   document.querySelectorAll("[data-auth-cta]").forEach((el) => {
     if (el.dataset.ctaOutHref === undefined) {
@@ -89,10 +48,7 @@ function updateLandingCtas(isLoggedIn) {
   });
 }
 
-// About links: signed-out visitors read About on the public landing page;
-// signed-in users must never be sent back to that marketing page, so their
-// About points at the dashboard's About section (in-page on the dashboard
-// itself). Logging out restores index.html#about.
+
 function updateAboutLinks(isLoggedIn) {
   const onDashboard = /(^|\/)dashboard\.html$/.test(window.location.pathname);
 
@@ -132,9 +88,7 @@ function applyAuthUi(isLoggedIn) {
   updateDashboardGreeting();
 }
 
-// =============================================================
 // NAVBAR SYNC - LINKS, HIGHLIGHTS AND THE USER MENU
-// =============================================================
 function updateNavbarForAuth(isLoggedIn) {
   applyAuthUi(isLoggedIn);
   updateNavHomeLinks(isLoggedIn);

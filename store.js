@@ -1,57 +1,3 @@
-/* =============================================================
-   PLANTORA - store.js
-   The data layer: inventory, orders, My Plants and care schedules,
-   backed by Firestore.
-
-   Load AFTER auth.js and plant-data.js:
-     <script src="auth.js" defer></script>
-     <script src="plant-data.js" defer></script>
-     <script src="store.js" defer>
-
-   DATA PATHS (must match firestore.rules)
-     admins/{uid}                admin grant. Console-created only.
-     inventory/{plantId}         admin-owned stock + price, 1..20.
-     users/{uid}/orders/{txId}   immutable once created.
-     users/{uid}/myPlants/{txId} the user's plant collection.
-
-   ONE ATTEMPT, ONE ID, TWO DOCUMENTS
-     A checkout attempt generates a single tx_<32 hex> id and writes
-     the order and the plant it creates under that same id. The id
-     lives in sessionStorage, so a retry after a lost response reuses
-     it and cannot produce a duplicate. Rules require both documents
-     to exist together with matching ids.
-
-   SAFE PURCHASE RETRIES
-     1. One id per attempt (above), so retries are indistinguishable
-        from the original request.
-     2. Read orders/{txId} first. If it exists, an earlier attempt
-        really did succeed - report success and write nothing.
-     3. Otherwise decrement stock and write both documents in ONE
-        transaction, so stock can never be oversold.
-     4. If the write errors or times out, read the order again.
-        Found -> success (the response was lost, not the write).
-        Not found -> a real failure, and retrying is safe because the
-        id is unchanged and step 2 will short-circuit.
-        Read also fails -> "unconfirmed"; retrying is still safe.
-     5. Only after success is the stored id cleared, so buying the
-        same plant later is a genuinely new order.
-
-   PRICES ARE NOT TRUSTED FROM THE BROWSER
-     The demo price is read from inventory inside the transaction and
-     that value is what gets written to the order, so a modified
-     client cannot pick its own price. firestore.rules re-checks it.
-     A real payment system still needs a trusted backend that also
-     verifies the payment - see the header in firestore.rules.
-
-   CARE SCHEDULES
-     Every plant gets four tasks (watering, fertilizing, repotting,
-     cleaning) with intervals derived from the plant's water and
-     maintenance levels. All four are editable afterwards.
-     lastDone and nextDue are epoch milliseconds so rescheduling is
-     plain arithmetic. nextDue comes from the browser clock, so clock
-     skew shifts reminders slightly; a real deployment would compute
-     these in Cloud Functions instead.
-   ============================================================= */
 (function () {
   "use strict";
 
@@ -71,9 +17,6 @@
     cleaning: { label: "Cleaning", icon: "\uD83E\uDDF9" }
   };
 
-  /* A newly added plant has just been watered by the nursery, so the
-     first due date is a full interval away rather than today. That
-     also stops a new account from opening into a wall of popups. */
   var WATER_DAYS = { "Very Low": 21, "Low": 14, "Medium": 7, "High": 4, "Very High": 2 };
   var FERTILIZER_DAYS = { "Very Low": 120, "Low": 90, "Medium": 60, "High": 30 };
   var REPOTTING_DAYS = 730;
@@ -88,7 +31,6 @@
     return e;
   }
 
-  // ---------- care schedule maths (pure, no Firestore) ----------
 
   function defaultIntervalDays(plant, taskKey) {
     if (taskKey === "watering") return WATER_DAYS[plant.water] || 7;
@@ -126,9 +68,6 @@
     return out;
   }
 
-  // Changing an interval keeps the current due date if it is still
-  // sensible, and otherwise pushes it out from the last time the task
-  // was actually done (or from now, if it never has been).
   function scheduleWithInterval(schedule, taskKey, days) {
     var next = cloneSchedule(schedule);
     var task = next[taskKey];
@@ -403,9 +342,7 @@
             },
 
             // --- purchase ---
-            // One transaction: check stock, take one unit, write the
-            // order and the plant. The price comes from the inventory
-            // document, never from the caller.
+
             placeOrder: function (uid, txId, delivery, plant) {
               var nowMs = Date.now();
               var ref = invRef(plant.id);
@@ -486,8 +423,6 @@
       .then(function (user) { return firebaseBackend().then(function (b) { return b.isAdmin(user.uid); }); });
   }
 
-  // All inventory keyed by plantId. Missing docs mean "not set up",
-  // which the shop renders as unavailable rather than as zero stock.
   function getInventory() {
     return firebaseBackend().then(function (b) { return b.listInventory(); });
   }
@@ -498,9 +433,6 @@
     });
   }
 
-  // Writes one inventory document per plant using the demo seed in
-  // plant-data.js. Never touches a document that already exists, so
-  // re-running it cannot wipe an admin's real prices.
   function seedDemoInventory() {
     var D = window.PlantoraData;
     if (!D) return Promise.reject(fail("plantora/setup", "plant-data.js must load before store.js."));
@@ -605,10 +537,6 @@
     });
   }
 
-  // Add a plant the user already owns, with no order. Uses its own id
-  // (not an attempt id) because there is no retry ambiguity: adding is
-  // idempotent from the user's point of view, and duplicates are
-  // allowed on purpose.
   function addPlantManually(plantId) {
     plantId = Number(plantId);
     return Promise.all([loadCatalog(), requireUser()]).then(function (r) {

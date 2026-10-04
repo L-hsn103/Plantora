@@ -13,26 +13,17 @@
     rel="stylesheet"
   />
 
-  <!-- Shared theme (colors, navbar, buttons, footer) + the Explore page
-       styles, which already define the plant card grid, page header and
-       "back" link used here. -->
+  <!-- Shared theme -->
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="explore.css" />
 
-  <!-- Load order matters: plant-data.js must come before recommendation.js
-       so the plant data is available when the survey is submitted. -->
+  <!-- Load order matters -->
   <script src="auth.js" defer></script>
   <script src="plant-data.js" defer></script>
   <script src="recommendation.js" defer></script>
 
   <style>
-    /* =============================================================
-       RECOMMENDATION PAGE — page-specific styles only
-       -------------------------------------------------------------
-       Kept inline because this feature is limited to two new files.
-       Everything else (cards, buttons, navbar, footer) comes from
-       style.css and explore.css.
-       ============================================================= */
+    /* RECOMMENDATION PAGE */
 
     [hidden] { display: none !important; }
 
@@ -411,9 +402,7 @@
 </head>
 <body>
 
-  <!-- =========================================================
-       NAVBAR (same structure as explore.html)
-       ========================================================= -->
+  <!-- NAVBAR -->
   <header class="navbar">
     <div class="container navbar__inner">
       <a href="index.html" class="logo"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</a>

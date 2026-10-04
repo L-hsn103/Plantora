@@ -1,32 +1,4 @@
-/* =============================================================
-   PLANTORA - shop.js
-   Page controllers for the three Firestore-backed screens:
-   shop.html (grid), dashboard.html (summary + upcoming care) and
-   my-plants.html (collection).
 
-   Load order: auth.js, plant-data.js, store.js, then shop.js.
-     <script src="auth.js" defer></script>
-     <script src="plant-data.js" defer></script>
-     <script src="store.js" defer></script>
-     <script src="shop.js" defer>
-
-   Each init() below checks for the element it renders into and
-   returns immediately when it is absent, so this one file is safe
-   to load on every page - the same approach script.js uses.
-
-   Everything is built with textContent / DOM nodes rather than
-   innerHTML, so plant text can never inject markup.
-
-   THREE STATES, NOT TWO
-   A collection screen can show real cards, an empty collection, or
-   a database it cannot reach. Those last two are genuinely
-   different and are rendered differently: "no plants yet" must not
-   be shown when the truth is "we could not ask".
-
-   A plant with no inventory document is treated as "not set up" and
-   is left off the shop, which stops anything being sold before an
-   admin has given it a price.
-   ============================================================= */
 (function () {
   "use strict";
 
@@ -50,8 +22,6 @@
     return window.PlantoraData && window.PlantoraStore ? null : "a required script did not load";
   }
 
-  // ---------- shared empty / error states ----------
-
   // kind: "empty" | "error" | "loading"
   function buildEmptyState(kind, icon, title, text, cta) {
     var box = el("div", "empty-state" + (kind === "error" ? " empty-state--error" : ""));
@@ -74,6 +44,7 @@
   }
 
   // Replaces the contents of `host` with a single state box.
+
   function renderState(host, kind, icon, title, text, cta) {
     clear(host);
     host.appendChild(buildEmptyState(kind, icon, title, text, cta));
@@ -81,8 +52,6 @@
 
   // ---------- shared plant pieces ----------
 
-  // A catalog plant, or null when the id no longer exists in
-  // Data/plants.json (which would mean the file changed under us).
   function plantThumb(plant, className) {
     var box = el("span", className);
     if (!plant) {
@@ -142,17 +111,6 @@
       retryCta);
   }
 
-  /* =============================================================
-     0. SAMPLE DATA SEEDER
-     ------------------------------------------------------------
-     The empty state is the honest answer today, because with the
-     purchase flow shelved there is no way to get a plant into the
-     collection. This button writes REAL Firestore documents through
-     the same addPlantManually() a user would hit from Explore, so
-     what appears afterwards is genuinely stored data, not placeholder
-     markup. It needs a working database - it is a convenience, not a
-     workaround.
-     ============================================================= */
 
   var SAMPLE_PLANT_IDS = [1, 3, 5]; // Snake Plant, Money Plant, Peace Lily
 
@@ -184,9 +142,7 @@
     return wrap;
   }
 
-  /* =============================================================
-     1. SHOP GRID (shop.html)
-     ============================================================= */
+  /* 1. SHOP GRID (shop.html) */
 
   function buildShopCard(plant, item) {
     var D = window.PlantoraData;
@@ -247,12 +203,6 @@
     });
   }
 
-  // Builds the notice shown above the grid. Prices and stock are
-  // admin-owned Firestore data, so before an admin sets them up there
-  // is genuinely nothing to sell. Rather than showing a bare empty
-  // box, the shop falls back to the demo seed from plant-data.js and
-  // SAYS SO, which keeps the page worth designing against. The moment
-  // real inventory appears this switches to live data automatically.
   function buildShopNotice(live, readable) {
     var box = el("div", "shop-notice");
     box.setAttribute("role", "status");
@@ -289,13 +239,7 @@
     grid.parentNode.appendChild(buildEmptyState("loading", "\uD83C\uDF31",
       "Loading plants\u2026", "Fetching the catalog."));
 
-// A failed read is NOT a hard error: it falls through to the
-  // clearly-labelled preview below so the page is still usable.
-  //
-  // The read is also raced against a short timer. store.js waits up to
-  // 10s for the Firebase SDK before giving up, which would otherwise
-  // leave this page sitting on "Loading plants..." for 10 seconds when
-  // the SDK simply cannot be fetched.
+
   var INVENTORY_TIMEOUT_MS = 2500;
   var read = window.PlantoraStore.getInventory().then(
     function (inv) { return { inv: inv, readable: true }; },
@@ -372,10 +316,7 @@
     return img;
   }
 
-  /* =============================================================
-     2. DASHBOARD (dashboard.html)
-     My Plants summary + Upcoming Care, both from real data.
-     ============================================================= */
+  /* 2. DASHBOARD (dashboard.html)*/
 
   function initDashboard() {
     var plantsHost = document.getElementById("dash-plants");
@@ -469,9 +410,7 @@
       });
   }
 
-  /* =============================================================
-     3. MY PLANTS (my-plants.html)
-     ============================================================= */
+  /* 3. MY PLANTS (my-plants.html)*/
 
   function buildMyPlantCard(entry) {
     var S = window.PlantoraStore;
@@ -549,9 +488,7 @@
       });
   }
 
-  /* =============================================================
-     BOOT - each init is a no-op on pages it does not belong to
-     ============================================================= */
+  /* BOOT - each init is a no-op on pages it does not belong to */
   initShop();
   initDashboard();
   initMyPlants();

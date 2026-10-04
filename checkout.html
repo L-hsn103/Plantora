@@ -14,7 +14,7 @@
 
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="explore.css" />
-  <!-- Load order matters: auth.js, plant-data.js, store.js -->
+
   <script src="auth.js" defer></script>
   <script src="plant-data.js" defer></script>
   <script src="store.js" defer></script>
@@ -197,15 +197,6 @@
 
       if (!D || !S) { showError("Checkout could not start: a required script did not load."); return; }
 
-      // Price and stock are admin-owned and live in Firestore, so they
-      // are read here rather than derived from the catalog. The order
-      // transaction re-reads the price inside itself, so this is for
-      // display only.
-      //
-      // If inventory cannot be read, the page still renders from the
-      // demo seed so the checkout layout is viewable, behind a loud
-      // warning. Submitting then fails honestly with
-      // "no inventory record" rather than pretending to take an order.
       var invRead = S.getInventory().then(
         function (inv) { return { inv: inv, readable: true }; },
         function (err) {

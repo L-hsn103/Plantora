@@ -1,23 +1,3 @@
-/* =============================================================
-   PLANTORA - plant-data.js
-   Shared, read-only access to Data/plants.json, plus the demo
-   inventory seed. Exposes window.PlantoraData.
-   Load with: <script src="plant-data.js" defer>
-   Does NOT copy the plant list; it always loads Data/plants.json
-   (keep the capital "D" - paths are case-sensitive on most hosts).
-
-   PRICES ARE NOT THE LIVE PRICES
-   Once the admin portal exists, price and stock live in Firestore
-   (inventory/{plantId}) and the shop reads them from there. The table
-   below is only the SEED used by the admin's "Initialize demo
-   inventory" button, which writes one inventory document per plant and
-   never overwrites an existing one.
-
-   These numbers run in the browser, so anyone can change them. They
-   must never be treated as trusted prices: firestore.rules pins an
-   order's priceBDT to the stored inventory price, and real payment
-   processing needs a backend that decides prices itself.
-   ============================================================= */
 (function () {
   "use strict";
 
@@ -27,9 +7,6 @@
     11: 600, 12: 1000, 13: 700, 14: 250, 15: 900, 16: 450, 17: 300, 18: 350, 19: 400, 20: 350
   };
 
-  /* Seed stock, keyed by plant id. Anything not listed gets 30.
-     A few are deliberately low or zero so the "Only N left" and
-     "Out of stock" states are visible as soon as you seed. */
   var DEMO_STOCK = {
     7: 4,    // Monstera - shows the low-stock badge
     12: 0,   // Areca Palm - shows as sold out

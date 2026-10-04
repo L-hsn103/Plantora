@@ -38,9 +38,7 @@
       background: var(--color-border); color: var(--color-text-muted);
       cursor: not-allowed; transform: none; box-shadow: none;
     }
-    /* Notice above the grid. The preview variant is deliberately
-       loud: until an admin sets up inventory, the numbers on the
-       cards are demo seed data and must not look authoritative. */
+
     .shop-notice {
       border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1.75rem;
       font-size: 0.88rem; max-width: 70ch;
@@ -99,10 +97,6 @@
 
     <section class="explore-results">
       <div class="container">
-        <!-- shop.js owns every state here: a preview/live notice, then
-             the grid, or a single empty/error box. There is no
-             hardcoded "Loading..." paragraph, because a stale one was
-             showing up next to the real message. -->
         <div id="shop-notice"></div>
         <div class="plant-grid" id="shop-grid"></div>
       </div>

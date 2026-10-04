@@ -15,13 +15,7 @@
   // Fallback if plant-data.js does not expose the plants as a variable.
   var PLANT_JSON_PATHS = ["Data/plants.json", "data/plants.json", "plants.json"];
 
-  /* -----------------------------------------------------------
-     2. SURVEY DEFINITION
-     Each question lists its 5 answers in level order (1 to 5).
-     "value" is exactly what is stored in the plant data.
-     rule "atOrBelow": plant level <= answer level
-     rule "withinOne": |plant level - answer level| <= 1
-     ----------------------------------------------------------- */
+  /* SURVEY DEFINITION*/
   var SURVEY = [
     {
       field: "light", title: "Light", rule: "atOrBelow",
@@ -163,8 +157,6 @@
     return null;
   }
 
-  // A plant is usable only if every matching attribute and its
-  // indoorSuitability hold one of the standard values.
   function isValidPlant(plant) {
     if (!plant || typeof plant !== "object") { return false; }
     if (plant.id === undefined || plant.id === null || !plant.name) { return false; }
@@ -172,9 +164,7 @@
     return SURVEY.every(function (q) { return getLevel(q.field, plant[q.field]) > 0; });
   }
 
-  /* -----------------------------------------------------------
-     4. MATCHING RULES
-     ----------------------------------------------------------- */
+  /* 4. MATCHING RULES */
   function passesRule(rule, plantLevel, userLevel, extraAllowance) {
     if (rule === "withinOne") {
       return Math.abs(plantLevel - userLevel) <= 1;
@@ -182,8 +172,6 @@
     return plantLevel <= userLevel + (extraAllowance || 0);
   }
 
-  // extraAllowance: { size: 1, space: 1, ... } — extra levels allowed
-  // for the relaxable fields. Empty means the exact survey rules.
   function matchesPlant(plant, answers, extraAllowance) {
     var extra = extraAllowance || {};
     return SURVEY.every(function (q) {
@@ -217,17 +205,10 @@
   return Math.round((passed / SURVEY.length) * 1000) / 10;
 }
 
-  /* -----------------------------------------------------------
-     5. FALLBACK — controlled relaxation
-     Round 1 loosens each field by one level, in RELAX_ORDER, keeping
-     the earlier loosening. Round 2 does the same up to two levels.
-     The first step that yields any plant wins.
-     ----------------------------------------------------------- */
+  /* 5. FALLBACK */
 function relaxRequirements() {
   var stages = [];
 
-  // Relax only ONE requirement at a time, following the required order:
-  // Size → Space → Maintenance → Difficulty
   for (var i = 0; i < RELAX_ORDER.length; i++) {
     var field = RELAX_ORDER[i];
 
@@ -238,8 +219,6 @@ function relaxRequirements() {
     });
   }
 
-  // If still no result, allow up to two levels for each field,
-  // but still one field at a time.
   for (var j = 0; j < RELAX_ORDER.length; j++) {
     var field2 = RELAX_ORDER[j];
 
@@ -252,9 +231,6 @@ function relaxRequirements() {
 
   return stages;
 }
-
-  // How many plants pass each environment rule on its own. Used only to
-  // explain an empty result.
   function describeBlockers(plants, answers) {
     return ENVIRONMENT_FIELDS.map(function (field) {
       var q = getQuestion(field);
@@ -288,12 +264,6 @@ function findRecommendations(plants, answers) {
   };
 }
 
-  /* -----------------------------------------------------------
-     6. RANKING
-     1) indoorSuitability, highest first
-     2) total distance from the answers, lowest first
-     3) id, so the order is always the same
-     ----------------------------------------------------------- */
   function calculateDistance(plant, answers) {
     return SURVEY.reduce(function (total, q) {
       return total + Math.abs(getLevel(q.field, plant[q.field]) - getLevel(q.field, answers[q.field]));
@@ -347,10 +317,7 @@ function rankPlants(plants, answers) {
   if (typeof module !== "undefined" && module.exports) { module.exports = api; }
   if (typeof document === "undefined") { return; }
 
-  /* -----------------------------------------------------------
-     7. LOADING THE PLANT DATA
-     Reads the existing data (plant-data.js). Nothing is copied.
-     ----------------------------------------------------------- */
+  /* 7. LOADING THE PLANT DATA */
   function readGlobal(name) {
     try {
       // Also sees top-level const/let from other scripts, which are not on window.
@@ -425,9 +392,7 @@ function rankPlants(plants, answers) {
     });
   }
 
-  /* -----------------------------------------------------------
-     8. RENDERING
-     ----------------------------------------------------------- */
+  /* 8. RENDERING */
   function el(tag, props, children) {
     var node = document.createElement(tag);
     Object.keys(props || {}).forEach(function (key) {
@@ -526,7 +491,6 @@ function rankPlants(plants, answers) {
     node.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
   }
 
-  // Short, readable lists: "size", "size and space", "size, space and maintenance".
   function joinWords(words) {
     if (words.length <= 1) { return words.join(""); }
     return words.slice(0, -1).join(", ") + " and " + words[words.length - 1];

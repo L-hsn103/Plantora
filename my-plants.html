@@ -23,13 +23,7 @@
   <script src="shop.js" defer></script>
 
   <style>
-    /* =============================================================
-       MY PLANTS PAGE — page-specific styles
-       -------------------------------------------------------------
-       Kept inline here since no second CSS file is allowed. Colors
-       and fonts reuse the variables already defined in style.css's
-       :root (with safe fallbacks, just in case a name differs).
-       ============================================================= */
+    /* MY PLANTS PAGE — page-specific styles */
 
     /* Highlight "My Plants" as the active nav link */
     .nav-links a.active {
@@ -52,9 +46,7 @@
       margin-bottom: 0.75rem;
     }
 
-    /* -------------------------------------------------------------
-       PAGE HEADER
-       ------------------------------------------------------------- */
+    /* PAGE HEADER */
     .my-plants-header {
       padding: 3rem 0 2.5rem;
     }
@@ -78,9 +70,7 @@
       color: var(--color-text-muted, #5c6355);
     }
 
-    /* -------------------------------------------------------------
-       PLANT CARD GRID
-       ------------------------------------------------------------- */
+    /* PLANT CARD GRID */
     .plant-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -148,9 +138,7 @@
       align-self: flex-start;
     }
 
-    /* -------------------------------------------------------------
-       "KEEP YOUR PLANTS HEALTHY" SECTION
-       ------------------------------------------------------------- */
+    /* "KEEP YOUR PLANTS HEALTHY" SECTION  */
     .section-intro {
       font-family: var(--font-body, "Inter", sans-serif);
       color: var(--color-text-muted, #5c6355);
@@ -197,9 +185,7 @@
       font-size: 0.9rem;
     }
 
-    /* -------------------------------------------------------------
-       RESPONSIVE MEDIA QUERIES
-       ------------------------------------------------------------- */
+    /* RESPONSIVE MEDIA QUERIES */
     @media (max-width: 900px) {
       .plant-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -234,9 +220,7 @@
 </head>
 <body data-requires-auth="true">
 
-  <!-- =========================================================
-       NAVBAR (same structure as other Plantora pages)
-       ========================================================= -->
+  <!-- NAVBAR (same structure as other Plantora pages) -->
   <header class="navbar">
     <div class="container navbar__inner">
       <a href="index.html" class="logo"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</a>
@@ -257,9 +241,7 @@
 
   <main>
 
-    <!-- =========================================================
-         PAGE HEADER
-         ========================================================= -->
+    <!-- PAGE HEADER -->
     <section class="my-plants-header">
       <div class="container my-plants-header__inner">
         <div>
@@ -273,13 +255,7 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         PLANT CARDS
-         Filled by shop.js from the signed-in user's Firestore
-         collection. Shows an empty state when the collection is
-         empty and a distinct error state when the database cannot be
-         reached - never placeholder plants.
-         ========================================================= -->
+    <!-- PLANT CARDS -->
     <section class="page-section">
       <div class="container">
         <div id="my-plants-grid">
@@ -288,9 +264,7 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         KEEP YOUR PLANTS HEALTHY
-         ========================================================= -->
+    <!-- KEEP YOUR PLANTS HEALTHY -->
     <section class="page-section page-section--alt">
       <div class="container">
         <h2 class="section-title">Keep Your Plants Healthy</h2>
@@ -322,9 +296,7 @@
 
   </main>
 
-  <!-- =========================================================
-       FOOTER (same structure as other pages)
-       ========================================================= -->
+  <!-- FOOTER (same structure as other pages) -->
   <footer class="footer" id="footer">
     <div class="container footer__inner">
       <div class="footer__brand">
