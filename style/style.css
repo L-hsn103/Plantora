@@ -316,6 +316,33 @@ html.is-auth .navbar__actions .nav-icon-btn {
   pointer-events: none;
 }
 
+.nav-icon-btn--cart {
+  position: relative;
+}
+
+.nav-icon-btn--cart svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  display: block;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -0.15rem;
+  right: -0.35rem;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+  text-align: center;
+  pointer-events: none;
+}
+
 .nav-icon-btn:hover {
   transform: translateY(-1px);
   opacity: 0.75;

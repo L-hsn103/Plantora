@@ -177,6 +177,10 @@
       buy.setAttribute("aria-disabled", "true");
     } else {
       buy.setAttribute("data-buy-plant", String(plant.id));
+      buy.setAttribute("data-buy-name", plant.name);
+      buy.setAttribute("data-buy-sci", plant.scientificName || "");
+      buy.setAttribute("data-buy-image", plant.image || "");
+      buy.setAttribute("data-buy-price", String(item.priceBDT));
     }
     var details = el("a", "btn btn--secondary", "View Details");
     details.href = "plant-details.html?id=" + encodeURIComponent(plant.id);
@@ -188,13 +192,39 @@
     return card;
   }
 
-  // send the user to checkout with the plant they picked
+  // add the picked plant to the cart and stay on the shop page
   function initBuyButtons() {
     document.addEventListener("click", function (e) {
       var btn = e.target.closest("[data-buy-plant]");
       if (!btn) return;
       e.preventDefault();
-      window.location.href = "checkout.html?id=" + encodeURIComponent(btn.getAttribute("data-buy-plant"));
+      if (btn.dataset.adding === "1") return;
+
+      var user = window.PlantoraUI && window.PlantoraUI.readCachedUser
+        ? window.PlantoraUI.readCachedUser()
+        : null;
+      if (!user) {
+        window.location.href = "login.html?redirect=" +
+          encodeURIComponent(window.location.pathname + window.location.search);
+        return;
+      }
+      if (!window.PlantoraCart) return;
+
+      window.PlantoraCart.add({
+        id: btn.getAttribute("data-buy-plant"),
+        name: btn.getAttribute("data-buy-name"),
+        scientificName: btn.getAttribute("data-buy-sci"),
+        image: btn.getAttribute("data-buy-image"),
+        priceBDT: btn.getAttribute("data-buy-price")
+      });
+
+      btn.dataset.adding = "1";
+      var original = btn.textContent;
+      btn.textContent = "Added ✓";
+      setTimeout(function () {
+        btn.textContent = original;
+        delete btn.dataset.adding;
+      }, 1500);
     });
   }
 
