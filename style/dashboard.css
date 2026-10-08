@@ -84,6 +84,8 @@
       padding: 1.75rem 1.5rem;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      text-align: center;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
@@ -120,7 +122,8 @@
     }
 
     .quick-action-card .btn {
-      align-self: flex-start;
+      align-self: center;
+      text-align: center;
     }
     /* small plant cards on the dashboard */
     .mini-plant-grid {

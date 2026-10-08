@@ -10,6 +10,13 @@ function readCachedUser() {
   }
 }
 
+// resolve the assets folder from this script's own URL so injected
+// icon markup works no matter which page loaded the script
+const AUTH_UI_ASSETS = (function () {
+  const script = document.currentScript;
+  return script ? new URL("../assets/image/", script.src).href : "../assets/image/";
+})();
+
 
 function updateNavHomeLinks(isLoggedIn) {
   const homeLink = document.querySelector("[data-nav-home]");
@@ -89,19 +96,22 @@ function updateNavbarForAuth(isLoggedIn) {
   applyAuthUi(isLoggedIn);
   updateNavHomeLinks(isLoggedIn);
 
-  if (!isLoggedIn) {
+  const menu = document.getElementById("user-menu");
+  const profileBtn = document.getElementById("nav-profile-btn");
 
-    const menu = document.getElementById("user-menu");
+  if (!isLoggedIn) {
+    // put the plain profile icon link back (it sends visitors to login)
     if (menu) {
-      menu.outerHTML = '<a href="login.html" class="btn btn--primary nav-cta">Get Started</a>';
+      menu.outerHTML = `
+        <a href="login.html" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
+          <img src="${AUTH_UI_ASSETS}user.png" alt="" />
+        </a>
+      `;
     }
     return;
   }
 
-  if (document.getElementById("user-menu")) return;
-
-  const navCta = document.querySelector(".nav-cta");
-  if (!navCta) return;
+  if (menu || !profileBtn) return;
 
   const user = readCachedUser();
   if (!user) return;
@@ -110,15 +120,14 @@ function updateNavbarForAuth(isLoggedIn) {
 
   injectUserMenuStyles();
 
-  navCta.outerHTML = `
+  profileBtn.outerHTML = `
     <div class="user-menu" id="user-menu">
-      <button class="user-menu__trigger btn btn--secondary" aria-expanded="false" aria-haspopup="true" style="gap:0.5rem;">
-        <span class="user-menu__icon" aria-hidden="true">👤</span>
-        <span class="user-menu__name">${escapeHtml(displayName)}</span>
-        <span class="user-menu__chevron" aria-hidden="true">▾</span>
+      <button class="user-menu__trigger nav-icon-btn" type="button" aria-expanded="false" aria-haspopup="true" aria-label="Account menu">
+        <img src="${AUTH_UI_ASSETS}user.png" alt="" />
       </button>
       <div class="user-menu__dropdown" role="menu" hidden>
         <div class="user-menu__header">
+          <span class="user-menu__name">${escapeHtml(displayName)}</span>
           <span class="user-menu__email">${escapeHtml(user.email || "")}</span>
         </div>
         <hr class="user-menu__divider" />
@@ -138,18 +147,19 @@ function injectUserMenuStyles() {
   style.id = "user-menu-styles";
   style.textContent = `
     .user-menu { position: relative; }
-    .user-menu__trigger { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 999px; }
-    .user-menu__icon { font-size: 1rem; }
-    .user-menu__name { font-weight: 500; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .user-menu__chevron { font-size: 0.6rem; transition: transform 0.15s; }
-    .user-menu__trigger[aria-expanded="true"] .user-menu__chevron { transform: rotate(180deg); }
+    .user-menu__trigger { padding: 0; }
     .user-menu__dropdown {
       position: absolute; top: calc(100% + 8px); right: 0; min-width: 200px;
       background: #fff; border: 1px solid var(--color-border, #dce4d2);
       border-radius: 12px; box-shadow: 0 20px 40px -20px rgba(23,48,31,0.25);
       overflow: hidden; z-index: 50;
     }
-    .user-menu__header { padding: 0.75rem 1rem; background: var(--color-bg-alt, #eaf0e1); font-size: 0.8rem; color: var(--color-text-muted, #5c6355); }
+    .user-menu__header {
+      padding: 0.75rem 1rem; background: var(--color-bg-alt, #eaf0e1);
+      font-size: 0.8rem; color: var(--color-text-muted, #5c6355);
+      display: flex; flex-direction: column; gap: 0.1rem;
+    }
+    .user-menu__name { font-weight: 600; font-size: 0.9rem; color: var(--color-text, #2b2b26); }
     .user-menu__divider { border: none; border-top: 1px solid var(--color-border, #dce4d2); margin: 0; }
     .user-menu__item {
       width: 100%; text-align: left; padding: 0.75rem 1rem; background: none; border: none;

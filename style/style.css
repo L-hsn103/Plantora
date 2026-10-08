@@ -1,6 +1,5 @@
 
 :root {
-  /* colours used across the site */
   --color-bg: #f6f8f1;
   --color-bg-alt: #eaf0e1;
   --color-surface: #ffffff;
@@ -13,7 +12,7 @@
   --color-text-muted: #5c6355;
   --color-border: #dce4d2;
 
-  /* fonts */
+
   --font-heading: "Fraunces", serif;
   --font-body: "Inter", sans-serif;
 
@@ -292,6 +291,34 @@ h3 {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+}
+
+/* icon-only buttons in the navbar (cart, profile) — the image itself is the icon */
+.nav-icon-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+html.is-auth .navbar__actions .nav-icon-btn {
+  display: inline-flex;
+}
+
+.nav-icon-btn img {
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.nav-icon-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.75;
 }
 
 .nav-links a {

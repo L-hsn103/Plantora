@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../style/style.css" />
   <link rel="stylesheet" href="../style/explore.css" />
   <script src="../script/auth.js" defer></script>
-  <link rel="icon" type="image/png" href="../image/Plantora_log.png" />
+  <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
 
   <!-- set the logged in class early so the navbar doesn't flicker -->
   <script>
@@ -29,7 +29,7 @@
 <body>
   <header class="navbar">
     <div class="container navbar__inner">
-      <a href="index.html" class="logo"><img class="logo__img" src="../image/Plantora_log.png" alt="" />Plantora</a>
+      <a href="index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
 
       <nav class="nav-links">
         <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
@@ -39,6 +39,12 @@
         <a href="index.html#about">About</a>
     </nav>
       <div class="navbar__actions">
+        <a href="cart.html" class="nav-icon-btn" aria-label="Cart">
+          <img src="../assets/image/cart.png" alt="" />
+        </a>
+        <a href="login.html" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
+          <img src="../assets/image/user.png" alt="" />
+        </a>
         <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
       </div>
     </div>
@@ -153,7 +159,7 @@
   <footer class="footer" id="footer">
     <div class="container footer__inner">
       <div class="footer__brand">
-        <p class="logo logo--footer"><img class="logo__img" src="../image/Plantora_log.png" alt="" />Plantora</p>
+        <p class="logo logo--footer"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</p>
         <p>Helping you grow a greener space, one plant at a time.</p>
       </div>
 

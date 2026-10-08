@@ -212,6 +212,34 @@
   text-align: center;
 }
 
+.plant-card__actions {
+  margin-top: auto;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.plant-card__actions .btn {
+  flex: 1;
+  margin-top: 0;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  text-align: center;
+}
+
+.plant-card__add.is-added,
+.plant-card__add:disabled {
+  background-color: var(--color-bg-alt, #eaf0e1);
+  border: 1.5px solid var(--color-border, #dce4d2);
+  color: var(--color-primary, #2d5a3d);
+  cursor: default;
+}
+
+.plant-card__add:disabled:hover,
+.btn.plant-card__add:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 /* shown when the search finds nothing */
 .no-results {
   text-align: center;
