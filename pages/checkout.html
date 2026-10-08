@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — Plantora</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="../style/style.css" />
+  <link rel="stylesheet" href="../style/explore.css" />
+  <link rel="stylesheet" href="../style/checkout.css" />
+ 
+  <script src="../script/auth.js" defer></script>
+  <script src="../script/plant-data.js" defer></script>
+  <script src="../script/store.js" defer></script>
+  <link rel="icon" type="image/png" href="../image/Plantora_log.png" />
+
+ 
+  <!-- set the logged in class early so the navbar doesn't flicker -->
+  <script>
+    try {
+      if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
+        document.documentElement.classList.add("is-auth");
+      }
+    } catch (err) {}
+  </script>
+</head>
+<body data-requires-auth="true">
+
+  <header class="navbar">
+    <div class="container navbar__inner">
+      <a href="index.html" class="logo"><img class="logo__img" src="../image/Plantora_log.png" alt="" />Plantora</a>
+
+      <nav class="nav-links">
+        <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="shop.html" class="active" aria-current="page">Shop</a>
+        <a href="my-plants.html" data-nav-private hidden>My Plants</a>
+        <a href="index.html#about">About</a>
+    </nav>
+      <div class="navbar__actions">
+        <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="checkout">
+    <div class="container">
+        <a href="shop.html" class="back-link">&larr; Back to Shop</a>
+      <h1>Checkout</h1>
+
+      <!-- checkout.js swaps between these panels -->
+      <p class="co-center" id="co-loading" role="status">Loading your order…</p>
+
+      <div class="co-card co-center" id="co-error" hidden>
+        <p id="co-error-text"></p>
+        <a href="shop.html" class="btn btn--secondary">Back to Shop</a>
+      </div>
+
+      <div class="checkout__grid" id="co-form-wrap" hidden>
+        <!-- price and stock come from the admin inventory -->
+        <aside class="co-card co-summary" aria-label="Order summary">
+          <img id="co-image" src="" alt="" />
+          <h2 id="co-name"></h2>
+          <p id="co-sci"></p>
+          <p class="co-stock" id="co-stock"></p>
+          <p class="co-price"><span id="co-price"></span> <small>(demo price)</small></p>
+        </aside>
+
+        <form class="co-card" id="co-form" novalidate>
+          <div class="co-msg" id="co-msg" role="alert" hidden></div>
+          <p class="co-preview" id="co-preview" role="status" hidden></p>
+
+          <div class="co-field">
+            <label for="co-fullname">Full name</label>
+            <input id="co-fullname" type="text" maxlength="80" autocomplete="name" required />
+          </div>
+          <div class="co-field">
+            <label for="co-phone">Phone</label>
+            <input id="co-phone" type="tel" maxlength="20" autocomplete="tel" required />
+          </div>
+          <div class="co-field">
+            <label for="co-address">Delivery address</label>
+            <textarea id="co-address" rows="3" maxlength="300" autocomplete="street-address" required></textarea>
+          </div>
+          <div class="co-field">
+            <label for="co-note">Note (optional)</label>
+            <textarea id="co-note" rows="2" maxlength="300"></textarea>
+          </div>
+
+          <div class="co-demo">
+            <strong>Demo payment — no real money.</strong>
+            Prices are illustrative and no payment is taken. Do not enter card numbers, PINs, OTPs or passwords anywhere on this page.
+            <label><input type="checkbox" id="co-demo-ok" /> I understand this is a demo order.</label>
+          </div>
+
+          <button type="submit" class="btn btn--primary" id="co-submit">Place demo order</button>
+        </form>
+      </div>
+
+      <!-- shown after the order is saved -->
+      <div class="co-card co-center" id="co-success" hidden>
+        <h2>Demo order saved 🌱</h2>
+        <p id="co-success-text"></p>
+        <p><small>Order ID: <span id="co-order-id"></span></small></p>
+        <a href="my-plants.html" class="btn btn--primary">View My Plants</a>
+        <a href="shop.html" class="btn btn--secondary">Keep shopping</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer" id="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <p class="logo logo--footer"><img class="logo__img" src="../image/Plantora_log.png" alt="" />Plantora</p>
+        <p>Helping you grow a greener space, one plant at a time.</p>
+      </div>
+
+      <nav class="footer__links">
+        <a href="index.html">Home</a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="shop.html">Shop</a>
+        <a href="my-plants.html">My Plants</a>
+        <a href="index.html#about">About</a>
+      </nav>
+    </div>
+
+    <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
+  </footer>
+
+  <script src="../script/checkout.js" defer></script>
+  <script src="../script/auth-ui.js"></script>
+</body>
+</html>

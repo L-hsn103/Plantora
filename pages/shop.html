@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop Plants — Plantora</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="../style/style.css" />
+  <link rel="stylesheet" href="../style/explore.css" />
+  <link rel="stylesheet" href="../style/shop.css" />
+  <script src="../script/auth.js" defer></script>
+  <script src="../script/plant-data.js" defer></script>
+  <script src="../script/store.js" defer></script>
+  <script src="../script/shop.js" defer></script>
+  <link rel="icon" type="image/png" href="../image/Plantora_log.png" />
+
+  <!-- set the logged in class early so the navbar doesn't flicker -->
+  <script>
+    try {
+      if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
+        document.documentElement.classList.add("is-auth");
+      }
+    } catch (err) {}
+  </script>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container navbar__inner">
+      <a href="index.html" class="logo"><img class="logo__img" src="../image/Plantora_log.png" alt="" />Plantora</a>
+
+      <nav class="nav-links">
+        <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="shop.html" class="active" aria-current="page">Shop</a>
+        <a href="my-plants.html" data-nav-private hidden>My Plants</a>
+        <a href="index.html#about">About</a>
+    </nav>
+      <div class="navbar__actions">
+        <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="explore-header">
+      <div class="container">
+        <h1>Plant Shop</h1>
+        <p>Pick a plant and check out. You'll need to log in to place an order.</p>
+        <p class="demo-note">
+          <strong>Demo shop:</strong> prices are illustrative (BDT) and no real payment is taken.
+        </p>
+      </div>
+    </section>
+
+    <section class="explore-results">
+      <div class="container">
+        <!-- shop.js fills these in -->
+        <div id="shop-notice"></div>
+        <div class="plant-grid" id="shop-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <p class="logo logo--footer"><img class="logo__img" src="../image/Plantora_log.png" alt="" />Plantora</p>
+        <p>Helping you grow a greener space, one plant at a time.</p>
+      </div>
+
+      <nav class="footer__links">
+        <a href="index.html">Home</a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="shop.html">Shop</a>
+        <a href="my-plants.html">My Plants</a>
+        <a href="index.html#about">About</a>
+      </nav>
+    </div>
+
+    <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
+  </footer>
+
+  <script src="../script/auth-ui.js"></script>
+</body>
+</html>

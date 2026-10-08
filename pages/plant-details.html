@@ -12,13 +12,12 @@
     rel="stylesheet"
   />
 
-  <!-- Reuses style.css (shared theme) and explore.css (content-page styles) -->
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="explore.css" />
-  <script src="auth.js" defer></script>
-  <link rel="icon" type="image/png" href="image/Plantora_log.png" />
+  <link rel="stylesheet" href="../style/style.css" />
+  <link rel="stylesheet" href="../style/explore.css" />
+  <script src="../script/auth.js" defer></script>
+  <link rel="icon" type="image/png" href="../image/Plantora_log.png" />
 
-  <!-- Signed-in state before first paint; auth-ui.js keeps it in sync -->
+  <!-- set the logged in class early so the navbar doesn't flicker -->
   <script>
     try {
       if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
@@ -28,13 +27,9 @@
   </script>
 </head>
 <body>
-
-  <!-- =========================================================
-       NAVBAR (same structure as index.html)
-       ========================================================= -->
   <header class="navbar">
     <div class="container navbar__inner">
-      <a href="index.html" class="logo"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</a>
+      <a href="index.html" class="logo"><img class="logo__img" src="../image/Plantora_log.png" alt="" />Plantora</a>
 
       <nav class="nav-links">
         <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
@@ -55,10 +50,7 @@
         <a href="explore.html" class="back-link">&larr; Back to Explore Plants</a>
     </div>
 
-    <!-- =========================================================
-         PLANT HERO — image + name + short description
-         All text here is filled in by script.js based on ?id= in the URL
-         ========================================================= -->
+    <!-- script.js fills these from the id in the url -->
     <section class="plant-hero">
       <div class="container plant-hero__inner">
         <img class="plant-hero__image" id="plant-image" src="" alt="" />
@@ -72,13 +64,11 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         PLANT REQUIREMENTS
-         ========================================================= -->
     <section class="plant-requirements">
       <div class="container">
         <h2 class="section-title">Plant Requirements</h2>
 
+        <!-- the empty spans above are filled in by script.js -->
         <div class="info-grid">
           <div class="info-item">
             <span class="info-item__label">Light</span>
@@ -116,9 +106,6 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         ABOUT THIS PLANT
-         ========================================================= -->
     <section class="plant-about">
       <div class="container">
         <h2 class="section-title">About This Plant</h2>
@@ -126,9 +113,6 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         CARE GUIDE
-         ========================================================= -->
     <section class="care-guide">
       <div class="container">
         <h2 class="section-title">Care Guide</h2>
@@ -154,9 +138,6 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         INDOOR SUITABILITY
-         ========================================================= -->
     <section class="suitability">
       <div class="container">
         <div class="suitability-banner">
@@ -169,13 +150,10 @@
 
   </main>
 
-  <!-- =========================================================
-       FOOTER (same structure as index.html)
-       ========================================================= -->
   <footer class="footer" id="footer">
     <div class="container footer__inner">
       <div class="footer__brand">
-        <p class="logo logo--footer"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</p>
+        <p class="logo logo--footer"><img class="logo__img" src="../image/Plantora_log.png" alt="" />Plantora</p>
         <p>Helping you grow a greener space, one plant at a time.</p>
       </div>
 
@@ -191,7 +169,7 @@
     <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
   </footer>
 
-  <script src="script.js" defer></script>
-  <script src="auth-ui.js"></script>
+  <script src="../script/script.js" defer></script>
+  <script src="../script/auth-ui.js"></script>
 </body>
 </html>

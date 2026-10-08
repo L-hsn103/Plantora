@@ -1,59 +1,30 @@
 rules_version = '2';
 
-// =============================================================
-// PLANTORA - firestore.rules
-// -------------------------------------------------------------
-// STATUS: not validated against a Firestore emulator or a live
-// project. Publish it, then run the manual tests listed at the
-// bottom of this file before relying on it.
-//
-// PATHS
-//   admins/{uid}                 admin grant. Created by hand in the
-//                                Firebase console, never by a client.
-//   inventory/{plantId}          admin-owned stock + price. plantId
-//                                is 1..20 to match Data/plants.json.
-//   users/{uid}/orders/{txId}    immutable once created.
-//   users/{uid}/myPlants/{txId}  the user's plant collection.
-//   everything else              denied.
-//
-// ORDER <-> PLANT LINKAGE
-//   One checkout attempt gets ONE id, tx_<32 hex>, used as the
-//   document id for BOTH the order and the plant it creates. store.js
-//   keeps that id in sessionStorage, so a retry after a lost response
-//   reuses it and cannot create a duplicate. The rules enforce the
-//   linkage in both directions with existsAfter()/getAfter(), so the
-//   two documents can never exist apart.
-//
-//   (Sharing one id is also why both are prefixed tx_ rather than
-//   or_ / pl_ - Firestore rules have no string-slice operator, so a
-//   derived pl_ id could not be cross-checked here. Keeping the ids
-//   equal moves that check into a plain equality test.)
-//
-// WHAT THESE RULES CAN AND CANNOT DO
-//   They check WHO writes, and the SHAPE of what is written: fields,
-//   types, ranges, and agreement between documents.
-//   Prices are now admin-owned, and an order's priceBDT is pinned to
-//   the inventory price at write time, so a tampered client cannot
-//   invent a cheaper price for itself.
-//   They still cannot verify that a price is fair, that stock was
-//   physically shipped, or that a delivery address is real. Real
-//   payments need a trusted backend (Cloud Functions) that decides
-//   everything server-side.
-//
-// LIMITS
-//   - No rule lets a client create or edit admins. To grant admin,
-//     add a document admins/{yourUid} in the console.
-//   - Orders are immutable by design.
-//   - A myPlants document may only ever change `schedule` and
-//     `nickname`. plantId, plantName, source, orderId and addedAt are
-//     frozen once written.
-//   - nextDue is computed by the browser from its own clock, so clock
-//     skew shifts reminders slightly. See store.js.
-// =============================================================
+// Firestore rules for Plantora. Publish these, then run the manual
+// tests at the bottom of this file before trusting them.
+
+// admins/{uid}                admin grant, made by hand in the console
+// inventory/{plantId}         stock and price, only admins can write
+// users/{uid}/orders/{txId}   order, cannot be changed after creating
+// users/{uid}/myPlants/{txId} the user's plants
+// everything else              denied
+
+// One checkout uses one id for both the order and the plant it adds.
+// store.js saves the id in sessionStorage so a retry reuses it, and
+// the rules check the link both ways, so the two documents always
+// match.
+
+// Rules check who can write and what the fields look like. They cannot
+// check that a price is fair or that the plant was really delivered,
+// so real payments would need a backend like Cloud Functions.
+
+// Admin cannot be given from the app, add admins/{yourUid} in the
+// console instead. Orders never change, and a plant doc can only ever
+// change its schedule and nickname.
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ---------- shared helpers ----------
+    // helper functions
 
     function signedIn() {
       return request.auth != null;
@@ -63,9 +34,7 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
-    // Admin = this uid has a document in the admins collection.
-    // Because the check lives here rather than in JS, a client
-    // cannot grant itself admin by editing local files.
+    // the user has a document in the admins collection
     function isAdmin() {
       return signedIn()
         && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
@@ -75,7 +44,7 @@ service cloud.firestore {
       return v is string && v.size() >= minLen && v.size() <= maxLen;
     }
 
-    // The nickname key is always written, but its value may be null.
+    // nickname is always written, but it can be null
     function validNickname(v) {
       return v == null || isStr(v, 0, 60);
     }
@@ -96,18 +65,12 @@ service cloud.firestore {
       return /databases/$(database)/documents/inventory/$(plantId);
     }
 
-    // ---------- care schedule ----------
-    // Every plant gets all four tasks. The intervals are derived from
-    // the plant's water/maintenance level on first add (see
-    // deriveSchedule in store.js) and are editable afterwards, so the
-    // rules only have to bound the range.
+    // care schedule: the intervals come from the plant's water/maintenance
+    // level when it is first added (see store.js) and can be changed
+    // later, so here we only check the range
 
-    // nextDue / lastDone are epoch milliseconds (int) rather than
-    // Firestore Timestamps. The browser has to do the date maths to
-    // reschedule a task, and plain integers keep that arithmetic exact
-    // and free of Timestamp construction. addedAt and createdAt are
-    // still server Timestamps, so the console can order documents by
-    // them normally.
+    // nextDue and lastDone are plain milliseconds, not Timestamps,
+    // because the browser has to do the date maths itself
     function validTask(t) {
       return t is map
         && t.keys().hasOnly(['intervalDays', 'lastDone', 'nextDue'])
@@ -127,8 +90,7 @@ service cloud.firestore {
         && validTask(s.cleaning);
     }
 
-    // A newly added plant has had no care done yet, so every task
-    // must still be untouched.
+    // a brand new plant has had no care done yet
     function validFreshSchedule(s) {
       return validSchedule(s)
         && s.watering.lastDone == null
@@ -137,9 +99,7 @@ service cloud.firestore {
         && s.cleaning.lastDone == null;
     }
 
-    // ---------- delivery ----------
-    // Mirrored by validateDelivery() in store.js so the browser can
-    // show the problem before a write is attempted.
+    // delivery details, same checks as validateDelivery() in store.js
 
     function validDelivery(d) {
       return d is map
@@ -152,11 +112,8 @@ service cloud.firestore {
         && isStr(d.note, 0, 300);
     }
 
-    // ---------- order ----------
-    // An order must agree with the inventory document it claims to
-    // buy from: listed, in stock, and charged the admin's price.
-    // store.js decrements stock in the SAME transaction, so
-    // getAfter() sees the post-decrement value.
+    // an order has to match the inventory it buys from. store.js lowers the
+    // stock in the same transaction, so getAfter() sees the new value
 
     function validOrder(uid, id, o) {
       return o.keys().hasOnly(['uid', 'plantId', 'plantName', 'quantity', 'currency',
@@ -175,30 +132,22 @@ service cloud.firestore {
         && o.status == 'demo-placed'
         && validDelivery(o.delivery)
         && o.createdAt == request.time
-        // Inventory must exist, be listed, and be in stock. If the
-        // document is missing, getAfter() errors and the write is
-        // denied - which is the intended outcome.
+        // inventory must exist, be listed and have stock
         && getAfter(inventoryPath(o.plantId)).data.active == true
         && getAfter(inventoryPath(o.plantId)).data.stock >= 1
         && o.priceBDT is int
         && o.priceBDT == getAfter(inventoryPath(o.plantId)).data.priceBDT
-        // The matching plant document must be in the same batch.
+        // the plant it adds has to be written in the same batch
         && existsAfter(plantPath(uid, id))
         && getAfter(plantPath(uid, id)).data.plantId == o.plantId
         && getAfter(plantPath(uid, id)).data.source == 'shop-demo';
     }
 
-    // ---------- my plants ----------
-    // Two ways in:
-    //   'shop-demo' - bought, so it must link to a real order written
-    //                  in the same batch, at the same id.
-    //   'manual'    - added by hand from Explore or Plant Details, so
-    //                  orderId is null and no order is required.
+    // a plant is either bought from the shop (needs a matching order) or
+    // added by hand from Explore or Plant Details
 
-    // Shared shape checks. addedAt is deliberately NOT checked here: on
-    // update, request.resource.data is the MERGED document, so addedAt
-    // holds its original value, not request.time. It is asserted on
-    // create only, and frozen by affectedKeys() on update.
+    // addedAt is only checked on create, because on update
+    // request.resource.data is the merged document
     function validPlantCommon(uid, p) {
       return p.uid == uid
         && p.plantId is int && p.plantId >= 1 && p.plantId <= 20
@@ -224,22 +173,15 @@ service cloud.firestore {
         && p.orderId == null;
     }
 
-    // =============================================================
-    // RULES
-    // =============================================================
-
-    // --- admin grants ---
-    // A user may read their OWN grant, so the app can ask "am I an
-    // admin?" without a permission error for everyone else. Reading
-    // your own document reveals nothing you could act on - every write
-    // below still goes through isAdmin(). Listing is admin-only.
+    // admin grants. a user can read their own grant so the app can check
+    // if they are an admin, but only an admin can list or write
     match /admins/{uid} {
       allow get: if isOwner(uid) || isAdmin();
       allow list: if isAdmin();
       allow create, update, delete: if false;
     }
 
-    // --- inventory: public to read, because the shop is public ---
+    // inventory, anyone can read it because the shop is public
     match /inventory/{plantId} {
       allow read: if true;
 
@@ -248,8 +190,8 @@ service cloud.firestore {
              ['plantId', 'stock', 'priceBDT', 'active', 'updatedAt', 'updatedBy'])
         && request.resource.data.keys().hasAll(
              ['plantId', 'stock', 'priceBDT', 'active', 'updatedAt', 'updatedBy'])
-        // int() converts the document id segment to a number, so the
-        // id and the stored plantId cannot drift apart.
+        // int() turns the document id into a number so the id and the
+        // saved plantId always match
         && request.resource.data.plantId == int(plantId)
         && request.resource.data.stock is int
         && request.resource.data.stock >= 0
@@ -263,7 +205,7 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // --- orders: owner reads, creates once, never changes ---
+    // orders, the owner reads and creates them once but never changes them
     match /users/{uid}/orders/{txId} {
       allow get, list: if isOwner(uid);
       allow create: if isOwner(uid)
@@ -272,7 +214,7 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // --- my plants ---
+    // the user's plants
     match /users/{uid}/myPlants/{txId} {
       allow get, list, delete: if isOwner(uid);
 
@@ -282,10 +224,8 @@ service cloud.firestore {
                     && (validShopPlant(uid, txId, request.resource.data)
                         || validManualPlant(uid, request.resource.data));
 
-      // The only mutation allowed on an existing plant: the four care
-      // intervals / due dates, and the user's nickname. affectedKeys()
-      // is what freezes plantId, plantName, source, orderId and
-      // addedAt.
+      // only the schedule and the nickname can change, affectedKeys()
+      // keeps the rest frozen
       allow update: if isOwner(uid)
                     && validTxId(txId)
                     && request.resource.data.diff(resource.data).affectedKeys()
@@ -294,31 +234,25 @@ service cloud.firestore {
                     && validSchedule(request.resource.data.schedule);
     }
 
-    // --- default deny for every other path ---
+    // deny everything else
     match /{document=**} {
       allow read, write: if false;
     }
   }
 }
 
-// =============================================================
-// MANUAL TESTS - do these after publishing, using two accounts
-// (one admin, one normal user). Expected results in brackets.
+// Manual tests to run after publishing, with one admin account and one
+// normal user. Expected result is in brackets.
 //
-//  1. As a normal user, read inventory/{plantId}.            [ALLOWED]
-//  2. As a normal user, write inventory/{plantId}.           [DENIED]
-//  3. As the admin, write admins/{anyoneElse}.               [DENIED]
-//  4. As a normal user, read users/{otherUid}/myPlants.      [DENIED]
-//  5. Signed out, read inventory/{plantId}.                 [ALLOWED]
-//  6. Buy a plant with stock 1, from two browsers at once.
-//       Exactly one succeeds, stock ends at 0.               [PASS]
-//  7. Try to buy the same plant again from the console with a
-//     priceBDT of 1.                                         [DENIED]
-//  8. On an existing myPlants doc, try to change plantId.    [DENIED]
-//  9. On an existing myPlants doc, change schedule or
-//     nickname.                                              [ALLOWED]
-// 10. Create a myPlants doc with source 'manual' and a
-//     non-null orderId.                                      [DENIED]
-// 11. Create a myPlants doc with no schedule.                [DENIED]
-// 12. Update or delete an order document.                   [DENIED]
-// =============================================================
+//  1. Normal user reads inventory/{plantId}.                [ALLOWED]
+//  2. Normal user writes inventory/{plantId}.               [DENIED]
+//  3. Admin writes admins/{anyoneElse}.                     [DENIED]
+//  4. Normal user reads users/{otherUid}/myPlants.          [DENIED]
+//  5. Signed out user reads inventory/{plantId}.            [ALLOWED]
+//  6. Buy the last plant from two browsers at once.          [PASS]
+//  7. Buy again from the console with priceBDT of 1.        [DENIED]
+//  8. Try to change plantId on a myPlants doc.              [DENIED]
+//  9. Change schedule or nickname on a myPlants doc.        [ALLOWED]
+// 10. myPlants doc with source 'manual' and an orderId.     [DENIED]
+// 11. myPlants doc with no schedule.                        [DENIED]
+// 12. Update or delete an order.                            [DENIED]

@@ -1,0 +1,127 @@
+    .register-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.5rem;
+      background-color: var(--color-bg, #f6f8f1);
+    }
+
+    .register-back-link {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto 1.75rem;
+      font-family: var(--font-body, "Inter", sans-serif);
+      font-size: 0.9rem;
+      color: var(--color-text-muted, #5c6355);
+    }
+
+    .register-back-link:hover {
+      color: var(--color-primary, #2d5a3d);
+    }
+
+    .register-card {
+      background-color: #ffffff;
+      border: 1px solid var(--color-border, #dce4d2);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px -20px rgba(23, 48, 31, 0.25);
+      padding: 2.75rem 2.5rem;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .register-card__logo {
+      font-family: var(--font-heading, "Fraunces", serif);
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--color-primary, #2d5a3d);
+      margin-bottom: 1.5rem;
+    }
+
+    .register-card h1 {
+      font-family: var(--font-heading, "Fraunces", serif);
+      color: var(--color-primary, #2d5a3d);
+      font-size: 1.75rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .register-card__intro {
+      font-family: var(--font-body, "Inter", sans-serif);
+      color: var(--color-text-muted, #5c6355);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      margin-bottom: 2rem;
+    }
+
+    .register-form {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group label {
+      font-family: var(--font-body, "Inter", sans-serif);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-primary, #2d5a3d);
+    }
+
+    .form-group input {
+      font-family: var(--font-body, "Inter", sans-serif);
+      font-size: 0.95rem;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--color-border, #dce4d2);
+      border-radius: 10px;
+      background-color: var(--color-bg, #f6f8f1);
+      color: var(--color-text, #2b2b26);
+    }
+
+    .form-group input:focus-visible {
+      outline: 2px solid var(--color-secondary, #6fa25a);
+      outline-offset: 2px;
+    }
+
+    /* the button needs its own look here */
+    .register-form .btn {
+      width: 100%;
+      text-align: center;
+      border: none;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .register-card__login {
+      font-family: var(--font-body, "Inter", sans-serif);
+      font-size: 0.9rem;
+      color: var(--color-text-muted, #5c6355);
+    }
+
+    .register-card__login a {
+      color: var(--color-secondary, #6fa25a);
+      font-weight: 600;
+    }
+
+    .register-card__login a:hover {
+      color: var(--color-primary, #2d5a3d);
+    }
+
+    .register-note {
+      margin-top: 1.5rem;
+      font-family: var(--font-body, "Inter", sans-serif);
+      font-size: 0.8rem;
+      color: var(--color-text-muted, #5c6355);
+      max-width: 400px;
+      text-align: center;
+    }
+

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Plantora — Find the Right Plant for Your Space</title>
 
-  <!-- Google Fonts: Fraunces for headings, Inter for body text -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -13,11 +12,11 @@
     rel="stylesheet"
   />
 
-  <link rel="stylesheet" href="style.css" />
-  <script src="auth.js" defer></script>
-  <link rel="icon" type="image/png" href="image/Plantora_log.png" />
+  <link rel="stylesheet" href="../style/style.css" />
+  <script src="../script/auth.js" defer></script>
+  <link rel="icon" type="image/png" href="../image/Plantora_log.png" />
 
-  <!-- Signed-in state before first paint; auth-ui.js keeps it in sync -->
+  <!-- set the logged in class early so the navbar doesn't flicker -->
   <script>
     try {
       if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
@@ -28,14 +27,10 @@
 </head>
 <body>
 
-  <!-- =========================================================
-       NAVBAR
-       ========================================================= -->
   <header class="navbar navbar--landing">
     <div class="container navbar__inner">
-      <a href="#home" class="logo"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</a>
+      <a href="#home" class="logo"><img class="logo__img" src="../image/Plantora_log.png" alt="" />Plantora</a>
 
-      <!-- Nav links: hidden on small screens except on this landing page -->
       <nav class="nav-links">
         <a href="index.html" data-nav-home class="active" aria-current="page"><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html">Explore Plants</a>
@@ -50,9 +45,6 @@
 
   <main>
 
-    <!-- =========================================================
-         HERO SECTION
-         ========================================================= -->
     <section class="hero" id="home">
       <div class="container hero__inner">
 
@@ -63,16 +55,15 @@
             environment, and lifestyle — and makes plant care easier.
           </p>
           <div class="hero__actions">
+            <!-- auth-ui.js swaps this button when the user is logged in -->
             <a href="login.html" class="btn btn--primary" data-auth-cta><span class="cta-label cta-label--out">Log In</span><span class="cta-label cta-label--in">Go to Dashboard</span></a>
             <a href="explore.html" class="btn btn--secondary">Explore Plants</a>
           </div>
         </div>
 
-        <!-- Decorative visual: an organic "blob" shape holding a realistic
-             plant photo, with floating leaves. -->
         <div class="hero__visual">
           <div class="hero__blob">
-            <img class="hero__plant" src="image/hero-plant.jpg" alt="Monstera deliciosa indoor plant" />
+            <img class="hero__plant" src="../image/hero-plant.jpg" alt="Monstera deliciosa indoor plant" />
             <span class="hero__leaf hero__leaf--one">🌿</span>
             <span class="hero__leaf hero__leaf--two">🍃</span>
             <span class="hero__leaf hero__leaf--three">🪴</span>
@@ -83,9 +74,6 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         FEATURES / BENEFITS SECTION
-         ========================================================= -->
     <section class="features">
       <div class="container">
         <div class="features__grid">
@@ -118,9 +106,6 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         HOW PLANTORA WORKS SECTION (3-step process)
-         ========================================================= -->
     <section class="how-it-works">
       <div class="container">
         <h2 class="section-title">How Plantora Works</h2>
@@ -149,9 +134,6 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         ABOUT SECTION
-         ========================================================= -->
     <section class="about" id="about">
       <div class="container">
         <h2 class="section-title">About Plantora</h2>
@@ -183,26 +165,22 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         FINAL CTA SECTION
-         ========================================================= -->
+
     <section class="final-cta">
       <div class="container final-cta__inner">
         <h2>Ready to Find Your Perfect Plant?</h2>
+        <!-- this one points at the dashboard after login -->
         <a href="login.html" class="btn btn--accent" data-auth-cta><span class="cta-label cta-label--out">Get Started</span><span class="cta-label cta-label--in">Go to Dashboard</span></a>
       </div>
     </section>
 
   </main>
 
-  <!-- =========================================================
-       FOOTER
-       ========================================================= -->
   <footer class="footer" id="footer">
     <div class="container footer__inner">
 
       <div class="footer__brand">
-        <p class="logo logo--footer"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</p>
+        <p class="logo logo--footer"><img class="logo__img" src="../image/Plantora_log.png" alt="" />Plantora</p>
         <p>Helping you grow a greener space, one plant at a time.</p>
       </div>
 
@@ -219,6 +197,6 @@
     <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
   </footer>
 
-  <script src="auth-ui.js"></script>
+  <script src="../script/auth-ui.js"></script>
 </body>
 </html>

@@ -1,57 +1,4 @@
-/* =============================================================
-   PLANTORA - store.js
-   The data layer: inventory, orders, My Plants and care schedules,
-   backed by Firestore.
 
-   Load AFTER auth.js and plant-data.js:
-     <script src="auth.js" defer></script>
-     <script src="plant-data.js" defer></script>
-     <script src="store.js" defer>
-
-   DATA PATHS (must match firestore.rules)
-     admins/{uid}                admin grant. Console-created only.
-     inventory/{plantId}         admin-owned stock + price, 1..20.
-     users/{uid}/orders/{txId}   immutable once created.
-     users/{uid}/myPlants/{txId} the user's plant collection.
-
-   ONE ATTEMPT, ONE ID, TWO DOCUMENTS
-     A checkout attempt generates a single tx_<32 hex> id and writes
-     the order and the plant it creates under that same id. The id
-     lives in sessionStorage, so a retry after a lost response reuses
-     it and cannot produce a duplicate. Rules require both documents
-     to exist together with matching ids.
-
-   SAFE PURCHASE RETRIES
-     1. One id per attempt (above), so retries are indistinguishable
-        from the original request.
-     2. Read orders/{txId} first. If it exists, an earlier attempt
-        really did succeed - report success and write nothing.
-     3. Otherwise decrement stock and write both documents in ONE
-        transaction, so stock can never be oversold.
-     4. If the write errors or times out, read the order again.
-        Found -> success (the response was lost, not the write).
-        Not found -> a real failure, and retrying is safe because the
-        id is unchanged and step 2 will short-circuit.
-        Read also fails -> "unconfirmed"; retrying is still safe.
-     5. Only after success is the stored id cleared, so buying the
-        same plant later is a genuinely new order.
-
-   PRICES ARE NOT TRUSTED FROM THE BROWSER
-     The demo price is read from inventory inside the transaction and
-     that value is what gets written to the order, so a modified
-     client cannot pick its own price. firestore.rules re-checks it.
-     A real payment system still needs a trusted backend that also
-     verifies the payment - see the header in firestore.rules.
-
-   CARE SCHEDULES
-     Every plant gets four tasks (watering, fertilizing, repotting,
-     cleaning) with intervals derived from the plant's water and
-     maintenance levels. All four are editable afterwards.
-     lastDone and nextDue are epoch milliseconds so rescheduling is
-     plain arithmetic. nextDue comes from the browser clock, so clock
-     skew shifts reminders slightly; a real deployment would compute
-     these in Cloud Functions instead.
-   ============================================================= */
 (function () {
   "use strict";
 
@@ -62,7 +9,6 @@
   var DAY_MS = 86400000;
   var NICKNAME_MAX = 60;
 
-  /* Care tasks, in the order they are shown on a plant card. */
   var TASK_KEYS = ["watering", "fertilizing", "repotting", "cleaning"];
   var TASK_META = {
     watering: { label: "Watering", icon: "\uD83D\uDCA7" },
@@ -71,9 +17,6 @@
     cleaning: { label: "Cleaning", icon: "\uD83E\uDDF9" }
   };
 
-  /* A newly added plant has just been watered by the nursery, so the
-     first due date is a full interval away rather than today. That
-     also stops a new account from opening into a wall of popups. */
   var WATER_DAYS = { "Very Low": 21, "Low": 14, "Medium": 7, "High": 4, "Very High": 2 };
   var FERTILIZER_DAYS = { "Very Low": 120, "Low": 90, "Medium": 60, "High": 30 };
   var REPOTTING_DAYS = 730;
@@ -88,7 +31,6 @@
     return e;
   }
 
-  // ---------- care schedule maths (pure, no Firestore) ----------
 
   function defaultIntervalDays(plant, taskKey) {
     if (taskKey === "watering") return WATER_DAYS[plant.water] || 7;
@@ -103,7 +45,6 @@
     return Math.min(3650, Math.max(1, n));
   }
 
-  // The schedule written when a plant is first added.
   function buildSchedule(plant, nowMs) {
     var s = {};
     TASK_KEYS.forEach(function (key) {
@@ -126,9 +67,6 @@
     return out;
   }
 
-  // Changing an interval keeps the current due date if it is still
-  // sensible, and otherwise pushes it out from the last time the task
-  // was actually done (or from now, if it never has been).
   function scheduleWithInterval(schedule, taskKey, days) {
     var next = cloneSchedule(schedule);
     var task = next[taskKey];
@@ -138,7 +76,6 @@
     return next;
   }
 
-  // Marking a task done reschedules it a full interval from now.
   function scheduleWithDone(schedule, taskKey, nowMs) {
     var next = cloneSchedule(schedule);
     var task = next[taskKey];
@@ -147,13 +84,11 @@
     return next;
   }
 
-  // ---------- reminder helpers (pure) ----------
 
   function isOverdue(task, nowMs) {
     return task && task.nextDue > 0 && task.nextDue <= nowMs;
   }
 
-  // Every task due today or earlier, across all of a user's plants.
   function getDueTasks(myPlants, nowMs) {
     nowMs = nowMs || Date.now();
     var out = [];
@@ -178,8 +113,6 @@
     return out;
   }
 
-  // Everything due within the next `days`, including anything already
-  // overdue. Used by the dashboard "Upcoming Care" list.
   function getUpcomingTasks(myPlants, days, nowMs) {
     nowMs = nowMs || Date.now();
     var horizon = nowMs + (days || 7) * DAY_MS;
@@ -205,7 +138,7 @@
     return out;
   }
 
-  // "Today" / "Tomorrow" / "In 5 days" / "5 days overdue"
+  // "Today" / "Tomorrow" / "5 days overdue"
   function describeDue(task, nowMs) {
     nowMs = nowMs || Date.now();
     var startOfToday = new Date(nowMs);
@@ -228,7 +161,6 @@
     return !!(task && isOverdue(task, nowMs));
   }
 
-  // ---------- input validation (mirrors firestore.rules) ----------
 
   function cleanDelivery(d) {
     d = d || {};
@@ -240,7 +172,6 @@
     };
   }
 
-  // Returns an error message string, or null if valid.
   function validateDelivery(raw) {
     var d = cleanDelivery(raw);
     if (d.name.length < 2 || d.name.length > 80) return "Please enter your name (2-80 characters).";
@@ -255,7 +186,6 @@
     return s === "" ? null : s;
   }
 
-  // ---------- auth helpers (uses the wrapper exposed by auth.js) ----------
 
   function waitForAuth() {
     return new Promise(function (resolve, reject) {
@@ -268,7 +198,6 @@
     });
   }
 
-  // Resolves with { uid, email, displayName } or null (not signed in).
   function getCurrentUser() {
     return waitForAuth().then(function (a) {
       return new Promise(function (resolve) {
@@ -290,7 +219,6 @@
     });
   }
 
-  // ---------- per-attempt id (survives a page refresh) ----------
 
   function randomHex(bytes) {
     var buf = new Uint8Array(bytes);
@@ -311,7 +239,7 @@
       sessionStorage.setItem(key, fresh);
       return fresh;
     } catch (e) {
-      return "tx_" + randomHex(16); // storage blocked: still works, just without refresh-survival
+      return "tx_" + randomHex(16); // storage blocked, still works
     }
   }
 
@@ -326,7 +254,6 @@
     });
   }
 
-  // ---------- Firestore backend (the only Firebase-specific code) ----------
 
   function firebaseBackend() {
     if (!backendPromise) {
@@ -342,16 +269,12 @@
           function invRef(plantId) { return fs.doc(db, "inventory", String(plantId)); }
 
           return {
-            // --- admin ---
             isAdmin: function (uid) {
-              // Own grant is readable by rule, so this resolves either
-              // way; the catch is belt-and-braces for older rules.
               return fs.getDoc(fs.doc(db, "admins", uid))
                 .then(function (snap) { return snap.exists(); })
                 .catch(function () { return false; });
             },
 
-            // --- inventory ---
             listInventory: function () {
               return fs.getDocs(fs.collection(db, "inventory")).then(function (snap) {
                 var out = {};
@@ -367,14 +290,12 @@
               }, values));
             },
 
-            // --- orders ---
             getOrder: function (uid, id) {
               return fs.getDoc(orderRef(uid, id)).then(function (snap) {
                 return snap.exists() ? Object.assign({ id: snap.id }, snap.data()) : null;
               });
             },
 
-            // --- my plants ---
             listMyPlants: function (uid) {
               var q = fs.query(fs.collection(db, "users", uid, "myPlants"), fs.orderBy("addedAt", "desc"));
               return fs.getDocs(q).then(function (snap) {
@@ -396,16 +317,9 @@
             removePlant: function (uid, id) {
               return fs.deleteDoc(plantRef(uid, id));
             },
-            // Only `schedule` and `nickname` are writable - the rules
-            // reject anything else, so callers pass just those keys.
             updatePlantFields: function (uid, id, fields) {
               return fs.updateDoc(plantRef(uid, id), fields);
             },
-
-            // --- purchase ---
-            // One transaction: check stock, take one unit, write the
-            // order and the plant. The price comes from the inventory
-            // document, never from the caller.
             placeOrder: function (uid, txId, delivery, plant) {
               var nowMs = Date.now();
               var ref = invRef(plant.id);
@@ -453,7 +367,7 @@
               });
             },
 
-            // --- manual add (no order involved) ---
+            // Add a plant to the user's collection without buying it
             addManual: function (uid, docId, plant) {
               return fs.setDoc(plantRef(uid, docId), {
                 uid: uid,
@@ -473,7 +387,7 @@
     return backendPromise;
   }
 
-  // ---------- public API ----------
+  // Functions the pages can use
 
   function loadCatalog() {
     var D = window.PlantoraData;
@@ -486,8 +400,7 @@
       .then(function (user) { return firebaseBackend().then(function (b) { return b.isAdmin(user.uid); }); });
   }
 
-  // All inventory keyed by plantId. Missing docs mean "not set up",
-  // which the shop renders as unavailable rather than as zero stock.
+  // All stock and prices, keyed by plantId
   function getInventory() {
     return firebaseBackend().then(function (b) { return b.listInventory(); });
   }
@@ -498,9 +411,6 @@
     });
   }
 
-  // Writes one inventory document per plant using the demo seed in
-  // plant-data.js. Never touches a document that already exists, so
-  // re-running it cannot wipe an admin's real prices.
   function seedDemoInventory() {
     var D = window.PlantoraData;
     if (!D) return Promise.reject(fail("plantora/setup", "plant-data.js must load before store.js."));
@@ -531,8 +441,7 @@
   function summarize(txId, order, recovered) {
     return {
       txId: txId,
-      // orderId kept as an alias because checkout.html shows it to the user
-      orderId: txId,
+      orderId: txId, // checkout.html shows this to the user
       plantId: order.plantId,
       plantName: order.plantName,
       priceBDT: order.priceBDT,
@@ -554,7 +463,7 @@
 
       var txId = getAttemptId(user.uid, plantId);
       var key = user.uid + ":" + txId;
-      if (inFlight[key]) return inFlight[key]; // duplicate click while a request is running
+      if (inFlight[key]) return inFlight[key]; // stops double clicks
 
       function succeed(existing, recovered) {
         if (existing.uid !== user.uid || existing.plantId !== plant.id) {
@@ -567,12 +476,11 @@
 
       var run = firebaseBackend().then(function (b) {
         return b.getOrder(user.uid, txId).then(function (existing) {
-          if (existing) return succeed(existing, true); // an earlier attempt already succeeded
+          if (existing) return succeed(existing, true); // this order was already saved
 
           return withTimeout(b.placeOrder(user.uid, txId, delivery, plant), WRITE_TIMEOUT_MS)
             .then(function () {
-              // Re-read so the summary carries the price the database
-              // actually charged, not one the browser predicted.
+              // Read it again so we show the price the database charged
               return b.getOrder(user.uid, txId).then(function (saved) {
                 return succeed(saved || { uid: user.uid, plantId: plant.id, plantName: plant.name, priceBDT: 0 }, false);
               });
@@ -582,13 +490,13 @@
                 || writeErr.code === "plantora/out-of-stock"
                 || writeErr.code === "plantora/unavailable"
                 || writeErr.code === "plantora/no-inventory")) {
-                throw writeErr; // a real, repeatable rejection - do not retry blindly
+                throw writeErr; // no retry, the error is real
               }
-              // Did the write land even though we saw an error?
+              // Check if the order was saved even though we got an error
               return b.getOrder(user.uid, txId).then(
                 function (nowExisting) {
                   if (nowExisting) return succeed(nowExisting, true);
-                  throw writeErr; // genuinely not saved; the same id is safe to retry
+                  throw writeErr; // not saved, safe to use the same id again
                 },
                 function () {
                   throw fail("plantora/unconfirmed", "Could not confirm whether the order was saved.");
@@ -605,10 +513,6 @@
     });
   }
 
-  // Add a plant the user already owns, with no order. Uses its own id
-  // (not an attempt id) because there is no retry ambiguity: adding is
-  // idempotent from the user's point of view, and duplicates are
-  // allowed on purpose.
   function addPlantManually(plantId) {
     plantId = Number(plantId);
     return Promise.all([loadCatalog(), requireUser()]).then(function (r) {
@@ -678,7 +582,7 @@
   }
 
   window.PlantoraStore = {
-    // constants + pure helpers, safe to call without a network
+    // helpers that work without the database
     TASK_KEYS: TASK_KEYS,
     TASK_META: TASK_META,
     DAY_MS: DAY_MS,
@@ -689,20 +593,17 @@
     describeDue: describeDue,
     needsWater: needsWater,
 
-    // session
     getCurrentUser: getCurrentUser,
     isAdmin: isAdmin,
 
-    // validation
     validateDelivery: validateDelivery,
     cleanNickname: cleanNickname,
 
-    // inventory (admin)
+    // used by the admin page
     getInventory: getInventory,
     setInventoryItem: setInventoryItem,
     seedDemoInventory: seedDemoInventory,
 
-    // orders + plants
     placeDemoOrder: placeDemoOrder,
     addPlantManually: addPlantManually,
     listMyPlants: listMyPlants,

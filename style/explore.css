@@ -1,31 +1,4 @@
-/* =============================================================
-   PLANTORA — EXPLORE PLANTS & PLANT DETAILS STYLES
-   -------------------------------------------------------------
-   This file is loaded AFTER style.css on both explore.html and
-   plant-details.html, so it reuses the shared theme (colors,
-   fonts, navbar, buttons, footer) already defined there and only
-   adds the styles needed for these two pages.
-   -------------------------------------------------------------
-   Sections:
-   1. Supporting variables (safe to keep even if already defined
-      in style.css — same values, just here as a backup)
-   2. Navbar "active" link
-   3. Page header (Explore Plants title)
-   4. Search box
-   5. Filter bar
-   6. Plant card grid
-   7. No results message
-   8. Plant Details: hero, requirements grid, care guide, suitability
-   9. Responsive media queries
-   ============================================================= */
 
-/* -------------------------------------------------------------
-   1. SUPPORTING VARIABLES
-   The 4 main brand colors already exist in style.css:
-   --color-bg, --color-primary, --color-secondary, --color-accent
-   These extra ones support this page's cards/inputs and match the
-   Home page's existing tones.
-   ------------------------------------------------------------- */
 :root {
   --color-surface: #ffffff;
   --color-bg-alt: #eaf0e1;
@@ -36,18 +9,11 @@
   --shadow-soft: 0 12px 30px -18px rgba(23, 48, 31, 0.2);
 }
 
-/* -------------------------------------------------------------
-   2. NAVBAR "ACTIVE" LINK
-   Highlights whichever page the visitor is currently on.
-   ------------------------------------------------------------- */
 .nav-links a.active {
   color: var(--color-primary);
   font-weight: 600;
 }
 
-/* -------------------------------------------------------------
-   3. PAGE HEADER
-   ------------------------------------------------------------- */
 .explore-header {
   padding: 3.5rem 0 2rem;
   text-align: center;
@@ -66,9 +32,6 @@
   margin: 0 auto;
 }
 
-/* -------------------------------------------------------------
-   4. SEARCH BOX
-   ------------------------------------------------------------- */
 .explore-controls {
   padding-bottom: 2.5rem;
 }
@@ -146,9 +109,7 @@
   font-weight: 600;
 }
 
-/* -------------------------------------------------------------
-   5. FILTER BAR
-   ------------------------------------------------------------- */
+/* the filter dropdowns */
 .filter-bar {
   display: flex;
   flex-wrap: wrap;
@@ -184,9 +145,7 @@
   outline-offset: 2px;
 }
 
-/* -------------------------------------------------------------
-   6. PLANT CARD GRID
-   ------------------------------------------------------------- */
+/* plants are shown in a grid */
 .explore-results {
   padding-bottom: 5rem;
 }
@@ -253,18 +212,14 @@
   text-align: center;
 }
 
-/* -------------------------------------------------------------
-   7. NO RESULTS MESSAGE
-   ------------------------------------------------------------- */
+/* shown when the search finds nothing */
 .no-results {
   text-align: center;
   color: var(--color-text-muted);
   padding: 3rem 0;
 }
 
-/* -------------------------------------------------------------
-   8. PLANT DETAILS PAGE
-   ------------------------------------------------------------- */
+
 .back-link {
   display: inline-block;
   margin-top: 1.75rem;
@@ -276,7 +231,7 @@
   color: var(--color-primary);
 }
 
-/* --- Hero: image + name/description --- */
+/* plant image next to the details */
 .plant-hero {
   padding: 2.5rem 0 3.5rem;
 }
@@ -314,7 +269,7 @@
   margin-bottom: 1.5rem;
 }
 
-/* --- Requirements grid --- */
+/* light, water, size and so on */
 .plant-requirements {
   padding: 3rem 0;
   background-color: var(--color-bg-alt);
@@ -347,7 +302,7 @@
   font-size: 1.05rem;
 }
 
-/* --- About This Plant --- */
+/* longer description */
 .plant-about {
   padding: 3.5rem 0;
   max-width: 720px;
@@ -358,7 +313,7 @@
   color: var(--color-text);
 }
 
-/* --- Care Guide --- */
+/* watering and fertilizer tips */
 .care-guide {
   padding: 3rem 0 3.5rem;
   background-color: var(--color-bg-alt);
@@ -388,7 +343,7 @@
   font-size: 0.92rem;
 }
 
-/* --- Indoor Suitability banner --- */
+/* is this plant okay indoors */
 .suitability {
   padding: 3.5rem 0 4.5rem;
 }
@@ -421,11 +376,7 @@
   font-size: 0.92rem;
 }
 
-/* -------------------------------------------------------------
-   9. RESPONSIVE MEDIA QUERIES
-   ------------------------------------------------------------- */
-
-/* Tablet */
+/* tablet size */
 @media (max-width: 900px) {
   .plant-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -448,7 +399,7 @@
   }
 }
 
-/* Mobile */
+/* phone size */
 @media (max-width: 640px) {
   .filter-bar {
     flex-direction: column;
