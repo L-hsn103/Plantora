@@ -12,51 +12,16 @@
     rel="stylesheet"
   />
 
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="explore.css" />
-  <!-- Load order matters: auth.js, then plant-data.js, store.js, then shop.js -->
-  <script src="auth.js" defer></script>
-  <script src="plant-data.js" defer></script>
-  <script src="store.js" defer></script>
-  <script src="shop.js" defer></script>
+  <link rel="stylesheet" href="../style/style.css" />
+  <link rel="stylesheet" href="../style/explore.css" />
+  <link rel="stylesheet" href="../style/shop.css" />
+  <script src="../script/auth.js" defer></script>
+  <script src="../script/plant-data.js" defer></script>
+  <script src="../script/store.js" defer></script>
+  <script src="../script/shop.js" defer></script>
+  <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
 
-  <style>
-    .demo-note {
-      background: #fbf0d9; color: #8a6414; border: 1px solid #ecd9a6;
-      border-radius: 12px; padding: 0.75rem 1rem; margin-top: 1rem;
-      font-size: 0.9rem; max-width: 60ch;
-    }
-    /* room for the notice box + grid below it */
-    #shop-notice:empty { display: none; }
-    .shop-price { color: var(--color-primary); margin: 0.5rem 0 0.15rem; font-size: 1.05rem; }
-    .shop-stock { font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 1rem; }
-    .shop-stock--low { color: #8a6414; font-weight: 600; }
-    .shop-stock--out { color: #991b1b; font-weight: 600; }
-    .shop-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .shop-actions .btn { margin-top: 0; }
-    .shop-actions button[disabled] {
-      background: var(--color-border); color: var(--color-text-muted);
-      cursor: not-allowed; transform: none; box-shadow: none;
-    }
-
-    .shop-notice {
-      border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1.75rem;
-      font-size: 0.88rem; max-width: 70ch;
-    }
-    .shop-notice--preview {
-      background: #fbf0d9; color: #6e500f; border: 1px solid #ecd9a6;
-    }
-    .shop-notice--live {
-      background: #e4f0dd; color: var(--color-primary); border: 1px solid #cfe0c4;
-    }
-    .shop-image-fallback {
-      display: flex; align-items: center; justify-content: center; font-size: 3rem;
-      background: var(--color-bg-alt); aspect-ratio: 4 / 3; width: 100%;
-    }
-  </style>
-  <link rel="icon" type="image/png" href="image/Plantora_log.png" />
-
-  <!-- Signed-in state before first paint; auth-ui.js keeps it in sync -->
+  <!-- set the logged in class early so the navbar doesn't flicker -->
   <script>
     try {
       if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
@@ -69,7 +34,7 @@
 
   <header class="navbar">
     <div class="container navbar__inner">
-      <a href="index.html" class="logo"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</a>
+      <a href="index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
 
       <nav class="nav-links">
         <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
@@ -79,6 +44,17 @@
         <a href="index.html#about">About</a>
     </nav>
       <div class="navbar__actions">
+        <a href="cart.html" class="nav-icon-btn nav-icon-btn--cart" aria-label="Cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9.5" cy="20" r="1.4" />
+            <circle cx="18" cy="20" r="1.4" />
+            <path d="M2.5 3.5h2.2l2.4 11.2h11.3l2-8.1H6.1" />
+          </svg>
+          <span class="cart-badge" hidden></span>
+        </a>
+        <a href="login.html" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
+          <img src="../assets/image/user.png" alt="" />
+        </a>
         <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
       </div>
     </div>
@@ -97,6 +73,7 @@
 
     <section class="explore-results">
       <div class="container">
+        <!-- shop.js fills these in -->
         <div id="shop-notice"></div>
         <div class="plant-grid" id="shop-grid"></div>
       </div>
@@ -106,7 +83,7 @@
   <footer class="footer" id="footer">
     <div class="container footer__inner">
       <div class="footer__brand">
-        <p class="logo logo--footer"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</p>
+        <p class="logo logo--footer"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</p>
         <p>Helping you grow a greener space, one plant at a time.</p>
       </div>
 
@@ -122,6 +99,7 @@
     <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
   </footer>
 
-  <script src="auth-ui.js"></script>
+  <script src="../script/cart.js"></script>
+  <script src="../script/auth-ui.js"></script>
 </body>
 </html>

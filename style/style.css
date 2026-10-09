@@ -1,6 +1,5 @@
 
 :root {
-  /* Colors */
   --color-bg: #f6f8f1;
   --color-bg-alt: #eaf0e1;
   --color-surface: #ffffff;
@@ -13,11 +12,11 @@
   --color-text-muted: #5c6355;
   --color-border: #dce4d2;
 
-  /* Typography */
+
   --font-heading: "Fraunces", serif;
   --font-body: "Inter", sans-serif;
 
-  /* Shape & shadow */
+  /* rounded corners and soft shadows */
   --radius-md: 16px;
   --radius-lg: 28px;
   --shadow-soft: 0 20px 40px -20px rgba(23, 48, 31, 0.28);
@@ -45,8 +44,7 @@ img {
   display: block;
 }
 
-/* Author display rules (.btn, .nav-links a) would otherwise beat the UA
-   style for [hidden]; the signed-out navbar relies on it. */
+/* some of our classes set display, so hidden has to win */
 [hidden] {
   display: none !important;
 }
@@ -60,14 +58,14 @@ ul {
   list-style: none;
 }
 
-/* Visible keyboard focus for accessibility */
+/* show a focus ring when tabbing */
 a:focus-visible,
 button:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
 }
 
-/* 2. BASE TYPOGRAPHY */
+/* headings use the serif font */
 h1,
 h2,
 h3 {
@@ -83,7 +81,7 @@ h3 {
   margin-bottom: 3rem;
 }
 
-/* 3. LAYOUT HELPERS */
+/* keeps the page width on big screens */
 .container {
   width: 100%;
   max-width: 1160px;
@@ -133,7 +131,6 @@ h3 {
   box-shadow: 0 20px 40px -20px rgba(227, 178, 60, 0.55);
 }
 
-/*  EMPTY STATES */
 .empty-state {
   text-align: center;
   padding: 2.5rem 1.5rem;
@@ -173,8 +170,6 @@ h3 {
 .empty-state--error .empty-state__text {
   color: #6e500f;
 }
-
-/*  MY PLANTS CARD EXTRAS */
 .my-plant__image {
   display: block;
   width: 100%;
@@ -211,7 +206,6 @@ h3 {
   margin-bottom: 0.6rem;
 }
 
-/* Marks how a plant entered the collection: bought, or added by hand. */
 .source-badge {
   display: inline-block;
   font-family: var(--font-body);
@@ -250,7 +244,7 @@ h3 {
   margin-top: 1rem;
 }
 
-/* 4. NAVBAR */
+
 .navbar {
   background-color: var(--color-bg);
   border-bottom: 1px solid var(--color-border);
@@ -277,7 +271,6 @@ h3 {
   color: var(--color-primary-dark);
 }
 
-/* Site mark (image/Plantora_log.png) used in nav, footer and auth cards */
 .logo__img {
   width: 1.7rem;
   height: 1.7rem;
@@ -300,6 +293,61 @@ h3 {
   gap: 0.6rem;
 }
 
+/* icon-only buttons in the navbar (cart, profile) — the image itself is the icon */
+.nav-icon-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+html.is-auth .navbar__actions .nav-icon-btn {
+  display: inline-flex;
+}
+
+.nav-icon-btn img {
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.nav-icon-btn--cart {
+  position: relative;
+}
+
+.nav-icon-btn--cart svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  display: block;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -0.15rem;
+  right: -0.35rem;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.nav-icon-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.75;
+}
+
 .nav-links a {
   font-size: 0.95rem;
   font-weight: 500;
@@ -311,7 +359,6 @@ h3 {
   color: var(--color-primary);
 }
 
-/*  SIGNED-IN STATE AT FIRST PAINT */
 html.is-auth [data-nav-private] {
   display: inline !important;
 }
@@ -335,7 +382,6 @@ html.is-auth .cta-label--in {
   display: inline;
 }
 
-/* 5. HERO */
 .hero {
   padding: 5rem 0 6rem;
   overflow: hidden;
@@ -370,7 +416,6 @@ html.is-auth .cta-label--in {
   flex-wrap: wrap;
 }
 
-/* --- Decorative hero visual: an organic blob + floating leaves --- */
 .hero__visual {
   flex: 1;
   position: relative;
@@ -424,7 +469,6 @@ html.is-auth .cta-label--in {
   font-size: 3.5rem;
 }
 
-/* 6. FEATURES */
 .features {
   padding: 5rem 0;
   background-color: var(--color-bg-alt);
@@ -472,7 +516,6 @@ html.is-auth .cta-label--in {
   color: var(--color-text-muted);
 }
 
-/*  7. HOW IT WORKS */
 .how-it-works {
   padding: 6rem 0;
 }
@@ -514,7 +557,6 @@ html.is-auth .cta-label--in {
   margin: 0 auto;
 }
 
-/*  8. ABOUT */
 .about {
   padding: 5.5rem 0;
   background-color: var(--color-bg-alt);
@@ -557,12 +599,11 @@ html.is-auth .cta-label--in {
   font-size: 0.92rem;
   color: var(--color-text-muted);
 }
- 
+
 .about--plain {
   background-color: var(--color-bg);
 }
 
-/* 9. FINAL CTA */
 .final-cta {
   background-color: var(--color-primary-dark);
   padding: 4.5rem 0;
@@ -578,7 +619,6 @@ html.is-auth .cta-label--in {
   margin-bottom: 1.75rem;
 }
 
-/*  10. FOOTER */
 .footer {
   background-color: var(--color-bg-alt);
   padding: 3rem 0 1.5rem;
@@ -609,7 +649,6 @@ html.is-auth .cta-label--in {
   height: 1.45rem;
 }
 
-/* Auth cards show the mark above the wordmark, centred */
 .login-card__logo .logo__img,
 .register-card__logo .logo__img {
   display: block;
@@ -642,9 +681,8 @@ html.is-auth .cta-label--in {
   padding-top: 1.5rem;
 }
 
-/*  11. RESPONSIVE MEDIA QUERIES */
 
-/* Tablet */
+/* tablet size */
 @media (max-width: 900px) {
   .hero__title {
     font-size: 2.4rem;
@@ -678,9 +716,9 @@ html.is-auth .cta-label--in {
   }
 }
 
-/* Mobile */
+/* phone size */
 @media (max-width: 640px) {
-  /* Simplify navbar: hide the link list, keep logo + CTA button */
+  /* only the logo and button fit */
   .nav-links {
     display: none;
   }
@@ -760,7 +798,6 @@ html.is-auth .cta-label--in {
   }
 }
 
-/* Respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;

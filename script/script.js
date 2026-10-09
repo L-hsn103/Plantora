@@ -1,10 +1,9 @@
-
 const plants = [
   {
     id: 1,
     name: "Snake Plant",
     scientificName: "Dracaena trifasciata",
-    image: "image/plant/snake-plant.webp",
+    image: "../assets/image/plant/snake-plant.webp",
     light: "Very Low",
     water: "Very Low",
     humidity: "Low",
@@ -18,10 +17,10 @@ const plants = [
       "A tough, low-maintenance plant that tolerates low light and irregular watering, making it a great choice for beginners.",
     careGuide: {
       watering:
-        "Water only when the soil is completely dry, roughly every 2–3 weeks.",
+        "Water only when the soil is completely dry, roughly every 2-3 weeks.",
       fertilizer:
-        "Feed with a diluted liquid fertilizer once every 1–2 months during spring and summer.",
-      repotting: "Repot every 2–3 years, or once the roots outgrow the pot.",
+        "Feed with a diluted liquid fertilizer once every 1-2 months during spring and summer.",
+      repotting: "Repot every 2-3 years, or once the roots outgrow the pot.",
       cleaning: "Wipe leaves with a damp cloth every few weeks to remove dust.",
     },
   },
@@ -29,7 +28,7 @@ const plants = [
     id: 2,
     name: "ZZ Plant",
     scientificName: "Zamioculcas zamiifolia",
-    image: "image/plant/zz-plant.webp",
+    image: "../assets/image/plant/zz-plant.webp",
     light: "Very Low",
     water: "Very Low",
     humidity: "Low",
@@ -54,7 +53,7 @@ const plants = [
     id: 3,
     name: "Money Plant (Pothos)",
     scientificName: "Epipremnum aureum",
-    image: "image/plant/money-plant-pothos.webp",
+    image: "../assets/image/plant/money-plant-pothos.webp",
     light: "Low",
     water: "Medium",
     humidity: "Medium",
@@ -70,7 +69,7 @@ const plants = [
       watering: "Water when the top inch of soil feels dry, about once a week.",
       fertilizer:
         "Feed monthly with a balanced liquid fertilizer during the growing season.",
-      repotting: "Repot every 1–2 years or when roots fill the pot.",
+      repotting: "Repot every 1-2 years or when roots fill the pot.",
       cleaning: "Rinse leaves under water occasionally to keep them dust-free.",
     },
   },
@@ -78,7 +77,7 @@ const plants = [
     id: 4,
     name: "Spider Plant",
     scientificName: "Chlorophytum comosum",
-    image: "image/plant/spider-plant.webp",
+    image: "../assets/image/plant/spider-plant.webp",
     light: "Medium",
     water: "Medium",
     humidity: "Medium",
@@ -101,7 +100,7 @@ const plants = [
     id: 5,
     name: "Peace Lily",
     scientificName: "Spathiphyllum wallisii",
-    image: "image/plant/peace-lily.webp",
+    image: "../assets/image/plant/peace-lily.webp",
     light: "Low",
     water: "High",
     humidity: "High",
@@ -125,7 +124,7 @@ const plants = [
     id: 6,
     name: "Rubber Plant",
     scientificName: "Ficus elastica",
-    image: "image/plant/rubber-plant.webp",
+    image: "../assets/image/plant/rubber-plant.webp",
     light: "Medium",
     water: "Medium",
     humidity: "Medium",
@@ -149,7 +148,7 @@ const plants = [
     id: 7,
     name: "Monstera Deliciosa",
     scientificName: "Monstera deliciosa",
-    image: "image/plant/monstera-deliciosa.webp",
+    image: "../assets/image/plant/monstera-deliciosa.webp",
     light: "Medium",
     water: "Medium",
     humidity: "High",
@@ -174,7 +173,7 @@ const plants = [
     id: 8,
     name: "Heartleaf Philodendron",
     scientificName: "Philodendron hederaceum",
-    image: "image/plant/heartleaf-philodendron.webp",
+    image: "../assets/image/plant/heartleaf-philodendron.webp",
     light: "Low",
     water: "Medium",
     humidity: "Medium",
@@ -199,7 +198,7 @@ const plants = [
     id: 9,
     name: "Chinese Evergreen (Aglaonema)",
     scientificName: "Aglaonema commutatum",
-    image: "image/plant/chinese-evergreen-aglaonema.webp",
+    image: "../assets/image/plant/chinese-evergreen-aglaonema.webp",
     light: "Low",
     water: "Medium",
     humidity: "Medium",
@@ -224,7 +223,7 @@ const plants = [
     id: 10,
     name: "Lucky Bamboo",
     scientificName: "Dracaena braunii",
-    image: "image/plant/lucky-bamboo.webp",
+    image: "../assets/image/plant/lucky-bamboo.webp",
     light: "Low",
     water: "Very High",
     humidity: "Medium",
@@ -250,7 +249,7 @@ const plants = [
     id: 11,
     name: "Boston Fern",
     scientificName: "Nephrolepis exaltata",
-    image: "image/plant/boston-fern.webp",
+    image: "../assets/image/plant/boston-fern.webp",
     light: "Medium",
     water: "High",
     humidity: "Very High",
@@ -276,7 +275,7 @@ const plants = [
     id: 12,
     name: "Areca Palm",
     scientificName: "Dypsis lutescens",
-    image: "image/plant/areca-palm.webp",
+    image: "../assets/image/plant/areca-palm.webp",
     light: "High",
     water: "High",
     humidity: "High",
@@ -301,7 +300,7 @@ const plants = [
     id: 13,
     name: "Parlor Palm",
     scientificName: "Chamaedorea elegans",
-    image: "image/plant/parlor-palm.webp",
+    image: "../assets/image/plant/parlor-palm.webp",
     light: "Low",
     water: "Medium",
     humidity: "Medium",
@@ -326,7 +325,7 @@ const plants = [
     id: 14,
     name: "Aloe Vera",
     scientificName: "Aloe vera",
-    image: "image/plant/aloe-vera.webp",
+    image: "../assets/image/plant/aloe-vera.webp",
     light: "High",
     water: "Low",
     humidity: "Very Low",
@@ -351,7 +350,7 @@ const plants = [
     id: 15,
     name: "Golden Barrel Cactus",
     scientificName: "Echinocactus grusonii",
-    image: "image/plant/golden-barrel-cactus.webp",
+    image: "../assets/image/plant/golden-barrel-cactus.webp",
     light: "Very High",
     water: "Very Low",
     humidity: "Very Low",
@@ -377,7 +376,7 @@ const plants = [
     id: 16,
     name: "Christmas Cactus",
     scientificName: "Schlumbergera × buckleyi",
-    image: "image/plant/christmas-cactus.webp",
+    image: "../assets/image/plant/christmas-cactus.webp",
     light: "Medium",
     water: "Medium",
     humidity: "Medium",
@@ -402,7 +401,7 @@ const plants = [
     id: 17,
     name: "Zebra Haworthia",
     scientificName: "Haworthiopsis fasciata",
-    image: "image/plant/zebra-haworthia.webp",
+    image: "../assets/image/plant/zebra-haworthia.webp",
     light: "Medium",
     water: "Low",
     humidity: "Low",
@@ -428,7 +427,7 @@ const plants = [
     id: 18,
     name: "Moon Cactus",
     scientificName: "Gymnocalycium mihanovichii",
-    image: "image/plant/moon-cactus.webp",
+    image: "../assets/image/plant/moon-cactus.webp",
     light: "High",
     water: "Very Low",
     humidity: "Very Low",
@@ -455,7 +454,7 @@ const plants = [
     id: 19,
     name: "Bunny Ears Cactus",
     scientificName: "Opuntia microdasys",
-    image: "image/plant/boston-fern.webp",
+    image: "../assets/image/plant/boston-fern.webp",
     light: "Very High",
     water: "Very Low",
     humidity: "Very Low",
@@ -481,7 +480,7 @@ const plants = [
     id: 20,
     name: "Echeveria",
     scientificName: "Echeveria elegans",
-    image: "image/plant/echeveria.webp",
+    image: "../assets/image/plant/echeveria.webp",
     light: "Very High",
     water: "Low",
     humidity: "Very Low",
@@ -504,17 +503,10 @@ const plants = [
   },
 ];
 
-/* -------------------------------------------------------------
-   JSON DATA LOADER
-   -------------------------------------------------------------
-   Tries to fetch Data/plants.json and replaces the built-in list above
-   with whatever it contains. If the file is missing or the browser
-   blocks the request (common when opening via file://), the
-   built-in sample data is kept instead.
-   ------------------------------------------------------------- */
+// load plants.json, fall back to the sample data
 async function loadPlantData() {
   try {
-    const res = await fetch("Data/plants.json");
+    const res = await fetch("../assets/Data/plants.json");
     if (!res.ok) throw new Error("Data/plants.json unavailable");
     const data = await res.json();
     if (Array.isArray(data.plants) && data.plants.length > 0) {
@@ -522,22 +514,11 @@ async function loadPlantData() {
       plants.push(...data.plants);
     }
   } catch {
-    // Keep the built-in sample data above.
+    // json not reachable, keep the sample plants
   }
 }
 
-/* -------------------------------------------------------------
-   2. EXPLORE PLANTS PAGE
-   -------------------------------------------------------------
-   Everything in this block only runs if #plant-grid exists on
-   the current page — so this file is safe to include everywhere.
-   ------------------------------------------------------------- */
-
-/* Each entry maps a dropdown id (#filter-<key>) to the plant field it
-   filters on, plus the order its values should be listed in. Only the
-   order matters for the data itself — the values shown come from the
-   plants themselves, so a new value in Data/plants.json (e.g. an extra
-   light level) shows up as a new option without touching the HTML. */
+// the filter dropdowns and the field each one uses
 const FILTER_FIELDS = [
   {
     selectId: "filter-light",
@@ -566,8 +547,7 @@ const FILTER_FIELDS = [
   },
 ];
 
-// List the distinct values of one field, ordered by the scale above
-// (values not listed in the scale are sorted alphabetically at the end).
+// get the values of one field in order
 function getFilterValues(field, order) {
   const values = [...new Set(plants.map((plant) => plant[field]).filter(Boolean))];
 
@@ -582,7 +562,7 @@ function getFilterValues(field, order) {
   });
 }
 
-// Fill each dropdown with "All" plus one option per value found in the data
+// Add an option to the dropdown for every value found in the plants
 function populateFilterOptions() {
   FILTER_FIELDS.forEach(({ selectId, field, order }) => {
     const select = document.getElementById(selectId);
@@ -624,21 +604,96 @@ function initExplorePage() {
             <li>Water: ${plant.water}</li>
             <li>Maintenance: ${plant.maintenance}</li>
           </ul>
-          <a href="plant-details.html?id=${plant.id}" class="btn btn--secondary plant-card__btn">View Details</a>
+          <div class="plant-card__actions">
+            <button type="button" class="btn btn--primary plant-card__add" data-plant-id="${plant.id}">Add</button>
+            <a href="plant-details.html?id=${plant.id}" class="btn btn--secondary plant-card__btn">View Details</a>
+          </div>
         </div>
       </article>
     `;
   }
 
-  // Draw a list of plants into the grid, and show/hide the
-  // "no results" message depending on how many were found
+  // draw the plants and hide the no results message
   function renderPlants(list) {
     plantGrid.innerHTML = list.map(createPlantCard).join("");
     noResultsMessage.hidden = list.length > 0;
+    applyOwnedState();
   }
 
-  // Read the current search text + every filter dropdown, and
-  // return only the plants that match ALL of them at once
+  // --- Add to My Plants -------------------------------------------------
+  const store = window.PlantoraStore;
+  let ownedPlantIds = null;
+
+  function markAdded(btn) {
+    if (!btn) return;
+    btn.disabled = true;
+    btn.classList.add("is-added");
+    btn.textContent = "Added";
+  }
+
+  function applyOwnedState() {
+    if (!ownedPlantIds) return;
+    plantGrid.querySelectorAll(".plant-card__add").forEach((btn) => {
+      if (ownedPlantIds.has(Number(btn.dataset.plantId))) markAdded(btn);
+    });
+  }
+
+  function refreshOwnedPlants() {
+    if (!store) return Promise.resolve();
+    return store
+      .getCurrentUser()
+      .then((user) => (user ? store.listMyPlants() : []))
+      .then((entries) => {
+        ownedPlantIds = new Set(entries.map((entry) => Number(entry.plantId)));
+        applyOwnedState();
+      })
+      .catch((err) => console.error("[Plantora] could not load My Plants:", err));
+  }
+
+  function addPlant(btn) {
+    const plantId = Number(btn.dataset.plantId);
+
+    if (!store) {
+      console.error("[Plantora] store.js is not loaded on this page.");
+      return;
+    }
+    if (btn.disabled) return;
+
+    btn.disabled = true;
+    btn.textContent = "Adding…";
+
+    store
+      .addPlantManually(plantId)
+      .then(() => {
+        (ownedPlantIds = ownedPlantIds || new Set()).add(plantId);
+        markAdded(btn);
+      })
+      .catch((err) => {
+        btn.disabled = false;
+        btn.textContent = "Add";
+
+        if (err && err.code === "plantora/unauthenticated") {
+          const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.href = "login.html?redirect=" + returnUrl;
+          return;
+        }
+
+        console.error("[Plantora] could not add the plant:", err);
+        btn.textContent = "Try again";
+        setTimeout(() => {
+          if (btn.isConnected && !btn.disabled) btn.textContent = "Add";
+        }, 2000);
+      });
+  }
+
+  plantGrid.addEventListener("click", (event) => {
+    const btn = event.target.closest(".plant-card__add");
+    if (btn) addPlant(btn);
+  });
+
+  refreshOwnedPlants();
+
+  // Keep plants that match the search text and every dropdown at once
   function getFilteredPlants() {
     const searchTerm = searchInput.value.trim().toLowerCase();
 
@@ -662,14 +717,14 @@ function initExplorePage() {
     renderPlants(getFilteredPlants());
   }
 
-  /* Search suggestions */
+  // Show up to 6 matching plant names under the search box
   const suggestionsList = document.getElementById("search-suggestions");
   const SUGGESTION_LIMIT = 6;
-  let activeSuggestion = -1; // highlighted row, -1 = none yet
+  let activeSuggestion = -1; // which row is highlighted, -1 = none
 
   function getSuggestions(term) {
     const t = term.toLowerCase();
-
+    // split matches into 3 groups so names that start with the text come first
     const tiers = [[], [], []];
     plants.forEach((plant) => {
       const name = plant.name.toLowerCase();
@@ -684,7 +739,7 @@ function initExplorePage() {
       .slice(0, SUGGESTION_LIMIT);
   }
 
-  // Wrap the first occurrence of the typed text in <mark>
+  // Wrap the typed text inside the name with <mark>
   function highlightMatch(text, term) {
     const idx = text.toLowerCase().indexOf(term.toLowerCase());
     if (idx === -1) return text;
@@ -735,7 +790,7 @@ function initExplorePage() {
   function setActiveSuggestion(index) {
     const items = suggestionsList.querySelectorAll(".search-suggestions__item");
     if (!items.length) return;
-    // Wrap around: past the end goes back to row 1, before row 1 to the last
+    // Move the highlight, wrapping around at both ends
     activeSuggestion = index < 0 ? items.length - 1 : index % items.length;
     items.forEach((item, i) => {
       const isActive = i === activeSuggestion;
@@ -749,17 +804,20 @@ function initExplorePage() {
     }
   }
 
+  // Put the picked plant name in the box and filter again
   function acceptSuggestion(item) {
     searchInput.value = item.dataset.name;
     hideSuggestions();
     updateResults();
   }
 
+  // Typing filters the grid and updates the suggestion list
   searchInput.addEventListener("input", () => {
     updateResults();
     renderSuggestions(getSuggestions(searchInput.value.trim()));
   });
 
+  // Arrow keys move the highlight, Enter picks it, Escape closes the list
   searchInput.addEventListener("keydown", (e) => {
     const openIfClosed = () => {
       if (!suggestionsList.hidden) return true;
@@ -789,13 +847,16 @@ function initExplorePage() {
     }
   });
 
+  // Show the suggestions again when the box gets focus
   searchInput.addEventListener("focus", () => {
     const term = searchInput.value.trim();
     if (term) renderSuggestions(getSuggestions(term));
   });
 
+  // Clicking away closes the list
   searchInput.addEventListener("blur", hideSuggestions);
 
+  // stop mousedown so blur does not close the list
   suggestionsList.addEventListener("mousedown", (e) => e.preventDefault());
   suggestionsList.addEventListener("click", (e) => {
     const item = e.target.closest(".search-suggestions__item");
@@ -808,22 +869,24 @@ function initExplorePage() {
 
   filters.forEach(({ element }) => element.addEventListener("change", updateResults));
 
-  // Show every plant when the page first loads
+  // Show all plants when the page opens
   renderPlants(plants);
 }
 
-/* 3. PLANT DETAILS PAGE */
+// Works only on plant-details.html
 function initDetailsPage() {
   const plantNameEl = document.getElementById("plant-name");
 
   if (!plantNameEl) return;
 
+  // get the plant id from the url
   const urlParams = new URLSearchParams(window.location.search);
   const requestedId = Number(urlParams.get("id"));
 
+  // Use the first plant if no id was given
   const plant = plants.find((p) => p.id === requestedId) || plants[0];
 
-  // --- Fill in the hero section ---
+  // Main info at the top
   const imageEl = document.getElementById("plant-image");
   imageEl.src = plant.image;
   imageEl.alt = plant.name;
@@ -832,7 +895,7 @@ function initDetailsPage() {
   document.getElementById("plant-scientific").textContent = plant.scientificName;
   document.getElementById("plant-short-description").textContent = plant.description;
 
-  // --- Fill in the requirements grid ---
+  // Light, water, humidity etc.
   document.getElementById("req-light").textContent = plant.light;
   document.getElementById("req-water").textContent = plant.water;
   document.getElementById("req-humidity").textContent = plant.humidity;
@@ -842,16 +905,16 @@ function initDetailsPage() {
   document.getElementById("req-difficulty").textContent = plant.difficulty;
   document.getElementById("req-suitability").textContent = plant.indoorSuitability;
 
-  // --- Fill in "About This Plant" ---
+  // Longer description
   document.getElementById("plant-description").textContent = plant.description;
 
-  // --- Fill in the Care Guide ---
+  // Watering, fertilizer, repotting and cleaning tips
   document.getElementById("care-watering").textContent = plant.careGuide.watering;
   document.getElementById("care-fertilizer").textContent = plant.careGuide.fertilizer;
   document.getElementById("care-repotting").textContent = plant.careGuide.repotting;
   document.getElementById("care-cleaning").textContent = plant.careGuide.cleaning;
 
-  // --- Fill in the Indoor Suitability banner ---
+  // Indoor suitability banner
   document.getElementById("suitability-value").textContent = plant.indoorSuitability;
   document.getElementById("suitability-note").textContent =
     plant.name +
@@ -861,13 +924,13 @@ function initDetailsPage() {
     plant.difficulty.toLowerCase() +
     " care needs.";
 
-
+  // still just an alert for now
   document.getElementById("add-to-my-plants").addEventListener("click", () => {
     alert(plant.name + " added to My Plants!");
   });
 }
 
-/* BOOT */
+// load the plants, then set up each page
 (async function boot() {
   await loadPlantData();
   initExplorePage();

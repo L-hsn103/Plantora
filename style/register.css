@@ -1,25 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Log In — Plantora</title>
-
-  <!-- Same fonts as the rest of Plantora -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
-
-  <!-- Reuse the shared Plantora theme: colors, fonts, .btn styles -->
-  <link rel="stylesheet" href="style.css" />
-  <script src="auth.js" defer></script>
-
-  <style>
-
-    .login-page {
+    .register-page {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -29,7 +8,7 @@
       background-color: var(--color-bg, #f6f8f1);
     }
 
-    .login-back-link {
+    .register-back-link {
       display: block;
       width: 100%;
       max-width: 400px;
@@ -39,11 +18,11 @@
       color: var(--color-text-muted, #5c6355);
     }
 
-    .login-back-link:hover {
+    .register-back-link:hover {
       color: var(--color-primary, #2d5a3d);
     }
 
-    .login-card {
+    .register-card {
       background-color: #ffffff;
       border: 1px solid var(--color-border, #dce4d2);
       border-radius: 20px;
@@ -54,7 +33,7 @@
       text-align: center;
     }
 
-    .login-card__logo {
+    .register-card__logo {
       font-family: var(--font-heading, "Fraunces", serif);
       font-size: 1.3rem;
       font-weight: 600;
@@ -62,14 +41,14 @@
       margin-bottom: 1.5rem;
     }
 
-    .login-card h1 {
+    .register-card h1 {
       font-family: var(--font-heading, "Fraunces", serif);
       color: var(--color-primary, #2d5a3d);
       font-size: 1.75rem;
       margin-bottom: 0.6rem;
     }
 
-    .login-card__intro {
+    .register-card__intro {
       font-family: var(--font-body, "Inter", sans-serif);
       color: var(--color-text-muted, #5c6355);
       font-size: 0.92rem;
@@ -77,7 +56,7 @@
       margin-bottom: 2rem;
     }
 
-    .login-form {
+    .register-form {
       text-align: left;
       display: flex;
       flex-direction: column;
@@ -113,7 +92,8 @@
       outline-offset: 2px;
     }
 
-    .login-form .btn {
+    /* the button needs its own look here */
+    .register-form .btn {
       width: 100%;
       text-align: center;
       border: none;
@@ -121,22 +101,22 @@
       font: inherit;
     }
 
-    .login-card__signup {
+    .register-card__login {
       font-family: var(--font-body, "Inter", sans-serif);
       font-size: 0.9rem;
       color: var(--color-text-muted, #5c6355);
     }
 
-    .login-card__signup a {
+    .register-card__login a {
       color: var(--color-secondary, #6fa25a);
       font-weight: 600;
     }
 
-    .login-card__signup a:hover {
+    .register-card__login a:hover {
       color: var(--color-primary, #2d5a3d);
     }
 
-    .login-note {
+    .register-note {
       margin-top: 1.5rem;
       font-family: var(--font-body, "Inter", sans-serif);
       font-size: 0.8rem;
@@ -144,53 +124,4 @@
       max-width: 400px;
       text-align: center;
     }
-  </style>
-  <link rel="icon" type="image/png" href="image/Plantora_log.png" />
 
-  <script>
-    try {
-      if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
-        document.documentElement.classList.add("is-auth");
-      }
-    } catch (err) {}
-  </script>
-</head>
-<body>
-
-  <div class="login-page">
-
-    <a href="index.html" class="login-back-link">&larr; Back to Home</a>
-
-    <div class="login-card">
-      <p class="login-card__logo"><img class="logo__img" src="image/Plantora_log.png" alt="" />Plantora</p>
-
-      <h1>Welcome Back</h1>
-      <p class="login-card__intro">
-        Log in to access personalized plant recommendations and manage your plants.
-      </p>
-
-      <form class="login-form" id="login-form">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="Enter your email" />
-        </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Enter your password" />
-        </div>
-
-        <button type="submit" class="btn btn--primary">Log In</button>
-      </form>
-
-      <p class="login-card__signup">
-        Don't have an account? <a href="register.html">Sign Up</a>
-      </p>
-    </div>
-
-    <p class="login-note">This is an early prototype — login is not yet functional.</p>
-  </div>
-
-  <script src="auth-ui.js"></script>
-</body>
-</html>

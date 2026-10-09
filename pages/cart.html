@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cart — Plantora</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="../style/style.css" />
+  <link rel="stylesheet" href="../style/cart.css" />
+
+  <script src="../script/auth.js" defer></script>
+  <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
+
+  <!-- set the logged in class early so the navbar doesn't flicker -->
+  <script>
+    try {
+      if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
+        document.documentElement.classList.add("is-auth");
+      }
+    } catch (err) {}
+  </script>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container navbar__inner">
+      <a href="index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
+
+      <nav class="nav-links">
+        <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="shop.html">Shop</a>
+        <a href="my-plants.html" data-nav-private hidden>My Plants</a>
+        <a href="index.html#about">About</a>
+      </nav>
+
+      <div class="navbar__actions">
+        <a href="cart.html" class="nav-icon-btn nav-icon-btn--cart" aria-label="Cart" aria-current="page">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9.5" cy="20" r="1.4" />
+            <circle cx="18" cy="20" r="1.4" />
+            <path d="M2.5 3.5h2.2l2.4 11.2h11.3l2-8.1H6.1" />
+          </svg>
+          <span class="cart-badge" hidden></span>
+        </a>
+        <a href="login.html" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
+          <img src="../assets/image/user.png" alt="" />
+        </a>
+        <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="cart">
+    <div class="container">
+      <h1>Your Cart</h1>
+
+      <div class="empty-state" id="cart-empty">
+        <p class="empty-state__icon" aria-hidden="true">🛒</p>
+        <h2 class="empty-state__title">Your cart is empty</h2>
+        <p class="empty-state__text">Browse the shop and add some plants to your cart.</p>
+        <a href="shop.html" class="btn btn--primary">Go to Shop</a>
+      </div>
+
+      <div class="cart__grid" id="cart-grid" hidden>
+        <ul class="cart__list" id="cart-list"></ul>
+
+        <aside class="cart-summary" aria-label="Order summary">
+          <h2>Order summary</h2>
+          <div class="cart-summary__row">
+            <span>Items (<span id="cart-count">0</span>)</span>
+            <span id="cart-subtotal">৳0</span>
+          </div>
+          <div class="cart-summary__row cart-summary__row--total">
+            <span>Total</span>
+            <span id="cart-total">৳0</span>
+          </div>
+          <a href="checkout.html" class="btn btn--primary cart-summary__checkout">Proceed to checkout</a>
+          <a href="shop.html" class="btn btn--secondary cart-summary__back">Keep shopping</a>
+          <p class="cart-note">Demo project — no real payments are taken.</p>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer" id="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <p class="logo logo--footer"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</p>
+        <p>Helping you grow a greener space, one plant at a time.</p>
+      </div>
+
+      <nav class="footer__links">
+        <a href="index.html">Home</a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="shop.html">Shop</a>
+        <a href="my-plants.html">My Plants</a>
+        <a href="index.html#about">About</a>
+      </nav>
+    </div>
+
+    <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
+  </footer>
+
+  <script src="../script/cart.js"></script>
+  <script src="../script/auth-ui.js"></script>
+</body>
+</html>

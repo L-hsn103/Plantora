@@ -1,7 +1,7 @@
-
 (function () {
   "use strict";
 
+  // show a low stock warning at 5 or fewer
   var LOW_STOCK_AT = 5;
 
   function el(tag, className, text) {
@@ -11,6 +11,7 @@
     return node;
   }
 
+  // true only if every id given is on the page
   function has() {
     for (var i = 0; i < arguments.length; i++) {
       if (!document.getElementById(arguments[i])) return false;
@@ -18,11 +19,12 @@
     return true;
   }
 
+  // give a reason back if a script we need did not load
   function deps() {
     return window.PlantoraData && window.PlantoraStore ? null : "a required script did not load";
   }
 
-  // kind: "empty" | "error" | "loading"
+
   function buildEmptyState(kind, icon, title, text, cta) {
     var box = el("div", "empty-state" + (kind === "error" ? " empty-state--error" : ""));
     box.setAttribute("role", kind === "error" ? "alert" : "status");
@@ -43,15 +45,13 @@
     while (node.firstChild) node.removeChild(node.firstChild);
   }
 
-  // Replaces the contents of `host` with a single state box.
-
   function renderState(host, kind, icon, title, text, cta) {
     clear(host);
     host.appendChild(buildEmptyState(kind, icon, title, text, cta));
   }
 
-  // ---------- shared plant pieces ----------
 
+  // plant image, or a fallback if the file is missing
   function plantThumb(plant, className) {
     var box = el("span", className);
     if (!plant) {
@@ -74,7 +74,6 @@
     return box;
   }
 
-  // A card always prefers the user's own name for their plant.
   function entryTitle(entry) {
     return entry.nickname || entry.plantName || "Unnamed plant";
   }
@@ -99,7 +98,7 @@
     }
   }
 
-  // Explains a rejected listMyPlants() without pretending it worked.
+  // Show a message when the plants could not be loaded
   function renderListError(host, err, retryCta) {
     var offline = err && err.code === "plantora/unauthenticated";
     renderState(host, "error",
@@ -110,7 +109,6 @@
         : "Your plants couldn't be loaded. If you are setting this up for the first time, check that the Firestore database exists, that firestore.rules has been published, and that you are signed in.",
       retryCta);
   }
-
 
   var SAMPLE_PLANT_IDS = [1, 3, 5]; // Snake Plant, Money Plant, Peace Lily
 
@@ -141,9 +139,7 @@
     wrap.appendChild(status);
     return wrap;
   }
-
-  /* 1. SHOP GRID (shop.html) */
-
+  // one plant in the shop, with price and stock
   function buildShopCard(plant, item) {
     var D = window.PlantoraData;
     var soldOut = !(item.stock >= 1);
@@ -181,6 +177,10 @@
       buy.setAttribute("aria-disabled", "true");
     } else {
       buy.setAttribute("data-buy-plant", String(plant.id));
+      buy.setAttribute("data-buy-name", plant.name);
+      buy.setAttribute("data-buy-sci", plant.scientificName || "");
+      buy.setAttribute("data-buy-image", plant.image || "");
+      buy.setAttribute("data-buy-price", String(item.priceBDT));
     }
     var details = el("a", "btn btn--secondary", "View Details");
     details.href = "plant-details.html?id=" + encodeURIComponent(plant.id);
@@ -192,17 +192,43 @@
     return card;
   }
 
-  // One delegated listener covers every Buy button, including cards
-  // added later, so the grid does not need per-button wiring.
+  // add the picked plant to the cart and stay on the shop page
   function initBuyButtons() {
     document.addEventListener("click", function (e) {
       var btn = e.target.closest("[data-buy-plant]");
       if (!btn) return;
       e.preventDefault();
-      window.location.href = "checkout.html?id=" + encodeURIComponent(btn.getAttribute("data-buy-plant"));
+      if (btn.dataset.adding === "1") return;
+
+      var user = window.PlantoraUI && window.PlantoraUI.readCachedUser
+        ? window.PlantoraUI.readCachedUser()
+        : null;
+      if (!user) {
+        window.location.href = "login.html?redirect=" +
+          encodeURIComponent(window.location.pathname + window.location.search);
+        return;
+      }
+      if (!window.PlantoraCart) return;
+
+      window.PlantoraCart.add({
+        id: btn.getAttribute("data-buy-plant"),
+        name: btn.getAttribute("data-buy-name"),
+        scientificName: btn.getAttribute("data-buy-sci"),
+        image: btn.getAttribute("data-buy-image"),
+        priceBDT: btn.getAttribute("data-buy-price")
+      });
+
+      btn.dataset.adding = "1";
+      var original = btn.textContent;
+      btn.textContent = "Added ✓";
+      setTimeout(function () {
+        btn.textContent = original;
+        delete btn.dataset.adding;
+      }, 1500);
     });
   }
 
+  // say if the prices are real or just demo
   function buildShopNotice(live, readable) {
     var box = el("div", "shop-notice");
     box.setAttribute("role", "status");
@@ -239,7 +265,7 @@
     grid.parentNode.appendChild(buildEmptyState("loading", "\uD83C\uDF31",
       "Loading plants\u2026", "Fetching the catalog."));
 
-
+  // do not wait on the inventory, fall back to demo numbers
   var INVENTORY_TIMEOUT_MS = 2500;
   var read = window.PlantoraStore.getInventory().then(
     function (inv) { return { inv: inv, readable: true }; },
@@ -269,8 +295,6 @@
         var readable = r[1].readable;
         var live = Object.keys(inventory).length > 0;
 
-        // Live data wins per plant; anything the admin has not set up
-        // still falls back to the seed so the grid is not half empty.
         var sellable = plants.filter(function (p) {
           if (live) {
             var item = inventory[p.id];
@@ -316,8 +340,6 @@
     return img;
   }
 
-  /* 2. DASHBOARD (dashboard.html)*/
-
   function initDashboard() {
     var plantsHost = document.getElementById("dash-plants");
     if (!plantsHost) return;
@@ -339,7 +361,6 @@
         var catalog = r[0];
         var entries = r[1];
 
-        // --- My Plants summary ---
         clear(plantsHost);
         if (!entries.length) {
           var empty = buildEmptyState("empty", "\uD83E\uDDB8",
@@ -374,7 +395,6 @@
           badge.textContent = entries.length === 1 ? "1 plant" : entries.length + " plants";
         }
 
-        // --- Upcoming Care ---
         if (careHost) {
           clear(careHost);
           var tasks = window.PlantoraStore.getUpcomingTasks(entries, 7);
@@ -410,8 +430,8 @@
       });
   }
 
-  /* 3. MY PLANTS (my-plants.html)*/
 
+  // one of the user's own plants, with its care dates
   function buildMyPlantCard(entry) {
     var S = window.PlantoraStore;
     var plant = window.PlantoraData.getPlantById(entry.plantId);
@@ -487,8 +507,7 @@
         renderListError(host, err, { label: "Retry", href: "my-plants.html" });
       });
   }
-
-  /* BOOT - each init is a no-op on pages it does not belong to */
+  // each one checks for its own element first
   initShop();
   initDashboard();
   initMyPlants();

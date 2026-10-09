@@ -1,0 +1,331 @@
+
+    .nav-links a.active {
+      color: var(--color-primary, #2d5a3d);
+      font-weight: 600;
+    }
+
+    .section-title {
+      font-family: var(--font-heading, "Fraunces", serif);
+      color: var(--color-primary, #2d5a3d);
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* the hello section at the top */
+    .dashboard-hero {
+      background-color: var(--color-bg-alt, #eaf0e1);
+      padding: 3.5rem 0;
+    }
+
+    .dashboard-hero__inner {
+      max-width: 640px;
+    }
+
+    .dashboard-hero h1 {
+      font-family: var(--font-heading, "Fraunces", serif);
+      color: var(--color-primary, #2d5a3d);
+      font-size: 2.2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .dashboard-hero p {
+      font-family: var(--font-body, "Inter", sans-serif);
+      color: var(--color-text-muted, #5c6355);
+      margin-bottom: 1.75rem;
+    }
+
+    .dashboard-section {
+      padding: 3.5rem 0;
+    }
+
+    .dashboard-section--alt {
+      background-color: var(--color-bg-alt, #eaf0e1);
+    }
+
+    .section-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-header-row .section-title {
+      margin-bottom: 0;
+    }
+
+    .count-badge {
+      font-family: var(--font-body, "Inter", sans-serif);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-text-muted, #5c6355);
+      background-color: #ffffff;
+      border: 1px solid var(--color-border, #dce4d2);
+      border-radius: 999px;
+      padding: 0.3rem 0.8rem;
+      white-space: nowrap;
+    }
+
+    .dashboard-section__body {
+      margin-bottom: 1.75rem;
+    }
+
+    /* the shortcut cards */
+    .quick-actions__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+
+    .quick-action-card {
+      background-color: #ffffff;
+      border: 1px solid var(--color-border, #dce4d2);
+      border-radius: 16px;
+      padding: 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .quick-action-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px -22px rgba(23, 48, 31, 0.25);
+    }
+
+    .quick-action-card__icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background-color: var(--color-bg-alt, #eaf0e1);
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    .quick-action-card h3 {
+      font-family: var(--font-heading, "Fraunces", serif);
+      color: var(--color-primary, #2d5a3d);
+      font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .quick-action-card p {
+      font-family: var(--font-body, "Inter", sans-serif);
+      color: var(--color-text-muted, #5c6355);
+      font-size: 0.88rem;
+      margin-bottom: 1.25rem;
+      flex: 1;
+    }
+
+    .quick-action-card .btn {
+      align-self: center;
+      text-align: center;
+    }
+    /* small plant cards on the dashboard */
+    .mini-plant-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .mini-plant-card {
+      background-color: #ffffff;
+      border: 1px solid var(--color-border, #dce4d2);
+      border-radius: 16px;
+      padding: 1.1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .mini-plant-card__image {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: var(--color-bg-alt, #eaf0e1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .mini-plant-card__info h3 {
+      font-family: var(--font-heading, "Fraunces", serif);
+      color: var(--color-primary, #2d5a3d);
+      font-size: 1rem;
+      margin-bottom: 0.35rem;
+    }
+
+    /* healthy or needs water */
+    .status-pill {
+      display: inline-block;
+      font-family: var(--font-body, "Inter", sans-serif);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 999px;
+      padding: 0.2rem 0.7rem;
+    }
+
+    .status-pill--healthy {
+      background-color: #e4f0dd;
+      color: var(--color-primary, #2d5a3d);
+    }
+
+    .status-pill--needs-water {
+      background-color: #fbf0d9;
+      color: #8a6414;
+    }
+    /* care tasks due this week */
+    .care-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .care-list__item {
+      background-color: #ffffff;
+      border: 1px solid var(--color-border, #dce4d2);
+      border-radius: 14px;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      font-family: var(--font-body, "Inter", sans-serif);
+    }
+
+    .care-list__plant {
+      font-weight: 600;
+      color: var(--color-primary, #2d5a3d);
+      flex: 1;
+    }
+
+    .care-list__task {
+      color: var(--color-text-muted, #5c6355);
+      font-size: 0.9rem;
+      flex: 1;
+    }
+
+    .care-list__when {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-text-muted, #5c6355);
+      text-align: right;
+    }
+
+    .care-list__when--today {
+      color: #8a6414;
+    }
+    /* link to the recommendation page */
+    .recommendation-banner {
+      background-color: var(--color-primary, #2d5a3d);
+      padding: 3.5rem 0;
+    }
+
+    .recommendation-banner__inner {
+      max-width: 560px;
+      text-align: center;
+      margin: 0 auto;
+    }
+
+    .recommendation-banner h2 {
+      font-family: var(--font-heading, "Fraunces", serif);
+      color: #ffffff;
+      font-size: 1.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .recommendation-banner p {
+      font-family: var(--font-body, "Inter", sans-serif);
+      color: #eef3e7;
+      margin-bottom: 1.75rem;
+    }
+
+    .knowledge-topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .knowledge-topic {
+      font-family: var(--font-body, "Inter", sans-serif);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--color-primary, #2d5a3d);
+      background-color: #ffffff;
+      border: 1px solid var(--color-border, #dce4d2);
+      border-radius: 999px;
+      padding: 0.5rem 1.1rem;
+    }
+
+    .explore-library-cta__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .explore-library-cta h2 {
+      font-family: var(--font-heading, "Fraunces", serif);
+      color: var(--color-primary, #2d5a3d);
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .explore-library-cta p {
+      font-family: var(--font-body, "Inter", sans-serif);
+      color: var(--color-text-muted, #5c6355);
+      max-width: 46ch;
+    }
+
+    /* tablet */
+    @media (max-width: 900px) {
+      .quick-actions__grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .mini-plant-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* phone */
+    @media (max-width: 640px) {
+      .quick-actions__grid {
+        grid-template-columns: 1fr;
+      }
+
+      .mini-plant-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .care-list__item {
+        flex-wrap: wrap;
+      }
+
+      .care-list__when {
+        text-align: left;
+      }
+
+      .explore-library-cta__inner {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .section-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+      }
+    }
+

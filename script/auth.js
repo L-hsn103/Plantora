@@ -1,4 +1,4 @@
-
+// Firebase project settings
 const firebaseConfig = {
   apiKey: "AIzaSyCqlKl7j5yYvdsFKBVEBNjoKltMCBz9kRU",
   authDomain: "plantora-87936.firebaseapp.com",
@@ -9,9 +9,9 @@ const firebaseConfig = {
   measurementId: "G-TF88N9Q5SJ"
 };
 
-// 2. INITIALIZE FIREBASE
 let auth = null;
 
+// load the Firebase SDK and keep the auth helpers on window
 async function initFirebase() {
   const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
   const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
@@ -29,7 +29,7 @@ async function initFirebase() {
 
   setupAuthStateListener();
 }
-// 3. AUTH STATE LISTENER - RUNS ON EVERY PAGE
+// save or clear the saved user whenever they log in or out
 function setupAuthStateListener() {
   window.__plantoraAuth.onAuthStateChanged(async (user) => {
     if (user) {
@@ -51,7 +51,6 @@ function setupAuthStateListener() {
   });
 }
 
-// auth-ui.js owns the DOM work; this only tells it the real state.
 function syncAuthUi(isLoggedIn) {
   if (window.PlantoraUI) {
     window.PlantoraUI.updateNavbarForAuth(isLoggedIn);
@@ -60,7 +59,7 @@ function syncAuthUi(isLoggedIn) {
   }
 }
 
-// The cached session: sessionStorage first, localStorage as mirror.
+// read the saved user from storage
 function getCachedUser() {
   try {
     return JSON.parse(
@@ -72,7 +71,7 @@ function getCachedUser() {
     return null;
   }
 }
-// 4. ROUTE PROTECTION - CHECK data-requires-auth
+// pages marked data-requires-auth send you to login if you are not signed in
 function protectPageIfNeeded() {
   const body = document.body;
   const requiresAuth = body.dataset.requiresAuth === "true";
@@ -85,7 +84,8 @@ function protectPageIfNeeded() {
     }
   }
 }
-// 5. REDIRECT AFTER LOGIN - HANDLE ?redirect= PARAM
+
+// send them to the page they asked for, or the dashboard
 function handlePostLoginRedirect() {
   const urlParams = new URLSearchParams(window.location.search);
   const redirect = urlParams.get("redirect");
@@ -98,7 +98,6 @@ function handlePostLoginRedirect() {
     window.location.href = "dashboard.html";
   }
 }
-// 6. LOGIN / REGISTER FORM HANDLERS (AUTO-BIND)
 function setupAuthForms() {
   const loginForm = document.getElementById("login-form");
   if (loginForm) {
@@ -152,7 +151,7 @@ function setupAuthForms() {
     });
   }
 }
-// 7. HELPER FUNCTIONS
+// friendlier wording for the Firebase error codes
 function getFriendlyErrorMessage(code) {
   const messages = {
     "auth/user-not-found": "No account found with this email.",
@@ -166,6 +165,7 @@ function getFriendlyErrorMessage(code) {
   return messages[code] || "Something went wrong. Please try again.";
 }
 
+// show the error at the top of the form for 5 seconds
 function showAuthError(form, message) {
   const existing = form.querySelector(".auth-error");
   if (existing) existing.remove();
@@ -178,7 +178,8 @@ function showAuthError(form, message) {
 
   setTimeout(() => errorDiv.remove(), 5000);
 }
-// 8. BOOT - START EVERYTHING
+
+// start Firebase and attach the form handlers once it is ready
 (async function boot() {
   try {
     await initFirebase();

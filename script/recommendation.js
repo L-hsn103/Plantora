@@ -5,17 +5,18 @@
 
   var DETAILS_URL = "plant-details.html?id=";
 
-  // The plant data is read from plant-data.js. If your array uses a
-  // different variable name, add it to this list.
+  // names plant-data.js may use for the plant array
   var PLANT_GLOBAL_NAMES = [
     "plants", "PLANTS", "plantData", "PLANT_DATA", "plantsData",
     "plantList", "allPlants", "plantDatabase", "plantDB", "PlantData"
   ];
 
-  // Fallback if plant-data.js does not expose the plants as a variable.
-  var PLANT_JSON_PATHS = ["Data/plants.json", "data/plants.json", "plants.json"];
+  // used if the plants are not in a variable
+  var PLANT_JSON_PATHS = ["../assets/Data/plants.json"];
 
-  /* SURVEY DEFINITION*/
+  // the survey questions with their 5 answers
+  // rule "atOrBelow": plant level must be <= answer level
+  // rule "withinOne": plant level and answer level can differ by 1
   var SURVEY = [
     {
       field: "light", title: "Light", rule: "atOrBelow",
@@ -115,20 +116,17 @@
     }
   ];
 
-  // indoorSuitability is NOT a survey question. It is only used to rank.
+  // only used to sort the results
   var SUITABILITY_LEVELS = [
     "Unsuitable", "Poorly Suitable", "Moderately Suitable", "Suitable", "Highly Suitable"
   ];
 
-  // Order in which requirements are loosened when nothing matches.
-  // Light, water, humidity and temperature are never loosened.
+  // which answers we are allowed to relax, in order
   var RELAX_ORDER = ["size", "space", "maintenance", "difficulty"];
   var MAX_RELAX_LEVELS = 2;
   var ENVIRONMENT_FIELDS = ["light", "water", "humidity", "temperature"];
 
-  /* -----------------------------------------------------------
-     3. LEVEL HELPERS
-     ----------------------------------------------------------- */
+  // turns each answer into a level number so we can compare them
   var LEVEL_MAPS = {};
   SURVEY.forEach(function (q) {
     LEVEL_MAPS[q.field] = q.options.map(function (o) { return o.value; });
@@ -139,7 +137,7 @@
     return String(value === undefined || value === null ? "" : value).trim().toLowerCase();
   }
 
-  // Returns 1–5 for a valid value, or 0 if the value is not recognised.
+  // gives 1 to 5, or 0 if the value is unknown
   function getLevel(field, value) {
     var list = LEVEL_MAPS[field];
     if (!list) { return 0; }
@@ -157,6 +155,7 @@
     return null;
   }
 
+  // every field has to use one of the standard values
   function isValidPlant(plant) {
     if (!plant || typeof plant !== "object") { return false; }
     if (plant.id === undefined || plant.id === null || !plant.name) { return false; }
@@ -164,7 +163,8 @@
     return SURVEY.every(function (q) { return getLevel(q.field, plant[q.field]) > 0; });
   }
 
-  /* 4. MATCHING RULES */
+  // matching rules
+
   function passesRule(rule, plantLevel, userLevel, extraAllowance) {
     if (rule === "withinOne") {
       return Math.abs(plantLevel - userLevel) <= 1;
@@ -172,6 +172,8 @@
     return plantLevel <= userLevel + (extraAllowance || 0);
   }
 
+  // extraAllowance gives a field extra levels
+  // leave it empty to use the normal survey rules
   function matchesPlant(plant, answers, extraAllowance) {
     var extra = extraAllowance || {};
     return SURVEY.every(function (q) {
@@ -187,7 +189,7 @@
     });
   }
 
-  // Which of the exact (unrelaxed) rules does this plant pass?
+  // check which of the normal rules this plant passes
   function getRuleResults(plant, answers) {
     return SURVEY.map(function (q) {
       var plantLevel = getLevel(q.field, plant[q.field]);
@@ -205,10 +207,11 @@
   return Math.round((passed / SURVEY.length) * 1000) / 10;
 }
 
-  /* 5. FALLBACK */
+  // fallback: relax the rules a bit when nothing matches
 function relaxRequirements() {
   var stages = [];
 
+  // relax one field at a time, in RELAX_ORDER
   for (var i = 0; i < RELAX_ORDER.length; i++) {
     var field = RELAX_ORDER[i];
 
@@ -219,6 +222,7 @@ function relaxRequirements() {
     });
   }
 
+  // still nothing, so allow two levels this time
   for (var j = 0; j < RELAX_ORDER.length; j++) {
     var field2 = RELAX_ORDER[j];
 
@@ -231,6 +235,8 @@ function relaxRequirements() {
 
   return stages;
 }
+
+  // how many plants pass each light/water/humidity/temperature answer
   function describeBlockers(plants, answers) {
     return ENVIRONMENT_FIELDS.map(function (field) {
       var q = getQuestion(field);
@@ -264,6 +270,7 @@ function findRecommendations(plants, answers) {
   };
 }
 
+  // sort by suitability, then by how close the answers are
   function calculateDistance(plant, answers) {
     return SURVEY.reduce(function (total, q) {
       return total + Math.abs(getLevel(q.field, plant[q.field]) - getLevel(q.field, answers[q.field]));
@@ -317,10 +324,11 @@ function rankPlants(plants, answers) {
   if (typeof module !== "undefined" && module.exports) { module.exports = api; }
   if (typeof document === "undefined") { return; }
 
-  /* 7. LOADING THE PLANT DATA */
+  // read the plants from the page
+
   function readGlobal(name) {
     try {
-      // Also sees top-level const/let from other scripts, which are not on window.
+      // new Function can see top level const/let, window cannot
       return new Function("return typeof " + name + ' !== "undefined" ? ' + name + " : undefined;")();
     } catch (err) {
       return undefined;
@@ -392,7 +400,8 @@ function rankPlants(plants, answers) {
     });
   }
 
-  /* 8. RENDERING */
+  // small helper to build a DOM node
+
   function el(tag, props, children) {
     var node = document.createElement(tag);
     Object.keys(props || {}).forEach(function (key) {
@@ -491,6 +500,7 @@ function rankPlants(plants, answers) {
     node.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
   }
 
+  // joins words with commas and "and"
   function joinWords(words) {
     if (words.length <= 1) { return words.join(""); }
     return words.slice(0, -1).join(", ") + " and " + words[words.length - 1];
@@ -692,9 +702,8 @@ el("span", {
     if (countAnswered(getUserAnswers()) === SURVEY.length) { hideError(); }
   }
 
-  /* -----------------------------------------------------------
-     9. START-UP
-     ----------------------------------------------------------- */
+  // set up the page
+
   function init() {
     form = document.getElementById("survey-form");
     surveyView = document.getElementById("survey-view");
@@ -718,7 +727,7 @@ el("span", {
       showView("survey");
     });
 
-    // Start loading early so results appear instantly. Errors are shown on submit.
+    // load the plants early so results show up fast
     loadPlants().catch(function () {});
   }
 

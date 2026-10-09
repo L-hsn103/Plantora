@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log In — Plantora</title>
+ 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../style/style.css" />
+  <link rel="stylesheet" href="../style/login.css" />
+  <script src="../script/auth.js" defer></script>
+
+  <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
+
+  <!-- set the logged in class early so the navbar doesn't flicker -->
+  <script>
+    try {
+      if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
+        document.documentElement.classList.add("is-auth");
+      }
+    } catch (err) {}
+  </script>
+</head>
+<body>
+
+  <div class="login-page">
+
+    <a href="index.html" class="login-back-link">&larr; Back to Home</a>
+
+    <div class="login-card">
+      <p class="login-card__logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</p>
+
+      <h1>Welcome Back</h1>
+      <p class="login-card__intro">
+        Log in to access personalized plant recommendations and manage your plants.
+      </p>
+
+      <!-- auth.js reads these fields and does the sign in -->
+      <form class="login-form" id="login-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Enter your email" />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" />
+        </div>
+
+        <button type="submit" class="btn btn--primary">Log In</button>
+      </form>
+
+      <p class="login-card__signup">
+        Don't have an account? <a href="register.html">Sign Up</a>
+      </p>
+    </div>
+
+    <p class="login-note">This is an early prototype — login is not yet functional.</p>
+  </div>
+
+  <script src="../script/auth-ui.js"></script>
+</body>
+</html>
