@@ -1,237 +1,49 @@
 rules_version = '2';
-
-// Firestore rules for Plantora. Publish these, then run the manual
-// tests at the bottom of this file before trusting them.
-
-// admins/{uid}                admin grant, made by hand in the console
-// inventory/{plantId}         stock and price, only admins can write
-// users/{uid}/orders/{txId}   order, cannot be changed after creating
-// users/{uid}/myPlants/{txId} the user's plants
-// everything else              denied
-
-// One checkout uses one id for both the order and the plant it adds.
-// store.js saves the id in sessionStorage so a retry reuses it, and
-// the rules check the link both ways, so the two documents always
-// match.
-
-// Rules check who can write and what the fields look like. They cannot
-// check that a price is fair or that the plant was really delivered,
-// so real payments would need a backend like Cloud Functions.
-
-// Admin cannot be given from the app, add admins/{yourUid} in the
-// console instead. Orders never change, and a plant doc can only ever
-// change its schedule and nickname.
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // helper functions
-
+    
+    // Helper: user is signed in
     function signedIn() {
       return request.auth != null;
     }
-
+    
+    // Helper: user owns this document
     function isOwner(uid) {
       return signedIn() && request.auth.uid == uid;
     }
 
-    // the user has a document in the admins collection
+    // plants catalog - public read, admin write
+    match /plants/{plantId} {
+      allow read: if true;
+      allow write: if isAdmin(); // only admin can write
+    }
+
+    // inventory - public read, admin write
+    match /inventory/{plantId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // user's plants - full access to own data
+    match /users/{uid}/myPlants/{txId} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // user's orders - full access to own data
+    match /users/{uid}/orders/{txId} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // admins - only for admin checks
+    match /admins/{uid} {
+      allow read: if isOwner(uid);
+      allow write: if isAdmin();
+    }
+
+    // Admin helper function
     function isAdmin() {
       return signedIn()
         && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
-    }
-
-    function isStr(v, minLen, maxLen) {
-      return v is string && v.size() >= minLen && v.size() <= maxLen;
-    }
-
-    // nickname is always written, but it can be null
-    function validNickname(v) {
-      return v == null || isStr(v, 0, 60);
-    }
-
-    function validTxId(id) {
-      return id.matches('^tx_[a-f0-9]{32}$');
-    }
-
-    function orderPath(uid, id) {
-      return /databases/$(database)/documents/users/$(uid)/orders/$(id);
-    }
-
-    function plantPath(uid, id) {
-      return /databases/$(database)/documents/users/$(uid)/myPlants/$(id);
-    }
-
-    function inventoryPath(plantId) {
-      return /databases/$(database)/documents/inventory/$(plantId);
-    }
-
-    // care schedule: the intervals come from the plant's water/maintenance
-    // level when it is first added (see store.js) and can be changed
-    // later, so here we only check the range
-
-    // nextDue and lastDone are plain milliseconds, not Timestamps,
-    // because the browser has to do the date maths itself
-    function validTask(t) {
-      return t is map
-        && t.keys().hasOnly(['intervalDays', 'lastDone', 'nextDue'])
-        && t.keys().hasAll(['intervalDays', 'lastDone', 'nextDue'])
-        && t.intervalDays is int && t.intervalDays >= 1 && t.intervalDays <= 3650
-        && (t.lastDone == null || (t.lastDone is int && t.lastDone > 0))
-        && t.nextDue is int && t.nextDue > 0;
-    }
-
-    function validSchedule(s) {
-      return s is map
-        && s.keys().hasOnly(['watering', 'fertilizing', 'repotting', 'cleaning'])
-        && s.keys().hasAll(['watering', 'fertilizing', 'repotting', 'cleaning'])
-        && validTask(s.watering)
-        && validTask(s.fertilizing)
-        && validTask(s.repotting)
-        && validTask(s.cleaning);
-    }
-
-    // a brand new plant has had no care done yet
-    function validFreshSchedule(s) {
-      return validSchedule(s)
-        && s.watering.lastDone == null
-        && s.fertilizing.lastDone == null
-        && s.repotting.lastDone == null
-        && s.cleaning.lastDone == null;
-    }
-
-    // delivery details, same checks as validateDelivery() in store.js
-
-    function validDelivery(d) {
-      return d is map
-        && d.keys().hasOnly(['name', 'phone', 'address', 'note'])
-        && d.keys().hasAll(['name', 'phone', 'address', 'note'])
-        && isStr(d.name, 2, 80)
-        && isStr(d.phone, 6, 20)
-        && d.phone.matches('^[0-9+() -]{6,20}$')
-        && isStr(d.address, 10, 300)
-        && isStr(d.note, 0, 300);
-    }
-
-    // an order has to match the inventory it buys from. store.js lowers the
-    // stock in the same transaction, so getAfter() sees the new value
-
-    function validOrder(uid, id, o) {
-      return o.keys().hasOnly(['uid', 'plantId', 'plantName', 'quantity', 'currency',
-                                'priceBDT', 'isDemo', 'paymentMethod', 'status',
-                                'delivery', 'createdAt'])
-        && o.keys().hasAll(['uid', 'plantId', 'plantName', 'quantity', 'currency',
-                            'priceBDT', 'isDemo', 'paymentMethod', 'status',
-                            'delivery', 'createdAt'])
-        && o.uid == uid
-        && o.plantId is int && o.plantId >= 1 && o.plantId <= 20
-        && isStr(o.plantName, 1, 100)
-        && o.quantity == 1
-        && o.currency == 'BDT'
-        && o.isDemo == true
-        && o.paymentMethod == 'demo'
-        && o.status == 'demo-placed'
-        && validDelivery(o.delivery)
-        && o.createdAt == request.time
-        // inventory must exist, be listed and have stock
-        && getAfter(inventoryPath(o.plantId)).data.active == true
-        && getAfter(inventoryPath(o.plantId)).data.stock >= 1
-        && o.priceBDT is int
-        && o.priceBDT == getAfter(inventoryPath(o.plantId)).data.priceBDT
-        // the plant it adds has to be written in the same batch
-        && existsAfter(plantPath(uid, id))
-        && getAfter(plantPath(uid, id)).data.plantId == o.plantId
-        && getAfter(plantPath(uid, id)).data.source == 'shop-demo';
-    }
-
-    // a plant is either bought from the shop (needs a matching order) or
-    // added by hand from Explore or Plant Details
-
-    // addedAt is only checked on create, because on update
-    // request.resource.data is the merged document
-    function validPlantCommon(uid, p) {
-      return p.uid == uid
-        && p.plantId is int && p.plantId >= 1 && p.plantId <= 20
-        && isStr(p.plantName, 1, 100)
-        && validNickname(p.nickname)
-        && validSchedule(p.schedule);
-    }
-
-    function validShopPlant(uid, id, p) {
-      return validPlantCommon(uid, p)
-        && p.addedAt == request.time
-        && p.source == 'shop-demo'
-        && p.orderId == id
-        && existsAfter(orderPath(uid, id))
-        && getAfter(orderPath(uid, id)).data.plantId == p.plantId
-        && getAfter(orderPath(uid, id)).data.plantName == p.plantName;
-    }
-
-    function validManualPlant(uid, p) {
-      return validPlantCommon(uid, p)
-        && p.addedAt == request.time
-        && p.source == 'manual'
-        && p.orderId == null;
-    }
-
-    // admin grants. a user can read their own grant so the app can check
-    // if they are an admin, but only an admin can list or write
-    match /admins/{uid} {
-      allow get: if isOwner(uid) || isAdmin();
-      allow list: if isAdmin();
-      allow create, update, delete: if false;
-    }
-
-    // inventory, anyone can read it because the shop is public
-    match /inventory/{plantId} {
-      allow read: if true;
-
-      allow create, update: if isAdmin()
-        && request.resource.data.keys().hasOnly(
-             ['plantId', 'stock', 'priceBDT', 'active', 'updatedAt', 'updatedBy'])
-        && request.resource.data.keys().hasAll(
-             ['plantId', 'stock', 'priceBDT', 'active', 'updatedAt', 'updatedBy'])
-        // int() turns the document id into a number so the id and the
-        // saved plantId always match
-        && request.resource.data.plantId == int(plantId)
-        && request.resource.data.stock is int
-        && request.resource.data.stock >= 0
-        && request.resource.data.stock <= 1000000
-        && request.resource.data.priceBDT is int
-        && request.resource.data.priceBDT >= 0
-        && request.resource.data.priceBDT <= 1000000
-        && request.resource.data.active is bool
-        && request.resource.data.updatedBy == request.auth.uid;
-
-      allow delete: if isAdmin();
-    }
-
-    // orders, the owner reads and creates them once but never changes them
-    match /users/{uid}/orders/{txId} {
-      allow get, list: if isOwner(uid);
-      allow create: if isOwner(uid)
-                    && validTxId(txId)
-                    && validOrder(uid, txId, request.resource.data);
-      allow update, delete: if false;
-    }
-
-    // the user's plants
-    match /users/{uid}/myPlants/{txId} {
-      allow get, list, delete: if isOwner(uid);
-
-      allow create: if isOwner(uid)
-                    && validTxId(txId)
-                    && validFreshSchedule(request.resource.data.schedule)
-                    && (validShopPlant(uid, txId, request.resource.data)
-                        || validManualPlant(uid, request.resource.data));
-
-      // only the schedule and the nickname can change, affectedKeys()
-      // keeps the rest frozen
-      allow update: if isOwner(uid)
-                    && validTxId(txId)
-                    && request.resource.data.diff(resource.data).affectedKeys()
-                         .hasOnly(['schedule', 'nickname'])
-                    && validPlantCommon(uid, request.resource.data)
-                    && validSchedule(request.resource.data.schedule);
     }
 
     // deny everything else
@@ -240,19 +52,3 @@ service cloud.firestore {
     }
   }
 }
-
-// Manual tests to run after publishing, with one admin account and one
-// normal user. Expected result is in brackets.
-//
-//  1. Normal user reads inventory/{plantId}.                [ALLOWED]
-//  2. Normal user writes inventory/{plantId}.               [DENIED]
-//  3. Admin writes admins/{anyoneElse}.                     [DENIED]
-//  4. Normal user reads users/{otherUid}/myPlants.          [DENIED]
-//  5. Signed out user reads inventory/{plantId}.            [ALLOWED]
-//  6. Buy the last plant from two browsers at once.          [PASS]
-//  7. Buy again from the console with priceBDT of 1.        [DENIED]
-//  8. Try to change plantId on a myPlants doc.              [DENIED]
-//  9. Change schedule or nickname on a myPlants doc.        [ALLOWED]
-// 10. myPlants doc with source 'manual' and an orderId.     [DENIED]
-// 11. myPlants doc with no schedule.                        [DENIED]
-// 12. Update or delete an order.                            [DENIED]

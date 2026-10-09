@@ -16,25 +16,75 @@
   var DEMO_DEFAULT_STOCK = 30;
   var DEMO_ALL_ACTIVE = true;
 
-  var cache = null;      // shared promise, so plants.json loads once
-  var plantList = null;  // saved array so getPlantById can be instant
+  var cache = null;      // shared promise
+  var plantList = null;  // cached array for instant getPlantById
 
-  // fetch the plant list once and share it
+  // Firestore SDK config (matches auth.js)
+  var FIREBASE_CONFIG = {
+    apiKey: "AIzaSyCqlKl7j5yYvdsFKBVEBNjoKltMCBz9kRU",
+    authDomain: "plantora-87936.firebaseapp.com",
+    projectId: "plantora-87936",
+    storageBucket: "plantora-87936.firebasestorage.app",
+    messagingSenderId: "684642317612",
+    appId: "1:684642317612:web:19d446b36c9defd36a2889",
+    measurementId: "G-TF88N9Q5SJ"
+  };
+  var SDK_URL = "https://www.gstatic.com/firebasejs/10.12.2/";
+
+  // Fetch from Firestore "plants" collection
+  function loadFromFirestore() {
+    return Promise.all([
+      import(SDK_URL + "firebase-app.js"),
+      import(SDK_URL + "firebase-firestore.js")
+    ]).then(function (modules) {
+      var appMod = modules[0];
+      var fsMod = modules[1];
+      var app = appMod.initializeApp(FIREBASE_CONFIG);
+      var db = fsMod.getFirestore(app);
+      return fsMod.getDocs(fsMod.collection(db, "plants")).then(function (snap) {
+        if (snap.empty) throw new Error("No plants in Firestore");
+        var plants = [];
+        snap.forEach(function (doc) {
+          var data = doc.data();
+          // Ensure numeric id matches document id
+          data.id = Number(doc.id);
+          plants.push(data);
+        });
+        // Sort by id for consistent ordering
+        plants.sort(function (a, b) { return a.id - b.id; });
+        return plants;
+      });
+    });
+  }
+
+  // Fallback to JSON file
+  function loadFromJSON() {
+    return fetch("../assets/Data/plants.json")
+      .then(function (res) {
+        if (!res.ok) throw new Error("Could not load Data/plants.json (HTTP " + res.status + ")");
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data || !Array.isArray(data.plants) || data.plants.length === 0) {
+          throw new Error("Data/plants.json has no plants");
+        }
+        return data.plants;
+      });
+  }
+
+  // Main loader: try Firestore first, then JSON
   function loadPlants() {
     if (!cache) {
-      cache = fetch("../assets/Data/plants.json")
-        .then(function (res) {
-          if (!res.ok) throw new Error("Could not load Data/plants.json (HTTP " + res.status + ")");
-          return res.json();
+      cache = loadFromFirestore()
+        .catch(function (err) {
+          console.warn("[PlantoraData] Firestore load failed, falling back to JSON:", err.message);
+          return loadFromJSON();
         })
-        .then(function (data) {
-          if (!data || !Array.isArray(data.plants) || data.plants.length === 0) {
-            throw new Error("Data/plants.json has no plants");
-          }
-          plantList = data.plants;
+        .then(function (plants) {
+          plantList = plants;
           return plantList;
         });
-      cache.catch(function () { cache = null; }); // let it try again after a failure
+      cache.catch(function () { cache = null; });
     }
     return cache;
   }

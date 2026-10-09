@@ -1,524 +1,3 @@
-const plants = [
-  {
-    id: 1,
-    name: "Snake Plant",
-    scientificName: "Dracaena trifasciata",
-    image: "../assets/image/plant/snake-plant.webp",
-    light: "Very Low",
-    water: "Very Low",
-    humidity: "Low",
-    temperature: "Warm",
-    space: "Medium",
-    maintenance: "Very Low",
-    difficulty: "Very Easy",
-    size: "Medium",
-    indoorSuitability: "Highly Suitable",
-    description:
-      "A tough, low-maintenance plant that tolerates low light and irregular watering, making it a great choice for beginners.",
-    careGuide: {
-      watering:
-        "Water only when the soil is completely dry, roughly every 2-3 weeks.",
-      fertilizer:
-        "Feed with a diluted liquid fertilizer once every 1-2 months during spring and summer.",
-      repotting: "Repot every 2-3 years, or once the roots outgrow the pot.",
-      cleaning: "Wipe leaves with a damp cloth every few weeks to remove dust.",
-    },
-  },
-  {
-    id: 2,
-    name: "ZZ Plant",
-    scientificName: "Zamioculcas zamiifolia",
-    image: "../assets/image/plant/zz-plant.webp",
-    light: "Very Low",
-    water: "Very Low",
-    humidity: "Low",
-    temperature: "Moderate",
-    space: "Medium",
-    maintenance: "Very Low",
-    difficulty: "Very Easy",
-    size: "Medium",
-    indoorSuitability: "Highly Suitable",
-    description:
-      "A glossy, drought-tolerant plant that thrives on neglect, perfect for busy students and low-light rooms.",
-    careGuide: {
-      watering:
-        "Water only when the soil is fully dry, roughly every 2–3 weeks.",
-      fertilizer:
-        "Feed sparingly, about once every 2 months during the growing season.",
-      repotting: "Repot every 2–3 years, as growth is slow.",
-      cleaning: "Dust leaves occasionally with a soft cloth.",
-    },
-  },
-  {
-    id: 3,
-    name: "Money Plant (Pothos)",
-    scientificName: "Epipremnum aureum",
-    image: "../assets/image/plant/money-plant-pothos.webp",
-    light: "Low",
-    water: "Medium",
-    humidity: "Medium",
-    temperature: "Moderate",
-    space: "Small",
-    maintenance: "Low",
-    difficulty: "Very Easy",
-    size: "Medium",
-    indoorSuitability: "Highly Suitable",
-    description:
-      "A fast-growing trailing vine that adapts well to most indoor spaces and is very forgiving for new plant owners.",
-    careGuide: {
-      watering: "Water when the top inch of soil feels dry, about once a week.",
-      fertilizer:
-        "Feed monthly with a balanced liquid fertilizer during the growing season.",
-      repotting: "Repot every 1-2 years or when roots fill the pot.",
-      cleaning: "Rinse leaves under water occasionally to keep them dust-free.",
-    },
-  },
-  {
-    id: 4,
-    name: "Spider Plant",
-    scientificName: "Chlorophytum comosum",
-    image: "../assets/image/plant/spider-plant.webp",
-    light: "Medium",
-    water: "Medium",
-    humidity: "Medium",
-    temperature: "Moderate",
-    space: "Small",
-    maintenance: "Low",
-    difficulty: "Easy",
-    size: "Small",
-    indoorSuitability: "Highly Suitable",
-    description:
-      "A resilient plant known for its arching leaves and small offshoot 'babies', ideal for hanging baskets or shelves.",
-    careGuide: {
-      watering: "Water when the topsoil dries out, about once a week.",
-      fertilizer: "Feed lightly once a month during spring and summer.",
-      repotting: "Repot every 1–2 years as it grows quickly.",
-      cleaning: "Trim brown leaf tips and dust leaves occasionally.",
-    },
-  },
-  {
-    id: 5,
-    name: "Peace Lily",
-    scientificName: "Spathiphyllum wallisii",
-    image: "../assets/image/plant/peace-lily.webp",
-    light: "Low",
-    water: "High",
-    humidity: "High",
-    temperature: "Moderate",
-    space: "Medium",
-    maintenance: "Medium",
-    difficulty: "Moderate",
-    size: "Medium",
-    indoorSuitability: "Suitable",
-    description:
-      "An elegant flowering plant that thrives in shady spots and signals when it needs water by drooping slightly.",
-    careGuide: {
-      watering:
-        "Keep soil consistently moist; water when the top inch feels dry, roughly twice a week.",
-      fertilizer: "Feed every 6–8 weeks with a balanced liquid fertilizer.",
-      repotting: "Repot once a year or when it becomes root-bound.",
-      cleaning: "Wipe leaves gently to keep them glossy and dust-free.",
-    },
-  },
-  {
-    id: 6,
-    name: "Rubber Plant",
-    scientificName: "Ficus elastica",
-    image: "../assets/image/plant/rubber-plant.webp",
-    light: "Medium",
-    water: "Medium",
-    humidity: "Medium",
-    temperature: "Moderate",
-    space: "Large",
-    maintenance: "Medium",
-    difficulty: "Moderate",
-    size: "Large",
-    indoorSuitability: "Suitable",
-    description:
-      "A bold plant with large, glossy leaves that makes a striking statement piece in any room.",
-    careGuide: {
-      watering: "Water when the top inch of soil feels dry, about once a week.",
-      fertilizer:
-        "Feed monthly during the growing season with a balanced fertilizer.",
-      repotting: "Repot every 1–2 years to support its growth.",
-      cleaning: "Wipe large leaves regularly to keep them shiny and dust-free.",
-    },
-  },
-  {
-    id: 7,
-    name: "Monstera Deliciosa",
-    scientificName: "Monstera deliciosa",
-    image: "../assets/image/plant/monstera-deliciosa.webp",
-    light: "Medium",
-    water: "Medium",
-    humidity: "High",
-    temperature: "Moderate",
-    space: "Very Large",
-    maintenance: "Medium",
-    difficulty: "Moderate",
-    size: "Large",
-    indoorSuitability: "Suitable",
-    description:
-      "A dramatic tropical climber with large, split leaves that becomes a focal point but needs room to spread.",
-    careGuide: {
-      watering:
-        "Water when the top 2–3 inches of soil are dry, about every 1–2 weeks.",
-      fertilizer:
-        "Feed monthly with a balanced liquid fertilizer during spring and summer.",
-      repotting: "Repot every 2 years, or when roots circle the pot.",
-      cleaning: "Wipe the large leaves regularly to remove dust.",
-    },
-  },
-  {
-    id: 8,
-    name: "Heartleaf Philodendron",
-    scientificName: "Philodendron hederaceum",
-    image: "../assets/image/plant/heartleaf-philodendron.webp",
-    light: "Low",
-    water: "Medium",
-    humidity: "Medium",
-    temperature: "Moderate",
-    space: "Small",
-    maintenance: "Low",
-    difficulty: "Easy",
-    size: "Medium",
-    indoorSuitability: "Highly Suitable",
-    description:
-      "A graceful trailing vine with heart-shaped leaves that grows well in shaded rooms and forgives occasional neglect.",
-    careGuide: {
-      watering:
-        "Water when the top inch of soil feels dry, about every 1–2 weeks.",
-      fertilizer:
-        "Feed monthly with a balanced liquid fertilizer during the growing season.",
-      repotting: "Repot every 1–2 years or when roots fill the pot.",
-      cleaning: "Wipe leaves with a damp cloth to keep them clean and glossy.",
-    },
-  },
-  {
-    id: 9,
-    name: "Chinese Evergreen (Aglaonema)",
-    scientificName: "Aglaonema commutatum",
-    image: "../assets/image/plant/chinese-evergreen-aglaonema.webp",
-    light: "Low",
-    water: "Medium",
-    humidity: "Medium",
-    temperature: "Warm",
-    space: "Medium",
-    maintenance: "Low",
-    difficulty: "Easy",
-    size: "Medium",
-    indoorSuitability: "Highly Suitable",
-    description:
-      "A durable foliage plant with patterned leaves that tolerates shade and indoor conditions well.",
-    careGuide: {
-      watering:
-        "Water when the top 1–2 inches of soil are dry, about every 1–2 weeks.",
-      fertilizer:
-        "Feed every 2 months with a diluted balanced fertilizer in spring and summer.",
-      repotting: "Repot every 2–3 years, as growth is slow.",
-      cleaning: "Wipe leaves occasionally to remove dust.",
-    },
-  },
-  {
-    id: 10,
-    name: "Lucky Bamboo",
-    scientificName: "Dracaena braunii",
-    image: "../assets/image/plant/lucky-bamboo.webp",
-    light: "Low",
-    water: "Very High",
-    humidity: "Medium",
-    temperature: "Warm",
-    space: "Very Small",
-    maintenance: "Low",
-    difficulty: "Easy",
-    size: "Small",
-    indoorSuitability: "Highly Suitable",
-    description:
-      "A symbolic, low-maintenance plant often grown in water or moist soil, popular for desks and small spaces.",
-    careGuide: {
-      watering:
-        "If grown in water, change it every 1–2 weeks and keep the roots submerged.",
-      fertilizer:
-        "Feed lightly every 2 months with a diluted liquid fertilizer.",
-      repotting:
-        "Change its container only when it outgrows its current space.",
-      cleaning: "Rinse stalks and leaves occasionally with clean water.",
-    },
-  },
-  {
-    id: 11,
-    name: "Boston Fern",
-    scientificName: "Nephrolepis exaltata",
-    image: "../assets/image/plant/boston-fern.webp",
-    light: "Medium",
-    water: "High",
-    humidity: "Very High",
-    temperature: "Mild",
-    space: "Medium",
-    maintenance: "High",
-    difficulty: "Hard",
-    size: "Medium",
-    indoorSuitability: "Moderately Suitable",
-    description:
-      "A lush, feathery fern that loves humid air and constant moisture, best for people willing to give it regular attention.",
-    careGuide: {
-      watering:
-        "Keep soil evenly moist and never let it dry out; water about twice a week.",
-      fertilizer:
-        "Feed monthly with a diluted liquid fertilizer during spring and summer.",
-      repotting: "Repot once a year or when roots fill the pot.",
-      cleaning:
-        "Trim brown fronds and mist or rinse the foliage to keep it fresh.",
-    },
-  },
-  {
-    id: 12,
-    name: "Areca Palm",
-    scientificName: "Dypsis lutescens",
-    image: "../assets/image/plant/areca-palm.webp",
-    light: "High",
-    water: "High",
-    humidity: "High",
-    temperature: "Warm",
-    space: "Large",
-    maintenance: "Medium",
-    difficulty: "Hard",
-    size: "Large",
-    indoorSuitability: "Moderately Suitable",
-    description:
-      "A graceful, feathery palm that adds a tropical feel and helps soften larger indoor spaces.",
-    careGuide: {
-      watering:
-        "Water when the top inch of soil is dry, keeping soil lightly moist.",
-      fertilizer:
-        "Feed monthly during spring and summer with a balanced fertilizer.",
-      repotting: "Repot every 2 years or when roots become crowded.",
-      cleaning: "Mist or wipe the fronds occasionally to prevent dust buildup.",
-    },
-  },
-  {
-    id: 13,
-    name: "Parlor Palm",
-    scientificName: "Chamaedorea elegans",
-    image: "../assets/image/plant/parlor-palm.webp",
-    light: "Low",
-    water: "Medium",
-    humidity: "Medium",
-    temperature: "Mild",
-    space: "Medium",
-    maintenance: "Low",
-    difficulty: "Easy",
-    size: "Medium",
-    indoorSuitability: "Highly Suitable",
-    description:
-      "A compact, slow-growing palm that tolerates shade and suits shelves, corners and small to medium rooms.",
-    careGuide: {
-      watering:
-        "Water when the top inch of soil is dry, about every 1–2 weeks.",
-      fertilizer:
-        "Feed every 2 months with a diluted balanced fertilizer in spring and summer.",
-      repotting: "Repot every 2–3 years, as growth is slow.",
-      cleaning: "Wipe fronds gently with a damp cloth to remove dust.",
-    },
-  },
-  {
-    id: 14,
-    name: "Aloe Vera",
-    scientificName: "Aloe vera",
-    image: "../assets/image/plant/aloe-vera.webp",
-    light: "High",
-    water: "Low",
-    humidity: "Very Low",
-    temperature: "Moderate",
-    space: "Small",
-    maintenance: "Very Low",
-    difficulty: "Easy",
-    size: "Small",
-    indoorSuitability: "Suitable",
-    description:
-      "A hardy succulent that stores water in its leaves, making it drought-tolerant and easy to care for.",
-    careGuide: {
-      watering:
-        "Water deeply but infrequently; let the soil dry out completely between waterings.",
-      fertilizer:
-        "Feed once or twice a year with a cactus/succulent fertilizer.",
-      repotting: "Repot every 2 years or when it outgrows its container.",
-      cleaning: "Wipe leaves occasionally; avoid overwatering to prevent rot.",
-    },
-  },
-  {
-    id: 15,
-    name: "Golden Barrel Cactus",
-    scientificName: "Echinocactus grusonii",
-    image: "../assets/image/plant/golden-barrel-cactus.webp",
-    light: "Very High",
-    water: "Very Low",
-    humidity: "Very Low",
-    temperature: "Warm",
-    space: "Small",
-    maintenance: "Very Low",
-    difficulty: "Moderate",
-    size: "Small",
-    indoorSuitability: "Moderately Suitable",
-    description:
-      "A slow-growing, spiny round cactus that needs very bright light and almost no watering, best for sunny windowsills.",
-    careGuide: {
-      watering:
-        "Water only when the soil is completely dry, about every 3–4 weeks in summer and rarely in winter.",
-      fertilizer:
-        "Feed once or twice during the growing season with a cactus fertilizer.",
-      repotting:
-        "Repot every 3–4 years using thick gloves or folded newspaper to handle the spines.",
-      cleaning: "Dust gently with a soft brush; avoid wetting the crown.",
-    },
-  },
-  {
-    id: 16,
-    name: "Christmas Cactus",
-    scientificName: "Schlumbergera × buckleyi",
-    image: "../assets/image/plant/christmas-cactus.webp",
-    light: "Medium",
-    water: "Medium",
-    humidity: "Medium",
-    temperature: "Mild",
-    space: "Small",
-    maintenance: "Medium",
-    difficulty: "Moderate",
-    size: "Small",
-    indoorSuitability: "Suitable",
-    description:
-      "A trailing jungle cactus that blooms in cooler months and prefers moderate light and moisture unlike desert cacti.",
-    careGuide: {
-      watering:
-        "Water when the top inch of soil is dry, about every 1–2 weeks; reduce slightly after flowering.",
-      fertilizer:
-        "Feed monthly with a balanced fertilizer from spring to early autumn.",
-      repotting: "Repot every 2–3 years, preferably after flowering.",
-      cleaning: "Gently wipe the flat stem segments to remove dust.",
-    },
-  },
-  {
-    id: 17,
-    name: "Zebra Haworthia",
-    scientificName: "Haworthiopsis fasciata",
-    image: "../assets/image/plant/zebra-haworthia.webp",
-    light: "Medium",
-    water: "Low",
-    humidity: "Low",
-    temperature: "Moderate",
-    space: "Very Small",
-    maintenance: "Low",
-    difficulty: "Easy",
-    size: "Tiny",
-    indoorSuitability: "Highly Suitable",
-    description:
-      "A tiny striped succulent that tolerates indoor light better than most succulents and suits desks and shelves.",
-    careGuide: {
-      watering:
-        "Water every 2–3 weeks once the soil is completely dry; water less in winter.",
-      fertilizer:
-        "Feed once or twice during spring and summer with a diluted succulent fertilizer.",
-      repotting: "Repot every 2–3 years or when offsets crowd the pot.",
-      cleaning:
-        "Remove dead lower leaves and dust the rosette with a soft brush.",
-    },
-  },
-  {
-    id: 18,
-    name: "Moon Cactus",
-    scientificName: "Gymnocalycium mihanovichii",
-    image: "../assets/image/plant/moon-cactus.webp",
-    light: "High",
-    water: "Very Low",
-    humidity: "Very Low",
-    temperature: "Warm",
-    space: "Very Small",
-    maintenance: "Low",
-    difficulty: "Moderate",
-    size: "Tiny",
-    indoorSuitability: "Moderately Suitable",
-    description:
-      "A small grafted cactus with a bright coloured top, popular as a desk plant but sensitive to overwatering and low light.",
-    careGuide: {
-      watering:
-        "Water sparingly, about every 2–3 weeks, only when the soil is completely dry.",
-      fertilizer:
-        "Feed once a month in spring and summer with a diluted cactus fertilizer.",
-      repotting:
-        "Repot every 2 years in a small pot with fast-draining cactus mix.",
-      cleaning:
-        "Dust gently with a soft brush and avoid wetting the coloured top.",
-    },
-  },
-  {
-    id: 19,
-    name: "Bunny Ears Cactus",
-    scientificName: "Opuntia microdasys",
-    image: "../assets/image/plant/boston-fern.webp",
-    light: "Very High",
-    water: "Very Low",
-    humidity: "Very Low",
-    temperature: "Warm",
-    space: "Small",
-    maintenance: "Low",
-    difficulty: "Moderate",
-    size: "Small",
-    indoorSuitability: "Moderately Suitable",
-    description:
-      "A pad-shaped cactus covered in soft-looking dots that need strong light and very little water to stay healthy.",
-    careGuide: {
-      watering:
-        "Water only when the soil is fully dry, about every 2–3 weeks in summer and rarely in winter.",
-      fertilizer:
-        "Feed once or twice during the growing season with a cactus fertilizer.",
-      repotting:
-        "Repot every 2–3 years using thick gloves or tongs, as the fine bristles irritate skin.",
-      cleaning: "Dust with a soft brush; avoid touching the bristles.",
-    },
-  },
-  {
-    id: 20,
-    name: "Echeveria",
-    scientificName: "Echeveria elegans",
-    image: "../assets/image/plant/echeveria.webp",
-    light: "Very High",
-    water: "Low",
-    humidity: "Very Low",
-    temperature: "Moderate",
-    space: "Very Small",
-    maintenance: "Medium",
-    difficulty: "Moderate",
-    size: "Tiny",
-    indoorSuitability: "Moderately Suitable",
-    description:
-      "A compact rosette succulent that needs very bright light to keep its shape and colour, ideal for sunny windowsills.",
-    careGuide: {
-      watering:
-        "Water every 2 weeks once the soil is dry, keeping water out of the rosette centre.",
-      fertilizer:
-        "Feed once or twice during spring and summer with a diluted succulent fertilizer.",
-      repotting: "Repot every 1–2 years in fast-draining cactus mix.",
-      cleaning: "Remove dead lower leaves and dust gently with a soft brush.",
-    },
-  },
-];
-
-// load plants.json, fall back to the sample data
-async function loadPlantData() {
-  try {
-    const res = await fetch("../assets/Data/plants.json");
-    if (!res.ok) throw new Error("Data/plants.json unavailable");
-    const data = await res.json();
-    if (Array.isArray(data.plants) && data.plants.length > 0) {
-      plants.length = 0;
-      plants.push(...data.plants);
-    }
-  } catch {
-    // json not reachable, keep the sample plants
-  }
-}
-
-// the filter dropdowns and the field each one uses
 const FILTER_FIELDS = [
   {
     selectId: "filter-light",
@@ -547,8 +26,8 @@ const FILTER_FIELDS = [
   },
 ];
 
-// get the values of one field in order
-function getFilterValues(field, order) {
+// Get the values of one field in order
+function getFilterValues(plants, field, order) {
   const values = [...new Set(plants.map((plant) => plant[field]).filter(Boolean))];
 
   return values.sort((a, b) => {
@@ -563,13 +42,12 @@ function getFilterValues(field, order) {
 }
 
 // Add an option to the dropdown for every value found in the plants
-function populateFilterOptions() {
+function populateFilterOptions(plants) {
   FILTER_FIELDS.forEach(({ selectId, field, order }) => {
     const select = document.getElementById(selectId);
-
     if (!select) return;
 
-    const options = ["All", ...getFilterValues(field, order)].map(
+    const options = ["All", ...getFilterValues(plants, field, order)].map(
       (value) => `<option value="${value}">${value}</option>`
     );
 
@@ -577,9 +55,8 @@ function populateFilterOptions() {
   });
 }
 
-function initExplorePage() {
+async function initExplorePage() {
   const plantGrid = document.getElementById("plant-grid");
-
   if (!plantGrid) return;
 
   const searchInput = document.getElementById("search-input");
@@ -589,7 +66,17 @@ function initExplorePage() {
   }));
   const noResultsMessage = document.getElementById("no-results");
 
-  populateFilterOptions();
+  // Load plants from PlantoraData (Firestore first, then JSON)
+  let plants = [];
+  try {
+    plants = await window.PlantoraData.loadPlants();
+  } catch (err) {
+    console.error("[Plantora] Failed to load plants:", err);
+    plantGrid.innerHTML = `<p class="error">Failed to load plants. Please refresh.</p>`;
+    return;
+  }
+
+  populateFilterOptions(plants);
 
   // Turn one plant object into a card's HTML
   function createPlantCard(plant) {
@@ -613,7 +100,7 @@ function initExplorePage() {
     `;
   }
 
-  // draw the plants and hide the no results message
+  // Draw the plants and hide the no results message
   function renderPlants(list) {
     plantGrid.innerHTML = list.map(createPlantCard).join("");
     noResultsMessage.hidden = list.length > 0;
@@ -678,7 +165,11 @@ function initExplorePage() {
           return;
         }
 
+        // Show full error details for debugging
+        const errorMsg = err && err.message ? err.message : String(err);
+        const errorCode = err && err.code ? err.code : "unknown";
         console.error("[Plantora] could not add the plant:", err);
+        alert(`Failed to add plant:\nCode: ${errorCode}\nMessage: ${errorMsg}\n\nCheck console (F12) for details.\n\nIf you see "ERR_BLOCKED_BY_CLIENT", disable ad blocker/privacy extension for this site.`);
         btn.textContent = "Try again";
         setTimeout(() => {
           if (btn.isConnected && !btn.disabled) btn.textContent = "Add";
@@ -873,18 +364,30 @@ function initExplorePage() {
   renderPlants(plants);
 }
 
-// Works only on plant-details.html
-function initDetailsPage() {
+async function initDetailsPage() {
   const plantNameEl = document.getElementById("plant-name");
-
   if (!plantNameEl) return;
 
-  // get the plant id from the url
+  // Load plants from PlantoraData
+  let plants = [];
+  try {
+    plants = await window.PlantoraData.loadPlants();
+  } catch (err) {
+    console.error("[Plantora] Failed to load plants for details:", err);
+    return;
+  }
+
+  // Get the plant id from the url
   const urlParams = new URLSearchParams(window.location.search);
   const requestedId = Number(urlParams.get("id"));
 
   // Use the first plant if no id was given
   const plant = plants.find((p) => p.id === requestedId) || plants[0];
+
+  if (!plant) {
+    console.error("[Plantora] Plant not found for id:", requestedId);
+    return;
+  }
 
   // Main info at the top
   const imageEl = document.getElementById("plant-image");
@@ -924,15 +427,46 @@ function initDetailsPage() {
     plant.difficulty.toLowerCase() +
     " care needs.";
 
-  // still just an alert for now
-  document.getElementById("add-to-my-plants").addEventListener("click", () => {
-    alert(plant.name + " added to My Plants!");
-  });
+  // "Add to My Plants" button - now actually works with Firestore
+  const addBtn = document.getElementById("add-to-my-plants");
+  if (addBtn) {
+    addBtn.addEventListener("click", async () => {
+      const store = window.PlantoraStore;
+      if (!store) {
+        console.error("[Plantora] store.js not loaded");
+        alert("System not ready. Please refresh.");
+        return;
+      }
+
+      addBtn.disabled = true;
+      addBtn.textContent = "Adding…";
+
+      try {
+        await store.addPlantManually(plant.id);
+        addBtn.disabled = true;
+        addBtn.classList.add("is-added");
+        addBtn.textContent = "Added to My Plants";
+      } catch (err) {
+        addBtn.disabled = false;
+        addBtn.textContent = "Add to My Plants";
+
+        if (err && err.code === "plantora/unauthenticated") {
+          const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.href = "login.html?redirect=" + returnUrl;
+          return;
+        }
+
+        const errorMsg = err && err.message ? err.message : String(err);
+        const errorCode = err && err.code ? err.code : "unknown";
+        console.error("[Plantora] could not add the plant:", err);
+        alert(`Failed to add plant:\nCode: ${errorCode}\nMessage: ${errorMsg}\n\nCheck console (F12) for details.\n\nIf you see "ERR_BLOCKED_BY_CLIENT", disable ad blocker/privacy extension for this site.`);
+      }
+    });
+  }
 }
 
-// load the plants, then set up each page
 (async function boot() {
-  await loadPlantData();
-  initExplorePage();
-  initDetailsPage();
+  await initExplorePage();
+  await initDetailsPage();
 })();
+
