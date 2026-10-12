@@ -117,12 +117,3 @@
       color: var(--color-primary, #2d5a3d);
     }
 
-    .login-note {
-      margin-top: 1.5rem;
-      font-family: var(--font-body, "Inter", sans-serif);
-      font-size: 0.8rem;
-      color: var(--color-text-muted, #5c6355);
-      max-width: 400px;
-      text-align: center;
-    }
-
