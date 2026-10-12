@@ -1,7 +1,7 @@
 # Plantora - Project Summary
 
 ## Overview
-Plantora is a web-based plant management and plant-shopping platform that helps users discover, identify, purchase, and take care of indoor plants.
+Plantora is a web-based plant management platform that helps users discover, identify, and take care of indoor plants.
 
 **Current state:** the public catalogue, authentication and page structure are working. The Firestore data layer has been written but **has never been run against a real database** — see [Verification Status](#verification-status).
 
@@ -39,7 +39,7 @@ Read this before trusting anything below.
 | Landing, Explore, Plant Details | Working (previously verified) |
 | Firebase Auth (login/register) | Code written; **not re-verified in a browser since the auth.js / auth-ui.js split** |
 | Firestore data layer (`store.js`, `firestore.rules`) | **Written but never executed.** No Firestore database exists on the project yet |
-| Shop, Checkout, Dashboard, My Plants data | Depends entirely on Firestore; untested |
+| Dashboard, My Plants data | Depends entirely on Firestore; untested |
 | Automated tests in the repo | **None.** No test framework, no `package.json`, no CI |
 
 Everything marked untested can only be confirmed by running the site with `npx serve` and a real Firebase project.
@@ -53,7 +53,7 @@ Everything marked untested can only be confirmed by running the site with `npx s
 - Features grid (4 cards), How it works (3-step process)
 - **About section** (`#about`) — the target of every About link while signed out
 - Final CTA section
-- Navbar: logo image + **Home · Explore Plants · Shop · About** and the Get Started slot
+- Navbar: logo image + **Home · Explore Plants · About** and the Get Started slot
 - The old floating "Your Room" info card was removed
 
 ### 2. Explore Plants (explore.html)
@@ -113,19 +113,7 @@ Everything marked untested can only be confirmed by running the site with `npx s
 - Signed out: `index.html#about` — the landing About section
 - Signed in: `dashboard.html#about` (`#about` on the dashboard itself), so a logged-in user is never sent back to the marketing page
 
-### 5. Shop (shop.html)
-- Public listing of all 20 plants with prices and stock
-- Stock states: `In stock`, `Only N left` (5 or fewer), `Out of stock` (button disabled)
-- "Buy" routes to `checkout.html?id=N`
-- **Preview mode**: with no inventory in the database, the shop falls back to the demo seed in `plant-data.js` and shows a loud banner saying so. It switches to live data automatically once real inventory exists.
-
-### 6. Checkout (checkout.html)
-- Protected demo checkout — order summary, delivery form, demo-payment acknowledgement
-- Delivery fields validated in the browser **and** in `firestore.rules`
-- On success, writes the order and the new plant in a single Firestore transaction, then links to My Plants
-- Clearly marked as taking no real money
-
-### 7. Dashboard (dashboard.html)
+### 5. Dashboard (dashboard.html)
 - Welcome hero, personalised from the cached session: **"Welcome Back, name!"** (falls back to "Welcome Back, Plant Lover!" when signed out), with the "Find My Plant" CTA
 - Quick Actions grid (4 cards)
 - **My Plants** summary — real plants from the database, with a live count
@@ -134,14 +122,13 @@ Everything marked untested can only be confirmed by running the site with `npx s
 - **About section** (`#about`, `.about--plain`) — where the About link points for signed-in users
 - **All sample data has been removed.** Empty and error states replace the old hardcoded cards
 
-### 8. My Plants (my-plants.html)
+### 6. My Plants (my-plants.html)
 - Real plant cards from the database: image, nickname or name, scientific name
-- `Purchased` / `Added by you` badge showing how the plant entered the collection
 - Status pill computed from the watering due date (`Healthy` / `Needs Water`)
 - Next due date for all four care tasks
 - **All sample data has been removed.** The "Add Plant" button links to Explore rather than a placeholder `alert()`
 
-### 9. Three-state rendering (shop.js)
+### 7. Three-state rendering (shop.js)
 Every Firestore-backed list renders one of three states, and they are deliberately distinct:
 
 | State | When | Message |
@@ -152,12 +139,12 @@ Every Firestore-backed list renders one of three states, and they are deliberate
 
 Collapsing the last two would tell a user they own no plants when the truth is that the database could not be reached.
 
-### 10. Consistent navigation (8 pages)
-One navbar across `index`, `explore`, `plant-details`, `shop`, `checkout`, `recommendation`, `dashboard`, `my-plants` (`login` / `register` use their own card layout):
+### 8. Consistent navigation (8 pages)
+One navbar across `index`, `explore`, `plant-details`, `recommendation`, `dashboard`, `my-plants`, `checkout` (`login` / `register` use their own card layout):
 
 | | Signed out | Signed in |
 |---|---|---|
-| Links | Home · Explore Plants · Shop · About | Dashboard · Explore Plants · Shop · My Plants · About |
+| Links | Home · Explore Plants · About | Dashboard · Explore Plants · My Plants · About |
 | Right slot | Get Started | 👤 name dropdown (email + Logout) |
 
 - The landing page carries `navbar--landing`: its links are centred between logo and CTA and stay visible on small screens
@@ -256,7 +243,6 @@ Plantora/
 ├── index.html              # Landing page (hero, features, how it works, About, CTA)
 ├── explore.html            # Browse plants with search/filter
 ├── plant-details.html      # Detailed plant view
-├── shop.html               # Plant shop with prices and stock (public)
 ├── checkout.html           # Demo checkout (protected)
 ├── recommendation.html     # Recommendation quiz + results
 ├── recommendation.js       # Quiz flow + result rendering
@@ -273,7 +259,7 @@ Plantora/
 ├── auth-ui.js              # DOM + storage: navbar, About/CTA links, greeting, user menu
 ├── plant-data.js           # Catalogue loader + demo inventory seed
 ├── store.js                # Firestore data layer + care schedule maths
-├── shop.js                 # Page controllers (shop, dashboard, my-plants)
+├── shop.js                 # Page controllers (dashboard, my-plants)
 ├── firestore.rules         # Firestore security rules (not yet published)
 ├── .gitignore              # Node, Firebase CLI, editor and OS files
 ├── Data/
@@ -341,7 +327,7 @@ Create a document `admins/{yourUid}` (empty is fine) in Firestore. Get your uid 
 ```bash
 npx serve        # a server is required; Firebase Auth will not work over file://
 ```
-Open `/shop.html` to see the catalogue, `/dashboard.html` and `/my-plants.html` for the collection views. In the empty state, **Load 3 sample plants** writes three real plants to Firestore, which is the fastest way to see the dashboard populated.
+Open `/explore.html` to see the catalogue, `/dashboard.html` and `/my-plants.html` for the collection views. In the empty state, **Load 3 sample plants** writes three real plants to Firestore, which is the fastest way to see the dashboard populated.
 
 ### Deployment
 Works on any static host (Netlify, Vercel, Firebase Hosting, GitHub Pages). Add the deployment domain to Authorized domains and to `store.js`'s `firebaseConfig.authDomain` if it differs.
@@ -362,12 +348,10 @@ Works on any static host (Netlify, Vercel, Firebase Hosting, GitHub Pages). Add 
 
 ## Not Yet Built
 - **Admin portal** — the schema and store functions (`isAdmin`, `getInventory`, `setInventoryItem`, `seedDemoInventory`) are ready; the UI is not
-- **Manual add from Explore Plants** — the store supports `addPlantManually()` and the rules permit it; no button triggers it
-- **Buy button on Plant Details** — only the shop links to checkout
+- **Manual add from Explore Plants** — the store supports `addPlantManually()` and the rules permit it; the button is wired up
 - **Care schedule UI** — tick-off, interval editing, nickname editing, remove plant, due-today popup
 - **Plant identification API** — not selected (see README)
 - **Recommendation quiz** — not started
-- **bKash payment** — planned for next week; the checkout is structured so the demo payment step is one replaceable function
 
 ---
 

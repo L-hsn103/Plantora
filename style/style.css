@@ -206,26 +206,6 @@ h3 {
   margin-bottom: 0.6rem;
 }
 
-.source-badge {
-  display: inline-block;
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  font-weight: 600;
-  border-radius: 999px;
-  padding: 0.2rem 0.65rem;
-  margin-bottom: 1rem;
-}
-
-.source-badge--purchase {
-  background-color: #e4f0dd;
-  color: var(--color-primary);
-}
-
-.source-badge--manual {
-  background-color: #eef2f7;
-  color: #4a5568;
-}
-
 .sample-seeder {
   margin-top: 1.25rem;
   padding-top: 1.25rem;
@@ -293,7 +273,7 @@ h3 {
   gap: 0.6rem;
 }
 
-/* icon-only buttons in the navbar (cart, profile) — the image itself is the icon */
+/* icon-only buttons in the navbar (profile) — the image itself is the icon */
 .nav-icon-btn {
   display: none;
   align-items: center;
@@ -313,33 +293,6 @@ html.is-auth .navbar__actions .nav-icon-btn {
   width: 1.5rem;
   height: 1.5rem;
   object-fit: contain;
-  pointer-events: none;
-}
-
-.nav-icon-btn--cart {
-  position: relative;
-}
-
-.nav-icon-btn--cart svg {
-  width: 1.45rem;
-  height: 1.45rem;
-  display: block;
-}
-
-.cart-badge {
-  position: absolute;
-  top: -0.15rem;
-  right: -0.35rem;
-  min-width: 1.05rem;
-  height: 1.05rem;
-  padding: 0 0.25rem;
-  border-radius: 999px;
-  background: var(--color-accent);
-  color: #fff;
-  font-size: 0.65rem;
-  font-weight: 700;
-  line-height: 1.05rem;
-  text-align: center;
   pointer-events: none;
 }
 

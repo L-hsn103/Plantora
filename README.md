@@ -50,7 +50,7 @@ The exact implementation will depend on:
 
 ## 3. 📖 Project Overview
 
-**Plantora** is a web-based plant management and plant-shopping platform. It helps users **discover, identify, purchase, and take care of indoor plants**.
+**Plantora** is a web-based plant management platform. It helps users **discover, identify, and take care of indoor plants**.
 
 The system combines:
 

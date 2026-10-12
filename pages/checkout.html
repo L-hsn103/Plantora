@@ -40,19 +40,11 @@
       <nav class="nav-links">
         <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html">Explore Plants</a>
-        <a href="shop.html" class="active" aria-current="page">Shop</a>
+        <a href="checkout.html" class="active" aria-current="page">Checkout</a>
         <a href="my-plants.html" data-nav-private hidden>My Plants</a>
         <a href="index.html#about">About</a>
     </nav>
       <div class="navbar__actions">
-        <a href="cart.html" class="nav-icon-btn nav-icon-btn--cart" aria-label="Cart">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="9.5" cy="20" r="1.4" />
-            <circle cx="18" cy="20" r="1.4" />
-            <path d="M2.5 3.5h2.2l2.4 11.2h11.3l2-8.1H6.1" />
-          </svg>
-          <span class="cart-badge" hidden></span>
-        </a>
         <a href="login.html" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
           <img src="../assets/image/user.png" alt="" />
         </a>
@@ -63,7 +55,7 @@
 
   <main class="checkout">
     <div class="container">
-        <a href="shop.html" class="back-link">&larr; Back to Shop</a>
+        <a href="explore.html" class="back-link">&larr; Back to Explore Plants</a>
       <h1>Checkout</h1>
 
       <!-- checkout.js swaps between these panels -->
@@ -71,7 +63,7 @@
 
       <div class="co-card co-center" id="co-error" hidden>
         <p id="co-error-text"></p>
-        <a href="shop.html" class="btn btn--secondary">Back to Shop</a>
+        <a href="explore.html" class="btn btn--secondary">Back to Explore Plants</a>
       </div>
 
       <div class="checkout__grid" id="co-form-wrap" hidden>
@@ -121,7 +113,7 @@
         <p id="co-success-text"></p>
         <p><small>Order ID: <span id="co-order-id"></span></small></p>
         <a href="my-plants.html" class="btn btn--primary">View My Plants</a>
-        <a href="shop.html" class="btn btn--secondary">Keep shopping</a>
+        <a href="explore.html" class="btn btn--secondary">Keep browsing</a>
       </div>
     </div>
   </main>
@@ -136,7 +128,6 @@
       <nav class="footer__links">
         <a href="index.html">Home</a>
         <a href="explore.html">Explore Plants</a>
-        <a href="shop.html">Shop</a>
         <a href="my-plants.html">My Plants</a>
         <a href="index.html#about">About</a>
       </nav>
@@ -146,7 +137,6 @@
   </footer>
 
   <script src="../script/checkout.js" defer></script>
-  <script src="../script/cart.js"></script>
   <script src="../script/auth-ui.js"></script>
 </body>
 </html>

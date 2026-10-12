@@ -1,9 +1,6 @@
 (function () {
   "use strict";
 
-  // show a low stock warning at 5 or fewer
-  var LOW_STOCK_AT = 5;
-
   function el(tag, className, text) {
     var node = document.createElement(tag);
     if (className) node.className = className;
@@ -84,11 +81,6 @@
       thirsty ? "Needs Water" : "Healthy");
   }
 
-  function sourceBadge(entry) {
-    return el("span", "source-badge " + (entry.source === "shop-demo" ? "source-badge--purchase" : "source-badge--manual"),
-      entry.source === "shop-demo" ? "Purchased" : "Added by you");
-  }
-
   function formatAdded(ms) {
     if (!ms) return "unknown date";
     try {
@@ -139,207 +131,6 @@
     wrap.appendChild(status);
     return wrap;
   }
-  // one plant in the shop, with price and stock
-  function buildShopCard(plant, item) {
-    var D = window.PlantoraData;
-    var soldOut = !(item.stock >= 1);
-    var low = !soldOut && item.stock <= LOW_STOCK_AT;
-
-    var card = el("article", "plant-card");
-    card.appendChild(buildImage(plant));
-
-    var body = el("div", "plant-card__content");
-    body.appendChild(el("h3", "plant-card__title", plant.name));
-    body.appendChild(el("p", "plant-card__scientific", plant.scientificName));
-
-    var priceRow = el("p", "shop-price");
-    priceRow.appendChild(el("strong", null, D.formatBDT(item.priceBDT)));
-    body.appendChild(priceRow);
-
-    var stockLine = el("p", "shop-stock");
-    if (soldOut) {
-      stockLine.className = "shop-stock shop-stock--out";
-      stockLine.textContent = "Out of stock";
-    } else if (low) {
-      stockLine.className = "shop-stock shop-stock--low";
-      stockLine.textContent = "Only " + item.stock + " left";
-    } else {
-      stockLine.className = "shop-stock";
-      stockLine.textContent = "In stock";
-    }
-    body.appendChild(stockLine);
-
-    var actions = el("div", "shop-actions");
-    var buy = el("button", "btn btn--primary", soldOut ? "Sold out" : "Buy");
-    buy.type = "button";
-    if (soldOut) {
-      buy.disabled = true;
-      buy.setAttribute("aria-disabled", "true");
-    } else {
-      buy.setAttribute("data-buy-plant", String(plant.id));
-      buy.setAttribute("data-buy-name", plant.name);
-      buy.setAttribute("data-buy-sci", plant.scientificName || "");
-      buy.setAttribute("data-buy-image", plant.image || "");
-      buy.setAttribute("data-buy-price", String(item.priceBDT));
-    }
-    var details = el("a", "btn btn--secondary", "View Details");
-    details.href = "plant-details.html?id=" + encodeURIComponent(plant.id);
-    actions.appendChild(buy);
-    actions.appendChild(details);
-    body.appendChild(actions);
-
-    card.appendChild(body);
-    return card;
-  }
-
-  // add the picked plant to the cart and stay on the shop page
-  function initBuyButtons() {
-    document.addEventListener("click", function (e) {
-      var btn = e.target.closest("[data-buy-plant]");
-      if (!btn) return;
-      e.preventDefault();
-      if (btn.dataset.adding === "1") return;
-
-      var user = window.PlantoraUI && window.PlantoraUI.readCachedUser
-        ? window.PlantoraUI.readCachedUser()
-        : null;
-      if (!user) {
-        window.location.href = "login.html?redirect=" +
-          encodeURIComponent(window.location.pathname + window.location.search);
-        return;
-      }
-      if (!window.PlantoraCart) return;
-
-      window.PlantoraCart.add({
-        id: btn.getAttribute("data-buy-plant"),
-        name: btn.getAttribute("data-buy-name"),
-        scientificName: btn.getAttribute("data-buy-sci"),
-        image: btn.getAttribute("data-buy-image"),
-        priceBDT: btn.getAttribute("data-buy-price")
-      });
-
-      btn.dataset.adding = "1";
-      var original = btn.textContent;
-      btn.textContent = "Added ✓";
-      setTimeout(function () {
-        btn.textContent = original;
-        delete btn.dataset.adding;
-      }, 1500);
-    });
-  }
-
-  // say if the prices are real or just demo
-  function buildShopNotice(live, readable) {
-    var box = el("div", "shop-notice");
-    box.setAttribute("role", "status");
-
-    if (live) {
-      box.className = "shop-notice shop-notice--live";
-      box.textContent = "Live inventory: prices and stock come from the admin database.";
-      return box;
-    }
-
-    box.className = "shop-notice shop-notice--preview";
-    box.appendChild(el("strong", null, "Preview mode \u2014 demo stock and prices."));
-    box.appendChild(document.createTextNode(
-      readable
-        ? " No inventory has been set up yet, so these numbers come from the demo seed in plant-data.js. Checkout will explain that ordering is not possible yet."
-        : " The inventory database could not be reached, so these numbers come from the demo seed in plant-data.js and Checkout will not complete."
-    ));
-    return box;
-  }
-
-  function initShop() {
-    var grid = document.getElementById("shop-grid");
-    if (!grid) return;
-
-    var notice = document.getElementById("shop-notice");
-    var missing = deps();
-    if (missing) {
-      grid.parentNode.appendChild(buildEmptyState("error", "\u26A0\uFE0F", "Shop unavailable",
-        "Shop could not start: " + missing + "."));
-      return;
-    }
-
-    initBuyButtons();
-    grid.parentNode.appendChild(buildEmptyState("loading", "\uD83C\uDF31",
-      "Loading plants\u2026", "Fetching the catalog."));
-
-  // do not wait on the inventory, fall back to demo numbers
-  var INVENTORY_TIMEOUT_MS = 2500;
-  var read = window.PlantoraStore.getInventory().then(
-    function (inv) { return { inv: inv, readable: true }; },
-    function (err) {
-      console.warn("[Plantora Shop] inventory unreadable, showing preview:", err);
-      return { inv: {}, readable: false };
-    }
-  );
-
-  read = new Promise(function (resolve) {
-    var settled = false;
-    var done = function (value) {
-      if (settled) return;
-      settled = true;
-      resolve(value);
-    };
-    read.then(done);
-    setTimeout(function () {
-      done({ inv: {}, readable: false });
-    }, INVENTORY_TIMEOUT_MS);
-  });
-
-    Promise.all([window.PlantoraData.loadPlants(), read])
-      .then(function (r) {
-        var plants = r[0];
-        var inventory = r[1].inv;
-        var readable = r[1].readable;
-        var live = Object.keys(inventory).length > 0;
-
-        var sellable = plants.filter(function (p) {
-          if (live) {
-            var item = inventory[p.id];
-            return item && item.active === true;
-          }
-          return window.PlantoraData.getDemoSeed(p.id).active === true;
-        });
-
-        clear(grid);
-        if (notice) {
-          clear(notice);
-          notice.appendChild(buildShopNotice(live, readable));
-        }
-        sellable.forEach(function (p) {
-          grid.appendChild(buildShopCard(p, live ? inventory[p.id] : window.PlantoraData.getDemoSeed(p.id)));
-        });
-
-        if (!sellable.length) {
-          grid.parentNode.appendChild(buildEmptyState("empty", "\uD83E\uDDB8",
-            "No plants are listed",
-            "An admin has not put any plants up for sale yet."));
-        }
-      })
-      .catch(function (err) {
-        console.error("[Plantora Shop]", err);
-        clear(grid);
-        grid.parentNode.appendChild(buildEmptyState("error", "\u26A0\uFE0F", "Can't load the shop",
-          "Check your connection (and that the site is served over http/https), then refresh."));
-      });
-  }
-
-  function buildImage(plant) {
-    var img = el("img", "plant-card__image");
-    img.alt = plant.name;
-    img.loading = "lazy";
-    img.src = plant.image;
-    img.addEventListener("error", function () {
-      var fallback = el("div", "shop-image-fallback", "\uD83E\uDEB4");
-      fallback.setAttribute("role", "img");
-      fallback.setAttribute("aria-label", plant.name + " (image unavailable)");
-      if (img.parentNode) img.parentNode.replaceChild(fallback, img);
-    });
-    return img;
-  }
-
   function initDashboard() {
     var plantsHost = document.getElementById("dash-plants");
     if (!plantsHost) return;
@@ -365,7 +156,7 @@
         if (!entries.length) {
           var empty = buildEmptyState("empty", "\uD83E\uDDB8",
             "No plants in your collection yet",
-            "Plants you buy from the shop, or add yourself from Explore Plants, will show up here with their care schedule.",
+            "Plants you add yourself from Explore Plants will show up here with their own care schedule.",
             { label: "Explore Plants", href: "explore.html" });
           empty.appendChild(buildSampleSeeder());
           plantsHost.appendChild(empty);
@@ -445,7 +236,6 @@
     card.appendChild(header);
 
     if (plant) card.appendChild(el("p", "my-plant__sci", plant.scientificName));
-    card.appendChild(sourceBadge(entry));
 
     var meta = el("ul", "plant-card__meta");
 
@@ -490,7 +280,7 @@
         if (!entries.length) {
           var emptyBox = buildEmptyState("empty", "\uD83E\uDDB8",
             "No plants in your collection yet",
-            "Buy a plant from the shop, or add one you already own from Explore Plants, and it will show up here with its own watering and feeding schedule.",
+            "Add one you already own from Explore Plants, and it will show up here with its own watering and feeding schedule.",
             { label: "Explore Plants", href: "explore.html" });
           emptyBox.appendChild(buildSampleSeeder());
           clear(host);
@@ -508,7 +298,6 @@
       });
   }
   // each one checks for its own element first
-  initShop();
   initDashboard();
   initMyPlants();
 })();
