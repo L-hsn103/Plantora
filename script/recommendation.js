@@ -1,19 +1,18 @@
 
-
 (function () {
   "use strict";
-
+ 
   var DETAILS_URL = "plant-details.html?id=";
-
+ 
   // names plant-data.js may use for the plant array
   var PLANT_GLOBAL_NAMES = [
     "plants", "PLANTS", "plantData", "PLANT_DATA", "plantsData",
     "plantList", "allPlants", "plantDatabase", "plantDB", "PlantData"
   ];
-
+ 
   // used if the plants are not in a variable
   var PLANT_JSON_PATHS = ["../assets/Data/plants.json"];
-
+ 
   // the survey questions with their 5 answers
   // rule "atOrBelow": plant level must be <= answer level
   // rule "withinOne": plant level and answer level can differ by 1
@@ -115,28 +114,28 @@
       ]
     }
   ];
-
+ 
   // only used to sort the results
   var SUITABILITY_LEVELS = [
     "Unsuitable", "Poorly Suitable", "Moderately Suitable", "Suitable", "Highly Suitable"
   ];
-
+ 
   // which answers we are allowed to relax, in order
   var RELAX_ORDER = ["size", "space", "maintenance", "difficulty"];
   var MAX_RELAX_LEVELS = 2;
   var ENVIRONMENT_FIELDS = ["light", "water", "humidity", "temperature"];
-
+ 
   // turns each answer into a level number so we can compare them
   var LEVEL_MAPS = {};
   SURVEY.forEach(function (q) {
     LEVEL_MAPS[q.field] = q.options.map(function (o) { return o.value; });
   });
   LEVEL_MAPS.indoorSuitability = SUITABILITY_LEVELS;
-
+ 
   function normalise(value) {
     return String(value === undefined || value === null ? "" : value).trim().toLowerCase();
   }
-
+ 
   // gives 1 to 5, or 0 if the value is unknown
   function getLevel(field, value) {
     var list = LEVEL_MAPS[field];
@@ -147,14 +146,14 @@
     }
     return 0;
   }
-
+ 
   function getQuestion(field) {
     for (var i = 0; i < SURVEY.length; i++) {
       if (SURVEY[i].field === field) { return SURVEY[i]; }
     }
     return null;
   }
-
+ 
   // every field has to use one of the standard values
   function isValidPlant(plant) {
     if (!plant || typeof plant !== "object") { return false; }
@@ -162,16 +161,16 @@
     if (getLevel("indoorSuitability", plant.indoorSuitability) === 0) { return false; }
     return SURVEY.every(function (q) { return getLevel(q.field, plant[q.field]) > 0; });
   }
-
+ 
   // matching rules
-
+ 
   function passesRule(rule, plantLevel, userLevel, extraAllowance) {
     if (rule === "withinOne") {
       return Math.abs(plantLevel - userLevel) <= 1;
     }
     return plantLevel <= userLevel + (extraAllowance || 0);
   }
-
+ 
   // extraAllowance gives a field extra levels
   // leave it empty to use the normal survey rules
   function matchesPlant(plant, answers, extraAllowance) {
@@ -182,13 +181,13 @@
       return passesRule(q.rule, plantLevel, userLevel, extra[q.field]);
     });
   }
-
+ 
   function filterPlants(plants, answers, extraAllowance) {
     return plants.filter(function (plant) {
       return matchesPlant(plant, answers, extraAllowance);
     });
   }
-
+ 
   // check which of the normal rules this plant passes
   function getRuleResults(plant, answers) {
     return SURVEY.map(function (q) {
@@ -199,43 +198,43 @@
   }
   function getMatchPercentage(plant, answers) {
   var results = getRuleResults(plant, answers);
-
+ 
   var passed = results.filter(function (result) {
     return result.passedExactly;
   }).length;
-
+ 
   return Math.round((passed / SURVEY.length) * 1000) / 10;
 }
-
+ 
   // fallback: relax the rules a bit when nothing matches
 function relaxRequirements() {
   var stages = [];
-
+ 
   // relax one field at a time, in RELAX_ORDER
   for (var i = 0; i < RELAX_ORDER.length; i++) {
     var field = RELAX_ORDER[i];
-
+ 
     stages.push({
       round: 1,
       extra: { [field]: 1 },
       relaxedFields: [field]
     });
   }
-
+ 
   // still nothing, so allow two levels this time
   for (var j = 0; j < RELAX_ORDER.length; j++) {
     var field2 = RELAX_ORDER[j];
-
+ 
     stages.push({
       round: 2,
       extra: { [field2]: 2 },
       relaxedFields: [field2]
     });
   }
-
+ 
   return stages;
 }
-
+ 
   // how many plants pass each light/water/humidity/temperature answer
   function describeBlockers(plants, answers) {
     return ENVIRONMENT_FIELDS.map(function (field) {
@@ -246,12 +245,12 @@ function relaxRequirements() {
       return { field: field, title: q.title, count: count };
     }).sort(function (a, b) { return a.count - b.count; });
   }
-
+ 
 function findRecommendations(plants, answers) {
   var validPlants = plants.filter(function (plant) {
     return isValidPlant(plant);
   });
-
+ 
   if (validPlants.length === 0) {
     return {
       mode: "none",
@@ -261,7 +260,7 @@ function findRecommendations(plants, answers) {
       blockers: describeBlockers(plants, answers)
     };
   }
-
+ 
   return {
     mode: "ranked",
     results: rankPlants(validPlants, answers),
@@ -269,7 +268,7 @@ function findRecommendations(plants, answers) {
     round: 0
   };
 }
-
+ 
   // sort by suitability, then by how close the answers are
   function calculateDistance(plant, answers) {
     return SURVEY.reduce(function (total, q) {
@@ -280,7 +279,7 @@ function calculateMatchPercentage(plant, answers) {
   var matched = getRuleResults(plant, answers).filter(function (result) {
     return result.passedExactly;
   }).length;
-
+ 
   return Math.round((matched / SURVEY.length) * 100);
 }
   function compareIds(a, b) {
@@ -288,28 +287,28 @@ function calculateMatchPercentage(plant, answers) {
     if (!isNaN(na) && !isNaN(nb)) { return na - nb; }
     return String(a).localeCompare(String(b));
   }
-
+ 
 function rankPlants(plants, answers) {
   return plants.slice().sort(function (a, b) {
     var byPercentage = calculateMatchPercentage(b, answers) -
                        calculateMatchPercentage(a, answers);
-
+ 
     if (byPercentage !== 0) { return byPercentage; }
-
+ 
     var bySuitability = getLevel("indoorSuitability", b.indoorSuitability) -
                         getLevel("indoorSuitability", a.indoorSuitability);
-
+ 
     if (bySuitability !== 0) { return bySuitability; }
-
+ 
     var byDistance = calculateDistance(a, answers) -
                      calculateDistance(b, answers);
-
+ 
     if (byDistance !== 0) { return byDistance; }
-
+ 
     return compareIds(a.id, b.id);
   });
 }
-
+ 
   var api = {
     SURVEY: SURVEY,
     getLevel: getLevel,
@@ -323,9 +322,9 @@ function rankPlants(plants, answers) {
   };
   if (typeof module !== "undefined" && module.exports) { module.exports = api; }
   if (typeof document === "undefined") { return; }
-
+ 
   // read the plants from the page
-
+ 
   function readGlobal(name) {
     try {
       // new Function can see top level const/let, window cannot
@@ -334,19 +333,19 @@ function rankPlants(plants, answers) {
       return undefined;
     }
   }
-
+ 
   function toPlantArray(value) {
     if (Array.isArray(value)) { return value; }
     if (value && Array.isArray(value.plants)) { return value.plants; }
     return null;
   }
-
+ 
   function looksLikePlantList(list) {
     return Array.isArray(list) && list.length > 0 && list.every(function (p) {
       return p && typeof p === "object" && "name" in p && "light" in p && "water" in p;
     });
   }
-
+ 
   function findPlantsInPage() {
     var i, list;
     for (i = 0; i < PLANT_GLOBAL_NAMES.length; i++) {
@@ -360,7 +359,7 @@ function rankPlants(plants, answers) {
     }
     return null;
   }
-
+ 
   function fetchPlantsJson() {
     var index = 0;
     function tryNext() {
@@ -376,15 +375,15 @@ function rankPlants(plants, answers) {
     }
     return tryNext();
   }
-
+ 
   var cachedPlants = null;
-
+ 
   function loadPlants() {
     if (cachedPlants) { return Promise.resolve(cachedPlants); }
-
+ 
     var raw = findPlantsInPage();
     var source = raw ? Promise.resolve(raw) : fetchPlantsJson();
-
+ 
     return source.then(function (list) {
       if (!list) { throw new Error("Plant data not found."); }
       var usable = list.filter(function (plant) {
@@ -399,9 +398,9 @@ function rankPlants(plants, answers) {
       return usable;
     });
   }
-
+ 
   // small helper to build a DOM node
-
+ 
   function el(tag, props, children) {
     var node = document.createElement(tag);
     Object.keys(props || {}).forEach(function (key) {
@@ -412,9 +411,9 @@ function rankPlants(plants, answers) {
     (children || []).forEach(function (child) { if (child) { node.appendChild(child); } });
     return node;
   }
-
+ 
   var form, surveyView, resultsView, errorBox;
-
+ 
   function renderSurvey() {
     var wrap = document.getElementById("survey-questions");
     SURVEY.forEach(function (q, index) {
@@ -425,7 +424,7 @@ function rankPlants(plants, answers) {
           el("span", { className: "question-card__question", text: q.question })
         ])
       ]);
-
+ 
       var grid = el("div", { className: "option-grid" });
       q.options.forEach(function (opt, i) {
         var id = "q-" + q.field + "-" + (i + 1);
@@ -438,7 +437,7 @@ function rankPlants(plants, answers) {
         ]);
         grid.appendChild(label);
       });
-
+ 
       var card = el("fieldset", { className: "question-card", "data-field": q.field }, [
         legend,
         el("p", { className: "question-card__hint", text: q.hint }),
@@ -448,7 +447,7 @@ function rankPlants(plants, answers) {
       wrap.appendChild(card);
     });
   }
-
+ 
   function getUserAnswers() {
     var data = new FormData(form);
     var answers = {};
@@ -458,15 +457,15 @@ function rankPlants(plants, answers) {
     });
     return answers;
   }
-
+ 
   function validateSurvey(answers) {
     return SURVEY.filter(function (q) { return !answers[q.field]; }).map(function (q) { return q.field; });
   }
-
+ 
   function countAnswered(answers) {
     return SURVEY.filter(function (q) { return answers[q.field]; }).length;
   }
-
+ 
   function updateProgress() {
     var answered = countAnswered(getUserAnswers());
     var percent = Math.round((answered / SURVEY.length) * 100);
@@ -476,7 +475,7 @@ function rankPlants(plants, answers) {
     document.getElementById("progress-fill").style.width = percent + "%";
     document.getElementById("progress-bar").setAttribute("aria-valuenow", String(answered));
   }
-
+ 
   function markMissing(missingFields) {
     document.querySelectorAll(".question-card").forEach(function (card) {
       var isMissing = missingFields.indexOf(card.getAttribute("data-field")) !== -1;
@@ -484,30 +483,30 @@ function rankPlants(plants, answers) {
       card.querySelector(".question-card__error").hidden = !isMissing;
     });
   }
-
+ 
   function showError(message) {
     errorBox.textContent = message;
     errorBox.hidden = false;
   }
-
+ 
   function hideError() {
     errorBox.hidden = true;
     errorBox.textContent = "";
   }
-
+ 
   function scrollToNode(node) {
     var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     node.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
   }
-
+ 
   // joins words with commas and "and"
   function joinWords(words) {
     if (words.length <= 1) { return words.join(""); }
     return words.slice(0, -1).join(", ") + " and " + words[words.length - 1];
   }
-
+ 
   var FIELD_WORDS = { size: "size", space: "space", maintenance: "maintenance", difficulty: "experience" };
-
+ 
   var PASS_TEXT = {
     light: "Suits your light level",
     water: "Fits your watering routine",
@@ -518,20 +517,42 @@ function rankPlants(plants, answers) {
     difficulty: "Suits your experience level",
     size: "Stays within your size limit"
   };
-
+ 
   var RELAXED_TEXT = {
     space: "Needs a bit more space than you listed",
     maintenance: "Needs a bit more care time than you listed",
     difficulty: "More demanding than your experience level",
     size: "Grows larger than your size limit"
   };
-
+ 
   var META_FIELDS = [
     ["light", "Light"], ["water", "Water"], ["humidity", "Humidity"], ["temperature", "Temperature"],
     ["space", "Space"], ["maintenance", "Maintenance"], ["difficulty", "Difficulty"],
     ["size", "Size"], ["indoorSuitability", "Indoor suitability"]
   ];
-
+ 
+  var STATUS_TITLES = {
+    match: "Matches your answer",
+    partial: "Close to your answer",
+    miss: "Does not match your answer",
+    neutral: "No matching answer for this"
+  };
+ 
+  var whyCounter = 0;
+ 
+  // match = passes the normal rule
+  // partial = fails, but only by one level on a field the app is allowed to relax
+  // miss = anything else
+  function getFieldStatus(field, plant, answers) {
+    var q = getQuestion(field);
+    if (!q) { return "neutral"; } // indoor suitability has no survey answer
+    var p = getLevel(field, plant[field]);
+    var u = getLevel(field, answers[field]);
+    if (passesRule(q.rule, p, u, 0)) { return "match"; }
+    if (RELAX_ORDER.indexOf(field) !== -1 && passesRule(q.rule, p, u, 1)) { return "partial"; }
+    return "miss";
+  }
+ 
   function createPlantCard(plant, answers, mode) {
     var relaxed = mode === "relaxed";
 var matchPercentage = getMatchPercentage(plant, answers);
@@ -546,15 +567,16 @@ var matchPercentage = getMatchPercentage(plant, answers);
     } else {
       image = el("div", { className: "rec-card__noimage", text: "🌿", "aria-hidden": "true" });
     }
-
+ 
     var meta = el("ul", { className: "rec-meta" });
     META_FIELDS.forEach(function (pair) {
-      meta.appendChild(el("li", {}, [
-        el("span", { className: "rec-meta__label", text: pair[1] }),
-        el("span", { className: "rec-meta__value", text: String(plant[pair[0]]) })
+      var status = getFieldStatus(pair[0], plant, answers);
+      meta.appendChild(el("li", { className: "rec-pill rec-pill--" + status, title: STATUS_TITLES[status] }, [
+        el("span", { className: "rec-pill__label", text: pair[1] }),
+        el("span", { className: "rec-pill__value", text: String(plant[pair[0]]) })
       ]));
     });
-
+ 
     var why = el("ul");
     getRuleResults(plant, answers).forEach(function (result) {
       var isRelaxedItem = !result.passedExactly;
@@ -565,6 +587,26 @@ var matchPercentage = getMatchPercentage(plant, answers);
   : PASS_TEXT[result.field]
       }));
     });
+ 
+    var whyId = "why-" + (++whyCounter);
+    var whyBtn = el("button", {
+      type: "button",
+      className: "rec-why__toggle",
+      "aria-expanded": "false",
+      "aria-controls": whyId
+    }, [
+      el("span", { text: "Why it matches" }),
+      el("span", { className: "rec-why__chevron", "aria-hidden": "true" })
+    ]);
+    var whyPanel = el("div", { className: "rec-why__panel", id: whyId }, [why]);
+    var whyBox = el("div", { className: "rec-why" }, [whyBtn, whyPanel]);
+ 
+    whyBtn.addEventListener("click", function () {
+      var open = whyBtn.getAttribute("aria-expanded") === "true";
+      whyBtn.setAttribute("aria-expanded", String(!open));
+      whyBox.classList.toggle("is-open", !open);
+    });
+ 
     var matchPercentage = getMatchPercentage(plant, answers);
     var content = el("div", { className: "plant-card__content" }, [
         el("div", {
@@ -579,20 +621,17 @@ el("span", {
       plant.scientificName ? el("p", { className: "plant-card__scientific", text: plant.scientificName }) : null,
       plant.description ? el("p", { className: "rec-card__description", text: plant.description }) : null,
       meta,
-      el("div", { className: "rec-why" }, [
-        el("p", { className: "rec-why__title", text: "Why it matches" }),
-        why
-      ]),
+      whyBox,
       el("a", {
         className: "btn btn--primary plant-card__btn",
         href: DETAILS_URL + encodeURIComponent(plant.id),
         text: "View Details"
       })
     ]);
-
+ 
     return el("article", { className: "plant-card" }, [image, content]);
   }
-
+ 
   function relaxedMessage(outcome) {
     var words = outcome.relaxedFields.map(function (f) { return FIELD_WORDS[f]; });
     var plural = words.length > 1;
@@ -600,30 +639,30 @@ el("span", {
     return "Your exact requirements were very specific, so we relaxed the " + joinWords(words) +
       (plural ? " requirements " : " requirement ") + how + " to find suitable plants.";
   }
-
+ 
   function renderResults(outcome, answers) {
     var grid = document.getElementById("results-grid");
     var notice = document.getElementById("results-notice");
     var empty = document.getElementById("results-empty");
     var count = document.getElementById("results-count");
-
+ 
     grid.textContent = "";
     notice.textContent = "";
     notice.hidden = true;
     empty.textContent = "";
     empty.hidden = true;
-
+ 
     if (outcome.mode === "none") {
       count.textContent = "No plants found";
       grid.hidden = true;
-
+ 
       var list = el("ul");
       (outcome.blockers || []).forEach(function (b) {
         list.appendChild(el("li", {
           text: b.title + ": " + b.count + (b.count === 1 ? " plant fits" : " plants fit") + " this answer on its own"
         }));
       });
-
+ 
       empty.appendChild(el("div", { className: "rec-empty" }, [
         el("h3", { text: "No plant fits all of your conditions" }),
         el("p", {
@@ -638,11 +677,11 @@ el("span", {
       empty.hidden = false;
       return;
     }
-
+ 
     grid.hidden = false;
     count.textContent = outcome.results.length + (outcome.results.length === 1 ? " plant" : " plants") +
       " found, best match first";
-
+ 
     if (outcome.mode === "relaxed") {
       notice.appendChild(el("p", { text: relaxedMessage(outcome) }));
       notice.appendChild(el("p", {
@@ -651,12 +690,12 @@ el("span", {
       }));
       notice.hidden = false;
     }
-
+ 
     outcome.results.forEach(function (plant) {
       grid.appendChild(createPlantCard(plant, answers, outcome.mode));
     });
   }
-
+ 
   function showView(which) {
     var showResults = which === "results";
     surveyView.hidden = showResults;
@@ -665,15 +704,15 @@ el("span", {
     if (showResults) { target.focus({ preventScroll: true }); }
     scrollToNode(target);
   }
-
+ 
   function handleSubmit(event) {
     event.preventDefault();
     hideError();
-
+ 
     var answers = getUserAnswers();
     var missing = validateSurvey(answers);
     markMissing(missing);
-
+ 
     if (missing.length > 0) {
       showError("Please answer all questions before continuing.");
       var firstCard = document.querySelector('.question-card[data-field="' + missing[0] + '"]');
@@ -682,7 +721,7 @@ el("span", {
       if (firstInput) { firstInput.focus({ preventScroll: true }); }
       return;
     }
-
+ 
     loadPlants().then(function (plants) {
       renderResults(findRecommendations(plants, answers), answers);
       showView("results");
@@ -691,7 +730,7 @@ el("span", {
       showError("We could not load the plant list. Please refresh the page and try again.");
     });
   }
-
+ 
   function handleChange(event) {
     var card = event.target.closest && event.target.closest(".question-card");
     if (card) {
@@ -701,36 +740,36 @@ el("span", {
     updateProgress();
     if (countAnswered(getUserAnswers()) === SURVEY.length) { hideError(); }
   }
-
+ 
   // set up the page
-
+ 
   function init() {
     form = document.getElementById("survey-form");
     surveyView = document.getElementById("survey-view");
     resultsView = document.getElementById("results-view");
     errorBox = document.getElementById("survey-error");
-
+ 
     renderSurvey();
     updateProgress();
-
+ 
     form.addEventListener("submit", handleSubmit);
     form.addEventListener("change", handleChange);
-
+ 
     document.getElementById("reset-btn").addEventListener("click", function () {
       form.reset();
       markMissing([]);
       hideError();
       updateProgress();
     });
-
+ 
     document.getElementById("edit-answers-btn").addEventListener("click", function () {
       showView("survey");
     });
-
+ 
     // load the plants early so results show up fast
     loadPlants().catch(function () {});
   }
-
+ 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
