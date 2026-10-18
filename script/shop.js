@@ -833,39 +833,39 @@
       });
   }
 
-  
-
-function uncheckTask(entries, task) {
+  function uncheckTask(entries, task) {
     var id = careId(task);
     var undoMap = loadCare("undo", {});
     var snap = undoMap[id];
 
-    // Reopen the task using its previous due date.
-    var nextDue = snap && snap.nextDue != null
-        ? Number(snap.nextDue)
-        : Date.now();
+    var nextDue = snap ? snap.nextDue : Date.now();
+    var lastDone = snap
+      ? (snap.lastDone == null ? null : snap.lastDone)
+      : null;
 
-    window.PlantoraStore
-        .setTaskDue(task.entryId, task.taskKey, nextDue, null)
-        .then(function (schedule) {
-            syncEntrySchedule(entries, task, schedule);
+    window.PlantoraStore.setTaskDue(
+      task.entryId, task.taskKey, nextDue, lastDone
+    )
+      .then(function (schedule) {
+        syncEntrySchedule(entries, task, schedule);
 
-            var doneMap = loadCare("done", {});
-            delete doneMap[id];
-            saveCare("done", doneMap);
+        if (snap) {
+          delete undoMap[id];
+          saveCare("undo", undoMap);
+        }
 
-            delete undoMap[id];
-            saveCare("undo", undoMap);
+        var doneMap = loadCare("done", {});
+        delete doneMap[id];
+        saveCare("done", doneMap);
 
-            renderCare(entries, getCareLimit());
-        })
-        .catch(function (error) {
-            console.error("[Plantora] Uncheck failed:", error);
-            showCareError("Couldn't reopen this task. Please try again.");
-        });
-}
-
-
+        renderCare(entries, getCareLimit());
+      })
+      .catch(function (err) {
+        console.error("[Plantora Care]", err);
+        showCareError("Couldn't reopen the task. Please try again.");
+        renderCare(entries, getCareLimit());
+      });
+  }
 
   function snoozeTaskUi(entries, task, days) {
     window.PlantoraStore.snoozeTask(
@@ -1055,13 +1055,16 @@ function uncheckTask(entries, task) {
     label.appendChild(check);
     row.appendChild(label);
 
-input.addEventListener("change", function () {
-    if (input.checked) {
+    input.addEventListener("change", function () {
+      if (done && input.checked) return;
+      if (!done && !input.checked) return;
+
+      if (input.checked) {
         checkOffTask(entries, task);
-    } else {
+      } else {
         uncheckTask(entries, task);
-    }
-});
+      }
+    });
 
     var info = el("div", "care-task__info");
 
