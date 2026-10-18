@@ -1,0 +1,19 @@
+{
+  "name": "plantora-chatbot-server",
+  "version": "1.0.0",
+  "description": "Plantora chatbot backend — Anthropic Claude API proxy",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
