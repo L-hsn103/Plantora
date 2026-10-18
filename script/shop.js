@@ -81,15 +81,6 @@
       thirsty ? "Needs Water" : "Healthy");
   }
 
-  function formatAdded(ms) {
-    if (!ms) return "unknown date";
-    try {
-      return new Date(ms).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-    } catch (e) {
-      return "unknown date";
-    }
-  }
-
   // Show a message when the plants could not be loaded
   function renderListError(host, err, retryCta) {
     var offline = err && err.code === "plantora/unauthenticated";
@@ -168,8 +159,16 @@
             card.appendChild(plantThumb(plant, "mini-plant-card__image"));
 
             var info = el("div", "mini-plant-card__info");
-            info.appendChild(el("h3", null, entryTitle(entry)));
-            info.appendChild(statusPill(entry));
+            var header = el("div", "mini-plant-card__header");
+            header.appendChild(el("h3", null, entryTitle(entry)));
+            header.appendChild(statusPill(entry));
+            info.appendChild(header);
+
+            var water = entry.schedule && entry.schedule.watering;
+            if (water) {
+              info.appendChild(el("p", "mini-plant-card__meta",
+                "Next watering: " + window.PlantoraStore.describeDue({ nextDue: water.nextDue })));
+            }
             card.appendChild(info);
             grid.appendChild(card);
           });
@@ -222,41 +221,166 @@
   }
 
 
-  // one of the user's own plants, with its care dates
+  var ROOMS = ["Living Room", "Bedroom", "Office", "Kitchen", "Balcony"];
+
+  // derived from the watering schedule: 100% right after watering, 0% when due
+  function hydrationPct(task) {
+    if (!task || !(task.nextDue > 0) || !(task.intervalDays > 0)) return null;
+    var span = task.intervalDays * window.PlantoraStore.DAY_MS;
+    var pct = Math.round((task.nextDue - Date.now()) / span * 100);
+    return Math.max(0, Math.min(100, pct));
+  }
+
+  // "4 days" / "Today" / "OVERDUE"
+  function dueLabel(task) {
+    if (!task || !(task.nextDue > 0)) return null;
+    var now = Date.now();
+    if (task.nextDue <= now) return { text: "OVERDUE", overdue: true };
+    var start = new Date(now);
+    start.setHours(0, 0, 0, 0);
+    if (task.nextDue < start.getTime() + window.PlantoraStore.DAY_MS) return { text: "Today", overdue: false };
+    var due = new Date(task.nextDue);
+    due.setHours(0, 0, 0, 0);
+    var days = Math.round((due.getTime() - start.getTime()) / window.PlantoraStore.DAY_MS);
+    return { text: days + (days === 1 ? " day" : " days"), overdue: false };
+  }
+
+  // "12d ago" / "Today"
+  function lastWateredLabel(task) {
+    if (!task || !(task.lastDone > 0)) return null;
+    var days = Math.floor((Date.now() - task.lastDone) / window.PlantoraStore.DAY_MS);
+    return days <= 0 ? "Today" : days + "d ago";
+  }
+
+  function showCardError(card, message) {
+    var error = card.querySelector(".plant-card__error");
+    if (!error) return;
+    error.textContent = message || "";
+    error.hidden = !message;
+  }
+
+  // icon stacked above its label, like the reference cards
+  function detailChip(icon, label) {
+    var chip = el("span", "plant-card__detail");
+    chip.appendChild(el("span", "plant-card__detail-icon", icon));
+    chip.appendChild(el("span", null, label));
+    return chip;
+  }
+
+  // one of the user's own plants: image, hydration, care info, water button
   function buildMyPlantCard(entry) {
     var S = window.PlantoraStore;
     var plant = window.PlantoraData.getPlantById(entry.plantId);
+    var water = entry.schedule && entry.schedule.watering;
 
     var card = el("article", "plant-card");
-    card.appendChild(plantThumb(plant, "my-plant__image"));
 
-    var header = el("div", "plant-card__header");
-    header.appendChild(el("h3", null, entryTitle(entry)));
-    header.appendChild(statusPill(entry));
-    card.appendChild(header);
+    var media = el("div", "plant-card__media");
+    media.appendChild(plantThumb(plant, "my-plant__image"));
 
-    if (plant) card.appendChild(el("p", "my-plant__sci", plant.scientificName));
-
-    var meta = el("ul", "plant-card__meta");
-
-    var water = entry.schedule && entry.schedule.watering;
-    if (water) {
-      meta.appendChild(el("li", null,
-        "Next watering: " + S.describeDue({ nextDue: water.nextDue })));
-    }
-    S.TASK_KEYS.forEach(function (key) {
-      var task = entry.schedule && entry.schedule[key];
-      if (!task || key === "watering") return;
-      meta.appendChild(el("li", null,
-        S.TASK_META[key].label + ": " + S.describeDue({ nextDue: task.nextDue })));
+    var badge = el("button", "plant-card__location", entry.location || "Set location");
+    badge.type = "button";
+    if (!entry.location) badge.classList.add("plant-card__location--empty");
+    badge.setAttribute("aria-label", "Location: " + (entry.location || "not set") + ". Click to change.");
+    badge.addEventListener("click", function () {
+      if (badge.disabled) return;
+      var next = ROOMS[(ROOMS.indexOf(entry.location) + 1) % ROOMS.length];
+      badge.disabled = true;
+      S.setLocation(entry.id, next)
+        .then(function () {
+          entry.location = next;
+          badge.textContent = next;
+          badge.classList.remove("plant-card__location--empty");
+          badge.disabled = false;
+          showCardError(card, ""); // clear an earlier failure
+        })
+        .catch(function (err) {
+          console.error("[Plantora My Plants]", err);
+          badge.disabled = false;
+          showCardError(card, "Could not save the location. Please try again.");
+        });
     });
-    meta.appendChild(el("li", null, "Added: " + formatAdded(entry.addedAt)));
-    card.appendChild(meta);
+    media.appendChild(badge);
+    card.appendChild(media);
 
-    var link = el("a", "btn btn--secondary", "View Details");
-    link.href = "plant-details.html?id=" + encodeURIComponent(entry.plantId);
-    card.appendChild(link);
+    var body = el("div", "plant-card__body");
+    body.appendChild(el("h3", "plant-card__name", entryTitle(entry)));
+    if (plant) body.appendChild(el("p", "my-plant__sci", plant.scientificName));
 
+    var pct = hydrationPct(water);
+    if (pct !== null) {
+      var hydration = el("div", "hydration" + (pct < 30 ? " hydration--low" : ""));
+      hydration.title = "Estimated from the watering schedule";
+      var top = el("div", "hydration__top");
+      top.appendChild(el("span", "hydration__label", "HYDRATION"));
+      top.appendChild(el("span", "hydration__value", pct + "%"));
+      hydration.appendChild(top);
+      var track = el("div", "hydration__bar");
+      var fill = el("div", "hydration__fill");
+      fill.style.width = pct + "%";
+      track.appendChild(fill);
+      hydration.appendChild(track);
+      body.appendChild(hydration);
+    }
+
+    var details = el("div", "plant-card__details");
+    if (plant && plant.light) {
+      details.appendChild(detailChip("\u2600\uFE0F", plant.light));
+    }
+    var due = dueLabel(water);
+    if (due) {
+      var dueChip = detailChip(due.overdue ? "\u26A0\uFE0F" : "\uD83D\uDCC5", due.text);
+      if (due.overdue) dueChip.classList.add("plant-card__detail--overdue");
+      details.appendChild(dueChip);
+    }
+    var last = lastWateredLabel(water);
+    if (last) details.appendChild(detailChip("\u23F0", last));
+
+    var error = el("p", "plant-card__error");
+    error.hidden = true;
+    body.appendChild(error);
+
+    var footer = el("div", "plant-card__footer");
+    footer.appendChild(details);
+
+    var waterBtn = el("button", "water-btn");
+    waterBtn.type = "button";
+    waterBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.7c.6.9 5 7.1 5 11a5 5 0 0 1-10 0c0-3.9 4.4-10.1 5-11z"/></svg>';
+    waterBtn.title = "Mark as watered";
+    waterBtn.setAttribute("aria-label", "Mark " + entryTitle(entry) + " as watered");
+    if (due && due.overdue) waterBtn.classList.add("water-btn--due");
+    waterBtn.addEventListener("click", function () {
+      if (waterBtn.disabled) return;
+      waterBtn.disabled = true;
+      waterBtn.classList.add("is-saving");
+      S.markTaskDone(entry.id, "watering")
+        .then(function (schedule) {
+          entry.schedule = schedule;
+          if (card.parentNode) card.parentNode.replaceChild(buildMyPlantCard(entry), card);
+        })
+        .catch(function (err) {
+          console.error("[Plantora My Plants]", err);
+          waterBtn.disabled = false;
+          waterBtn.classList.remove("is-saving");
+          showCardError(card, "Could not save the watering. Please try again.");
+        });
+    });
+    footer.appendChild(waterBtn);
+    body.appendChild(footer);
+
+    // the whole card opens the details page; buttons inside keep their own actions
+    var detailsUrl = "plant-details.html?id=" + encodeURIComponent(entry.plantId);
+    card.tabIndex = 0;
+    card.setAttribute("aria-label", "View details for " + entryTitle(entry));
+    card.addEventListener("click", function (e) {
+      if (e.target.closest("button, a")) return;
+      window.location.href = detailsUrl;
+    });
+    card.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && e.target === card) window.location.href = detailsUrl;
+    });
+
+    card.appendChild(body);
     return card;
   }
 

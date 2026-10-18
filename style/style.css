@@ -1,16 +1,19 @@
 
 :root {
-  --color-bg: #f6f8f1;
-  --color-bg-alt: #eaf0e1;
+  --color-bg: #f5faf6;
+  --color-bg-alt: #e8f5e9;
   --color-surface: #ffffff;
-  --color-primary: #2d5a3d;
-  --color-primary-dark: #17301f;
-  --color-accent: #6fa25a;
-  --color-accent-hover: #588048;
+  --color-primary: #4caf68;
+  --color-primary-dark: #222222;
+  --color-accent: #4caf68;
+  --color-accent-hover: #3d9b57;
+  --color-secondary: #6ba57a;
+  --color-bright: #00e83a;
+  --color-danger: #ff5252;
   --color-gold: #e3b23c;
-  --color-text: #2b2b26;
+  --color-text: #222222;
   --color-text-muted: #5c6355;
-  --color-border: #dce4d2;
+  --color-border: #e1eee4;
 
 
   --font-heading: "Fraunces", serif;
@@ -19,7 +22,7 @@
   /* rounded corners and soft shadows */
   --radius-md: 16px;
   --radius-lg: 28px;
-  --shadow-soft: 0 20px 40px -20px rgba(23, 48, 31, 0.28);
+  --shadow-soft: 0 20px 40px -20px rgba(34, 64, 45, 0.16);
 }
 
 * {
@@ -101,7 +104,7 @@ h3 {
 
 .btn--primary {
   background-color: var(--color-accent);
-  color: #ffffff;
+  color: #222222;
 }
 
 .btn--primary:hover {
@@ -173,11 +176,9 @@ h3 {
 .my-plant__image {
   display: block;
   width: 100%;
-  height: 150px;
+  height: 160px;
   object-fit: cover;
-  border-radius: 12px;
   background-color: var(--color-bg-alt);
-  margin-bottom: 1rem;
 }
 
 .my-plant__image img,
@@ -382,7 +383,7 @@ html.is-auth .cta-label--in {
   position: relative;
   width: 320px;
   height: 320px;
-  background: linear-gradient(160deg, var(--color-accent) 0%, var(--color-primary) 100%);
+  background: linear-gradient(160deg, var(--color-primary) 0%, var(--color-accent-hover) 100%);
   border-radius: 62% 38% 55% 45% / 55% 45% 60% 40%;
   box-shadow: var(--shadow-soft);
 }
@@ -395,13 +396,13 @@ html.is-auth .cta-label--in {
   object-fit: cover;
   object-position: center 40%;
   border-radius: 58% 42% 50% 50% / 52% 48% 55% 45%;
-  filter: drop-shadow(0 16px 20px rgba(23, 48, 31, 0.35));
+  filter: drop-shadow(0 16px 20px rgba(34, 64, 45, 0.18));
 }
 
 .hero__leaf {
   position: absolute;
   font-size: 2.5rem;
-  filter: drop-shadow(0 8px 12px rgba(23, 48, 31, 0.25));
+  filter: drop-shadow(0 8px 12px rgba(34, 64, 45, 0.12));
 }
 
 .hero__leaf--one {
@@ -438,7 +439,7 @@ html.is-auth .cta-label--in {
   border-radius: var(--radius-md);
   padding: 2rem 1.5rem;
   text-align: left;
-  box-shadow: 0 12px 30px -18px rgba(23, 48, 31, 0.18);
+  box-shadow: 0 12px 30px -18px rgba(34, 64, 45, 0.1);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -558,7 +559,7 @@ html.is-auth .cta-label--in {
 }
 
 .final-cta {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-bg-alt);
   padding: 4.5rem 0;
 }
 
@@ -567,7 +568,7 @@ html.is-auth .cta-label--in {
 }
 
 .final-cta h2 {
-  color: #ffffff;
+  color: var(--color-primary-dark);
   font-size: 2rem;
   margin-bottom: 1.75rem;
 }

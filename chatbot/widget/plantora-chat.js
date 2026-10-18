@@ -16,7 +16,7 @@ const CONFIG = {
   // Input placeholder text
   placeholder: "Type your question...",
   // Primary color (green theme matching Plantora)
-  primaryColor: "#2d5a3d",
+  primaryColor: "#4caf68",
   // Button position: "right" or "left"
   position: "right",
   // Floating button size in pixels
@@ -81,13 +81,13 @@ if (window.PlantoraChatbotInitialized) {
     /* ---- Variables ---- */
     :host {
       --primary: ${CONFIG.primaryColor};
-      --primary-dark: #17301f;
-      --primary-light: #eaf0e1;
+      --primary-dark: #222222;
+      --primary-light: #e8f5e9;
       --bg: #ffffff;
-      --text: #2b2b26;
+      --text: #222222;
       --text-muted: #5c6355;
-      --border: #dce4d2;
-      --shadow: 0 8px 24px -8px rgba(23, 48, 31, 0.28);
+      --border: #e1eee4;
+      --shadow: 0 8px 24px -8px rgba(34, 64, 45, 0.16);
       --radius: 16px;
       --radius-full: 999px;
       --font: "Inter", system-ui, -apple-system, sans-serif;
@@ -110,7 +110,7 @@ if (window.PlantoraChatbotInitialized) {
       height: var(--btn-size);
       border-radius: 50%;
       background: var(--primary);
-      color: #fff;
+      color: #222222;
       border: none;
       cursor: pointer;
       display: flex;
@@ -119,7 +119,7 @@ if (window.PlantoraChatbotInitialized) {
       box-shadow: var(--shadow);
       transition: transform var(--transition), box-shadow var(--transition);
     }
-    .fab:hover { transform: scale(1.05); box-shadow: 0 12px 28px -8px rgba(23, 48, 31, 0.35); }
+    .fab:hover { transform: scale(1.05); box-shadow: 0 12px 28px -8px rgba(34, 64, 45, 0.2); }
     .fab:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
     .right { right: 24px; }
     .left { left: 24px; }
@@ -159,18 +159,18 @@ if (window.PlantoraChatbotInitialized) {
       justify-content: space-between;
       padding: 14px 16px;
       background: var(--primary);
-      color: #fff;
+      color: #222222;
       border-radius: var(--radius) var(--radius) 0 0;
     }
     .header__title { font-family: var(--font); font-weight: 600; font-size: 0.95rem; }
     .header__close {
-      background: none; border: none; color: #fff; cursor: pointer;
+      background: none; border: none; color: #222222; cursor: pointer;
       width: 32px; height: 32px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       transition: background var(--transition);
     }
-    .header__close:hover { background: rgba(255,255,255,0.15); }
-    .header__close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    .header__close:hover { background: rgba(34, 34, 34, 0.1); }
+    .header__close:focus-visible { outline: 2px solid #222222; outline-offset: 2px; }
     .header__close svg { width: 20px; height: 20px; }
 
     /* ---- Messages area ---- */
@@ -191,14 +191,14 @@ if (window.PlantoraChatbotInitialized) {
       display: flex; align-items: center; justify-content: center;
       font-size: 12px; background: var(--primary-light); color: var(--primary);
     }
-    .msg--user .msg__avatar { background: var(--primary); color: #fff; }
+    .msg--user .msg__avatar { background: var(--primary); color: #222222; }
     .msg__bubble {
       padding: 10px 14px; border-radius: var(--radius);
       font-family: var(--font); font-size: 0.9rem; line-height: 1.5;
       word-wrap: break-word;
     }
     .msg--bot .msg__bubble { background: var(--primary-light); color: var(--text); border-bottom-left-radius: 4px; }
-    .msg--user .msg__bubble { background: var(--primary); color: #fff; border-bottom-right-radius: 4px; }
+    .msg--user .msg__bubble { background: var(--primary); color: #222222; border-bottom-right-radius: 4px; }
 
     /* ---- Suggestion chips ---- */
     .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 12px; }
@@ -208,7 +208,7 @@ if (window.PlantoraChatbotInitialized) {
       padding: 6px 12px; font-family: var(--font); font-size: 0.8rem; font-weight: 500;
       cursor: pointer; transition: background var(--transition), border-color var(--transition);
     }
-    .chip:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .chip:hover { background: var(--primary); color: #222222; border-color: var(--primary); }
     .chip:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
     /* ---- Typing indicator ---- */
@@ -234,7 +234,7 @@ if (window.PlantoraChatbotInitialized) {
     .input-wrap textarea::placeholder { color: var(--text-muted); }
     .send-btn {
       width: 44px; height: 44px; border-radius: 50%; border: none;
-      background: var(--primary); color: #fff; cursor: pointer;
+      background: var(--primary); color: #222222; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background var(--transition), transform var(--transition);
       flex-shrink: 0;

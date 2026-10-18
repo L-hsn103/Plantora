@@ -306,6 +306,7 @@
                     plantId: data.plantId,
                     plantName: data.plantName,
                     nickname: data.nickname == null ? null : data.nickname,
+                    location: data.location == null ? null : data.location,
                     source: data.source,
                     orderId: data.orderId == null ? null : data.orderId,
                     addedAt: data.addedAt && data.addedAt.toMillis ? data.addedAt.toMillis() : null,
@@ -549,6 +550,15 @@
     }).then(function () { return clean; });
   }
 
+  function setLocation(entryId, location) {
+    var clean = String(location == null ? "" : location).trim().slice(0, NICKNAME_MAX);
+    return requireUser().then(function (user) {
+      return firebaseBackend().then(function (b) {
+        return b.updatePlantFields(user.uid, entryId, { location: clean || null });
+      });
+    }).then(function () { return clean || null; });
+  }
+
   function setTaskInterval(entryId, taskKey, days) {
     if (TASK_KEYS.indexOf(taskKey) === -1) {
       return Promise.reject(fail("plantora/unknown-task", "Unknown care task."));
@@ -609,6 +619,7 @@
     listMyPlants: listMyPlants,
     removePlant: removePlant,
     renamePlant: renamePlant,
+    setLocation: setLocation,
     setTaskInterval: setTaskInterval,
     markTaskDone: markTaskDone,
 

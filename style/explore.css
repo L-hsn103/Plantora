@@ -1,12 +1,12 @@
 
 :root {
   --color-surface: #ffffff;
-  --color-bg-alt: #eaf0e1;
-  --color-text: #2b2b26;
+  --color-bg-alt: #e8f5e9;
+  --color-text: #222222;
   --color-text-muted: #5c6355;
-  --color-border: #dce4d2;
+  --color-border: #e1eee4;
   --radius-md: 16px;
-  --shadow-soft: 0 12px 30px -18px rgba(23, 48, 31, 0.2);
+  --shadow-soft: 0 12px 30px -18px rgba(34, 64, 45, 0.1);
 }
 
 .nav-links a.active {
@@ -21,7 +21,7 @@
 
 .explore-header h1 {
   font-family: var(--font-heading);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: 2.4rem;
   margin-bottom: 0.75rem;
 }
@@ -166,13 +166,13 @@
 
 .plant-card__image {
   width: calc(100% - 24px);
-  height: 180px;
+  height: 150px;
   margin: 12px auto 0;
   display: block;
   object-fit: cover;
   object-position: center;
-  border-radius: 58% 42% 55% 45% / 56% 46% 58% 42%;
-  box-shadow: 0 14px 18px -10px rgba(23, 48, 31, 0.32);
+  border-radius: 12px;
+  box-shadow: 0 14px 18px -10px rgba(34, 64, 45, 0.16);
 }
 
 .plant-card__content {
@@ -184,7 +184,7 @@
 
 .plant-card__title {
   font-family: var(--font-heading);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: 1.15rem;
   margin-bottom: 0.2rem;
 }
@@ -228,9 +228,9 @@
 
 .plant-card__add.is-added,
 .plant-card__add:disabled {
-  background-color: var(--color-bg-alt, #eaf0e1);
-  border: 1.5px solid var(--color-border, #dce4d2);
-  color: var(--color-primary, #2d5a3d);
+  background-color: var(--color-bg-alt, #e8f5e9);
+  border: 1.5px solid var(--color-border, #e1eee4);
+  color: var(--color-primary, #4caf68);
   cursor: default;
 }
 
@@ -280,7 +280,7 @@
 
 .plant-hero__info h1 {
   font-family: var(--font-heading);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: 2.1rem;
   margin-bottom: 0.35rem;
 }
@@ -326,7 +326,7 @@
 
 .info-item__value {
   font-family: var(--font-heading);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: 1.05rem;
 }
 
@@ -361,7 +361,7 @@
 
 .care-guide__item h3 {
   font-family: var(--font-heading);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: 1.05rem;
   margin-bottom: 0.5rem;
 }
@@ -377,15 +377,15 @@
 }
 
 .suitability-banner {
-  background-color: var(--color-primary);
-  color: #ffffff;
+  background-color: var(--color-bg-alt);
+  color: var(--color-text);
   border-radius: var(--radius-md);
   padding: 2rem 2.5rem;
   text-align: center;
 }
 
 .suitability-banner h2 {
-  color: #ffffff;
+  color: var(--color-primary-dark);
   font-size: 1.4rem;
   margin-bottom: 0.5rem;
 }
@@ -393,12 +393,12 @@
 .suitability-banner__value {
   font-family: var(--font-heading);
   font-size: 1.3rem;
-  color: var(--color-accent);
+  color: var(--color-primary-dark);
   margin-bottom: 0.5rem;
 }
 
 .suitability-banner__note {
-  color: #eef3e7;
+  color: var(--color-text-muted);
   max-width: 52ch;
   margin: 0 auto;
   font-size: 0.92rem;

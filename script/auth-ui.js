@@ -150,23 +150,23 @@ function injectUserMenuStyles() {
     .user-menu__trigger { padding: 0; }
     .user-menu__dropdown {
       position: absolute; top: calc(100% + 8px); right: 0; min-width: 200px;
-      background: #fff; border: 1px solid var(--color-border, #dce4d2);
-      border-radius: 12px; box-shadow: 0 20px 40px -20px rgba(23,48,31,0.25);
+      background: #fff; border: 1px solid var(--color-border, #e1eee4);
+      border-radius: 12px; box-shadow: 0 20px 40px -20px rgba(34, 64, 45, 0.14);
       overflow: hidden; z-index: 50;
     }
     .user-menu__header {
-      padding: 0.75rem 1rem; background: var(--color-bg-alt, #eaf0e1);
+      padding: 0.75rem 1rem; background: var(--color-bg-alt, #e8f5e9);
       font-size: 0.8rem; color: var(--color-text-muted, #5c6355);
       display: flex; flex-direction: column; gap: 0.1rem;
     }
-    .user-menu__name { font-weight: 600; font-size: 0.9rem; color: var(--color-text, #2b2b26); }
-    .user-menu__divider { border: none; border-top: 1px solid var(--color-border, #dce4d2); margin: 0; }
+    .user-menu__name { font-weight: 600; font-size: 0.9rem; color: var(--color-text, #222222); }
+    .user-menu__divider { border: none; border-top: 1px solid var(--color-border, #e1eee4); margin: 0; }
     .user-menu__item {
       width: 100%; text-align: left; padding: 0.75rem 1rem; background: none; border: none;
-      font: inherit; color: var(--color-text, #2b2b26); cursor: pointer;
+      font: inherit; color: var(--color-text, #222222); cursor: pointer;
       display: flex; align-items: center; gap: 0.5rem; transition: background 0.1s;
     }
-    .user-menu__item:hover { background: var(--color-bg-alt, #eaf0e1); }
+    .user-menu__item:hover { background: var(--color-bg-alt, #e8f5e9); }
   `;
   document.head.appendChild(style);
 }
