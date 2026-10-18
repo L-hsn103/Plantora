@@ -575,6 +575,32 @@
     });
   }
 
+  // set a task's due date directly (used by snooze / reopen), keeping its interval
+  function setTaskDue(entryId, taskKey, nextDueMs, lastDoneMs) {
+    if (TASK_KEYS.indexOf(taskKey) === -1) {
+      return Promise.reject(fail("plantora/unknown-task", "Unknown care task."));
+    }
+    nextDueMs = Math.max(0, Math.round(Number(nextDueMs)) || 0);
+    return listMyPlants().then(function (entries) {
+      var entry = entries.filter(function (e) { return e.id === entryId; })[0];
+      if (!entry) throw fail("plantora/unknown-plant", "That plant is no longer in your collection.");
+      var schedule = cloneSchedule(entry.schedule);
+      var task = schedule[taskKey];
+      task.nextDue = nextDueMs;
+      if (lastDoneMs != null) task.lastDone = Math.max(0, Math.round(Number(lastDoneMs)) || 0);
+      return requireUser().then(function (user) {
+        return firebaseBackend().then(function (b) {
+          return b.updatePlantFields(user.uid, entryId, { schedule: schedule });
+        });
+      }).then(function () { return schedule; });
+    });
+  }
+
+  // snooze a task: push its due date forward by the given number of days
+  function snoozeTask(entryId, taskKey, days) {
+    return setTaskDue(entryId, taskKey, Date.now() + Math.max(1, Math.round(Number(days))) * DAY_MS);
+  }
+
   function markTaskDone(entryId, taskKey) {
     if (TASK_KEYS.indexOf(taskKey) === -1) {
       return Promise.reject(fail("plantora/unknown-task", "Unknown care task."));
@@ -621,6 +647,8 @@
     renamePlant: renamePlant,
     setLocation: setLocation,
     setTaskInterval: setTaskInterval,
+    setTaskDue: setTaskDue,
+    snoozeTask: snoozeTask,
     markTaskDone: markTaskDone,
 
     _setBackendForTests: function (b) { backendPromise = Promise.resolve(b); } // offline tests only
