@@ -11,6 +11,15 @@ const firebaseConfig = {
 
 let auth = null;
 
+// resolve the site root from this script's own URL: the landing page sits at
+// the root while everything else lives in pages/, so redirects built here
+// must work from either location
+const AUTH_URL = (function () {
+  const script = document.currentScript;
+  const root = script ? new URL("../", script.src) : null;
+  return root ? (path) => new URL(path, root).href : (path) => path;
+})();
+
 // load the Firebase SDK and keep the auth helpers on window
 async function initFirebase() {
   const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
@@ -80,7 +89,7 @@ function protectPageIfNeeded() {
     const user = getCachedUser();
     if (!user) {
       const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-      window.location.href = "login.html?redirect=" + returnUrl;
+      window.location.href = AUTH_URL("pages/login.html") + "?redirect=" + returnUrl;
     }
   }
 }
@@ -95,7 +104,7 @@ function handlePostLoginRedirect() {
   if (isAuthPage && redirect) {
     window.location.href = decodeURIComponent(redirect);
   } else if (isAuthPage && !redirect) {
-    window.location.href = "dashboard.html";
+    window.location.href = AUTH_URL("pages/dashboard.html");
   }
 }
 function setupAuthForms() {

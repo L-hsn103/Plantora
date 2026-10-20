@@ -17,6 +17,17 @@ const AUTH_UI_ASSETS = (function () {
   return script ? new URL("../assets/image/", script.src).href : "../assets/image/";
 })();
 
+// resolve the site root from this script's URL too: the landing page lives at
+// the root (index.html) while every other page lives in pages/, so generated
+// links are always built against the root instead of the current directory
+const AUTH_UI_URL = (function () {
+  const script = document.currentScript;
+  const root = script ? new URL("../", script.src) : null;
+  return root
+    ? (path) => new URL(path, root).href
+    : (path) => path;
+})();
+
 
 function updateNavHomeLinks(isLoggedIn) {
   const homeLink = document.querySelector("[data-nav-home]");
@@ -26,7 +37,7 @@ function updateNavHomeLinks(isLoggedIn) {
   const isLandingPage = path === "/" || path === "" || /(^|\/)index\.html$/.test(path);
   const isDashboardPage = /(^|\/)dashboard\.html$/.test(path);
 
-  homeLink.setAttribute("href", isLoggedIn ? "dashboard.html" : "index.html");
+  homeLink.setAttribute("href", isLoggedIn ? AUTH_UI_URL("pages/dashboard.html") : AUTH_UI_URL("index.html"));
 
   const highlight = isLoggedIn ? isDashboardPage || isLandingPage : isLandingPage;
   const isCurrent = isLoggedIn ? isDashboardPage : isLandingPage;
@@ -50,7 +61,7 @@ function updateLandingCtas(isLoggedIn) {
     if (el.dataset.ctaOutHref === undefined) {
       el.dataset.ctaOutHref = el.getAttribute("href") || "";
     }
-    el.setAttribute("href", isLoggedIn ? "dashboard.html" : el.dataset.ctaOutHref);
+    el.setAttribute("href", isLoggedIn ? AUTH_UI_URL("pages/dashboard.html") : el.dataset.ctaOutHref);
   });
 }
 
@@ -60,11 +71,11 @@ function updateAboutLinks(isLoggedIn) {
 
   document.querySelectorAll('a[href$="#about"]').forEach((link) => {
     if (!isLoggedIn) {
-      link.setAttribute("href", "index.html#about");
+      link.setAttribute("href", AUTH_UI_URL("index.html#about"));
     } else if (onDashboard) {
       link.setAttribute("href", "#about");
     } else {
-      link.setAttribute("href", "dashboard.html#about");
+      link.setAttribute("href", AUTH_UI_URL("pages/dashboard.html#about"));
     }
   });
 }
@@ -103,7 +114,7 @@ function updateNavbarForAuth(isLoggedIn) {
     // put the plain profile icon link back (it sends visitors to login)
     if (menu) {
       menu.outerHTML = `
-        <a href="login.html" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
+        <a href="${AUTH_UI_URL("pages/login.html")}" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
           <img src="${AUTH_UI_ASSETS}user.png" alt="" />
         </a>
       `;
