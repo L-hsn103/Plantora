@@ -587,7 +587,9 @@
       var schedule = cloneSchedule(entry.schedule);
       var task = schedule[taskKey];
       task.nextDue = nextDueMs;
-      if (lastDoneMs != null) task.lastDone = Math.max(0, Math.round(Number(lastDoneMs)) || 0);
+      if (lastDoneMs !== undefined) {
+        task.lastDone = lastDoneMs == null ? null : Math.max(0, Math.round(Number(lastDoneMs)) || 0);
+      }
       return requireUser().then(function (user) {
         return firebaseBackend().then(function (b) {
           return b.updatePlantFields(user.uid, entryId, { schedule: schedule });

@@ -669,8 +669,11 @@
 
   function syncDoneMap(entries, tasks, doneMap) {
     tasks.forEach(function (task) {
-      if (task.lastDone && doneMap[careId(task)] == null) {
-        doneMap[careId(task)] = Number(task.lastDone);
+      var id = careId(task);
+      if (doneMap[id] != null) {
+        if (!task.lastDone || Number(doneMap[id]) !== Number(task.lastDone)) {
+          delete doneMap[id];
+        }
       }
     });
   }
@@ -799,16 +802,21 @@
     var id = careId(task);
     var undoMap = loadCare("undo", {});
 
-    undoMap[id] = {
-      lastDone: task.lastDone == null ? null : Number(task.lastDone),
-      nextDue: Number(task.nextDue)
-    };
-
-    saveCare("undo", undoMap);
+    if (!undoMap[id]) {
+      undoMap[id] = {
+        lastDone: task.lastDone == null ? null : Number(task.lastDone),
+        nextDue: Number(task.nextDue)
+      };
+      saveCare("undo", undoMap);
+    }
 
     window.PlantoraStore.markTaskDone(task.entryId, task.taskKey)
       .then(function (schedule) {
         syncEntrySchedule(entries, task, schedule);
+        if (schedule && schedule[task.taskKey]) {
+          task.lastDone = schedule[task.taskKey].lastDone;
+          task.nextDue = schedule[task.taskKey].nextDue;
+        }
 
         var doneMap = loadCare("done", {});
         doneMap[id] = Number(schedule.lastDone);
@@ -821,15 +829,12 @@
           hidden.splice(i, 1);
           saveCare("hidden", hidden);
         }
-
-        renderCare(entries, getCareLimit());
       })
       .catch(function (err) {
         delete undoMap[id];
         saveCare("undo", undoMap);
         console.error("[Plantora Care]", err);
         showCareError("Couldn't mark the task complete. Please try again.");
-        renderCare(entries, getCareLimit());
       });
   }
 
@@ -848,6 +853,10 @@
     )
       .then(function (schedule) {
         syncEntrySchedule(entries, task, schedule);
+        if (schedule && schedule[task.taskKey]) {
+          task.lastDone = schedule[task.taskKey].lastDone;
+          task.nextDue = schedule[task.taskKey].nextDue;
+        }
 
         if (snap) {
           delete undoMap[id];
@@ -857,13 +866,10 @@
         var doneMap = loadCare("done", {});
         delete doneMap[id];
         saveCare("done", doneMap);
-
-        renderCare(entries, getCareLimit());
       })
       .catch(function (err) {
         console.error("[Plantora Care]", err);
         showCareError("Couldn't reopen the task. Please try again.");
-        renderCare(entries, getCareLimit());
       });
   }
 
@@ -1030,7 +1036,7 @@
       "li",
       "care-list__item care-task" +
         (done ? " care-task--done" : "") +
-        (overdue ? " care-task--overdue" : "")
+        (overdue && !done ? " care-task--overdue" : "")
     );
 
     li.setAttribute("data-task-id", id);
@@ -1038,12 +1044,15 @@
     var row = el("div", "care-task__row");
     var label = el("label", "care-task__checkbox");
 
-    label.setAttribute(
-      "aria-label",
-      (done ? "Marked as done" : "Mark as done") + " " +
-      entryTitle({ nickname: task.nickname, plantName: task.plantName }) +
-      ", " + task.label
-    );
+    function updateLabel() {
+      label.setAttribute(
+        "aria-label",
+        (done ? "Marked as done" : "Mark as done") + " " +
+        entryTitle({ nickname: task.nickname, plantName: task.plantName }) +
+        ", " + task.label
+      );
+    }
+    updateLabel();
 
     var input = el("input");
     input.type = "checkbox";
@@ -1054,17 +1063,6 @@
     label.appendChild(input);
     label.appendChild(check);
     row.appendChild(label);
-
-    input.addEventListener("change", function () {
-      if (done && input.checked) return;
-      if (!done && !input.checked) return;
-
-      if (input.checked) {
-        checkOffTask(entries, task);
-      } else {
-        uncheckTask(entries, task);
-      }
-    });
 
     var info = el("div", "care-task__info");
 
@@ -1085,14 +1083,41 @@
     var when = el(
       "span",
       "care-list__when" +
-        (overdue
+        (overdue && !done
           ? " care-list__when--overdue"
-          : dueToday
+          : dueToday && !done
             ? " care-list__when--today"
             : "")
     );
 
-    when.textContent = S.describeDue(task);
+    when.textContent = done ? "Completed" : S.describeDue(task);
+
+    function setDoneState(newDone) {
+      done = newDone;
+      input.checked = done;
+      updateLabel();
+      if (done) {
+        li.classList.add("care-task--done");
+        li.classList.remove("care-task--overdue");
+        when.classList.remove("care-list__when--overdue", "care-list__when--today");
+        when.textContent = "Completed";
+        checkOffTask(entries, task);
+      } else {
+        li.classList.remove("care-task--done");
+        if (task.nextDue <= Date.now()) {
+          li.classList.add("care-task--overdue");
+          when.classList.add("care-list__when--overdue");
+        } else if (dueToday) {
+          when.classList.add("care-list__when--today");
+        }
+        when.textContent = S.describeDue(task);
+        uncheckTask(entries, task);
+      }
+    }
+
+    input.addEventListener("change", function () {
+      setDoneState(input.checked);
+    });
 
     var controls = el("div", "care-task__controls");
     var snoozeBtn = el("button", "care-task__btn care-task__btn--snooze");
@@ -1148,7 +1173,16 @@
       if (done) {
         items.push({
           label: "Mark not done",
-          action: function () { uncheckTask(entries, task); }
+          action: function () {
+            setDoneState(false);
+          }
+        });
+      } else {
+        items.push({
+          label: "Mark as done",
+          action: function () {
+            setDoneState(true);
+          }
         });
       }
 
@@ -1187,12 +1221,40 @@
 
     var S = window.PlantoraStore;
     var now = Date.now();
+    var doneMap = loadCare("done", {});
+    var undoMap = loadCare("undo", {});
 
     var tasks = S.getUpcomingTasks(entries, 30).map(function (task) {
       return enrichTask(entries, task);
     });
 
-    var doneMap = loadCare("done", {});
+    var taskIds = {};
+    tasks.forEach(function (t) { taskIds[careId(t)] = true; });
+
+    (entries || []).forEach(function (entry) {
+      (S.TASK_KEYS || ["watering", "fertilizing", "repotting", "cleaning"]).forEach(function (key) {
+        var id = String(entry.id) + ":" + String(key);
+        if (doneMap[id] != null && !taskIds[id]) {
+          var sched = entry.schedule && entry.schedule[key];
+          if (sched && sched.lastDone != null && Number(doneMap[id]) === Number(sched.lastDone)) {
+            var meta = (S.TASK_META && S.TASK_META[key]) ? S.TASK_META[key] : { label: key, icon: "🌱" };
+            tasks.push(enrichTask(entries, {
+              entryId: entry.id,
+              plantId: entry.plantId,
+              plantName: entry.plantName,
+              nickname: entry.nickname || null,
+              taskKey: key,
+              label: meta.label,
+              icon: meta.icon,
+              nextDue: sched.nextDue,
+              overdueDays: 0
+            }));
+            taskIds[id] = true;
+          }
+        }
+      });
+    });
+
     syncDoneMap(entries, tasks, doneMap);
     saveCare("done", doneMap);
 
@@ -1202,6 +1264,16 @@
 
     hiddenList.forEach(function (id) {
       hiddenSet[id] = true;
+    });
+
+    tasks.sort(function (a, b) {
+      var dueA = (isTaskDone(a, doneMap) && undoMap[careId(a)] && undoMap[careId(a)].nextDue)
+        ? Number(undoMap[careId(a)].nextDue)
+        : a.nextDue;
+      var dueB = (isTaskDone(b, doneMap) && undoMap[careId(b)] && undoMap[careId(b)].nextDue)
+        ? Number(undoMap[careId(b)].nextDue)
+        : b.nextDue;
+      return dueA - dueB;
     });
 
     var shown = tasks.filter(function (task) {
@@ -1256,7 +1328,8 @@
     }
 
     var list = el("ul", "care-list");
-    var tasksToShow = limit != null ? tasks.slice(0, limit) : tasks;
+    var sourceList = hideCompleted ? shown : tasks;
+    var tasksToShow = limit != null ? sourceList.slice(0, limit) : sourceList;
 
     tasksToShow.forEach(function (task) {
       list.appendChild(buildCareTask(entries, task));
