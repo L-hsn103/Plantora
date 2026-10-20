@@ -49,7 +49,7 @@
     var s = {};
     TASK_KEYS.forEach(function (key) {
       var days = defaultIntervalDays(plant, key);
-      s[key] = { intervalDays: days, lastDone: null, nextDue: nowMs + days * DAY_MS };
+      s[key] = { intervalDays: days, lastDone: null, nextDue: nowMs + days * DAY_MS,completed: false };
     });
     return s;
   }
@@ -61,7 +61,8 @@
       out[key] = {
         intervalDays: clampInterval(t.intervalDays || 7),
         lastDone: t.lastDone == null ? null : Number(t.lastDone),
-        nextDue: Number(t.nextDue) || 0
+        nextDue: Number(t.nextDue) || 0,
+        completed: t.completed === true
       };
     });
     return out;
@@ -81,6 +82,7 @@
     var task = next[taskKey];
     task.lastDone = nowMs;
     task.nextDue = nowMs + task.intervalDays * DAY_MS;
+    task.completed = true;
     return next;
   }
 
@@ -130,6 +132,7 @@
           label: TASK_META[key].label,
           icon: TASK_META[key].icon,
           nextDue: task.nextDue,
+          completed: task.completed === true,
           overdueDays: task.nextDue <= nowMs ? Math.floor((nowMs - task.nextDue) / DAY_MS) : 0
         });
       });
@@ -306,6 +309,7 @@
                     plantId: data.plantId,
                     plantName: data.plantName,
                     nickname: data.nickname == null ? null : data.nickname,
+                    location: data.location == null ? null : data.location,
                     source: data.source,
                     orderId: data.orderId == null ? null : data.orderId,
                     addedAt: data.addedAt && data.addedAt.toMillis ? data.addedAt.toMillis() : null,
@@ -549,6 +553,15 @@
     }).then(function () { return clean; });
   }
 
+  function setLocation(entryId, location) {
+    var clean = String(location == null ? "" : location).trim().slice(0, NICKNAME_MAX);
+    return requireUser().then(function (user) {
+      return firebaseBackend().then(function (b) {
+        return b.updatePlantFields(user.uid, entryId, { location: clean || null });
+      });
+    }).then(function () { return clean || null; });
+  }
+
   function setTaskInterval(entryId, taskKey, days) {
     if (TASK_KEYS.indexOf(taskKey) === -1) {
       return Promise.reject(fail("plantora/unknown-task", "Unknown care task."));
@@ -563,6 +576,35 @@
         });
       }).then(function () { return schedule; });
     });
+  }
+
+  // set a task's due date directly (used by snooze / reopen), keeping its interval
+  function setTaskDue(entryId, taskKey, nextDueMs, lastDoneMs) {
+    if (TASK_KEYS.indexOf(taskKey) === -1) {
+      return Promise.reject(fail("plantora/unknown-task", "Unknown care task."));
+    }
+    nextDueMs = Math.max(0, Math.round(Number(nextDueMs)) || 0);
+    return listMyPlants().then(function (entries) {
+      var entry = entries.filter(function (e) { return e.id === entryId; })[0];
+      if (!entry) throw fail("plantora/unknown-plant", "That plant is no longer in your collection.");
+      var schedule = cloneSchedule(entry.schedule);
+      var task = schedule[taskKey];
+      task.nextDue = nextDueMs;
+      task.completed = false;
+      if (lastDoneMs !== undefined) {
+        task.lastDone = lastDoneMs == null ? null : Math.max(0, Math.round(Number(lastDoneMs)) || 0);
+      }
+      return requireUser().then(function (user) {
+        return firebaseBackend().then(function (b) {
+          return b.updatePlantFields(user.uid, entryId, { schedule: schedule });
+        });
+      }).then(function () { return schedule; });
+    });
+  }
+
+  // snooze a task: push its due date forward by the given number of days
+  function snoozeTask(entryId, taskKey, days) {
+    return setTaskDue(entryId, taskKey, Date.now() + Math.max(1, Math.round(Number(days))) * DAY_MS);
   }
 
   function markTaskDone(entryId, taskKey) {
@@ -609,7 +651,10 @@
     listMyPlants: listMyPlants,
     removePlant: removePlant,
     renamePlant: renamePlant,
+    setLocation: setLocation,
     setTaskInterval: setTaskInterval,
+    setTaskDue: setTaskDue,
+    snoozeTask: snoozeTask,
     markTaskDone: markTaskDone,
 
     _setBackendForTests: function (b) { backendPromise = Promise.resolve(b); } // offline tests only

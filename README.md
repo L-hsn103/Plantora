@@ -214,7 +214,7 @@ A future chatbot could help users:
 | 💳 Payment | Possible bKash/API integration | Planned |
 | 🔔 Reminders | Watering, fertilizer, repotting, etc. | Current |
 | 📅 Upcoming Care | View upcoming 3-day/1-week tasks | Current |
-| 🤖 Chatbot | Optional future feature | Future |
+| 🤖 Chatbot | Optional future feature | current |
 
 ---
 

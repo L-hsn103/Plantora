@@ -16,7 +16,11 @@
   <link rel="stylesheet" href="../style/explore.css" />
   <script src="../script/auth.js" defer></script>
   <script src="../script/plant-data.js" defer></script>
+<<<<<<< HEAD
   <script src="../script/store.js" defer></script>
+=======
+   <script src="../script/store.js" defer></script>
+>>>>>>> 59b10d2250292af7befff18f9c6f26aad7ac9d9d
   <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
 
   <!-- set the logged in class early so the navbar doesn't flicker -->
@@ -31,13 +35,13 @@
 <body>
   <header class="navbar">
     <div class="container navbar__inner">
-      <a href="index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
+      <a href="../index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
 
       <nav class="nav-links">
-        <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
+        <a href="../index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html" class="active" aria-current="page">Explore Plants</a>
         <a href="my-plants.html" data-nav-private hidden>My Plants</a>
-        <a href="index.html#about">About</a>
+        <a href="../index.html#about">About</a>
     </nav>
       <div class="navbar__actions">
         <a href="login.html" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
@@ -162,10 +166,10 @@
       </div>
 
       <nav class="footer__links">
-        <a href="index.html">Home</a>
+        <a href="../index.html">Home</a>
         <a href="explore.html">Explore Plants</a>
         <a href="my-plants.html">My Plants</a>
-        <a href="index.html#about">About</a>
+        <a href="../index.html#about">About</a>
       </nav>
     </div>
 
@@ -174,5 +178,6 @@
 
   <script src="../script/script.js" defer></script>
   <script src="../script/auth-ui.js"></script>
+  <script src="../chatbot/widget/plantora-chat.js" data-api="http://localhost:3001/api/chat" defer></script>
 </body>
 </html>

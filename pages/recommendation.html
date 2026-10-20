@@ -54,7 +54,7 @@
     .survey-progress__track {
       height: 8px;
       border-radius: 999px;
-      background-color: var(--color-border, #dce4d2);
+      background-color: var(--color-border, #e1eee4);
       overflow: hidden;
     }
 
@@ -62,7 +62,7 @@
       height: 100%;
       width: 0;
       border-radius: 999px;
-      background-color: var(--color-primary, #2d5a3d);
+      background-color: var(--color-primary, #4caf68);
       transition: width 0.25s ease;
     }
 
@@ -74,7 +74,7 @@
 
     .question-card {
       background-color: var(--color-surface, #ffffff);
-      border: 1px solid var(--color-border, #dce4d2);
+      border: 1px solid var(--color-border, #e1eee4);
       border-radius: var(--radius-md, 16px);
       padding: 1.5rem 1.6rem 1.7rem;
       margin: 0;
@@ -101,8 +101,8 @@
       height: 40px;
       font-size: 1.1rem;
       border-radius: 50%;
-      background-color: var(--color-bg-alt, #eaf0e1);
-      color: var(--color-primary, #2d5a3d);
+      background-color: var(--color-bg-alt, #e8f5e9);
+      color: var(--color-primary-dark, #222222);
       font-family: var(--font-heading, "Fraunces", serif);
       font-weight: 600;
       display: flex;
@@ -113,7 +113,7 @@
     .question-card__title {
       display: block;
       font-family: var(--font-heading, "Fraunces", serif);
-      color: var(--color-primary, #2d5a3d);
+      color: var(--color-primary-dark, #222222);
       font-size: 1.4rem;
       font-weight: 600;
       line-height: 1.3;
@@ -122,7 +122,7 @@
     .question-card__question {
       display: block;
       font-family: var(--font-body, "Inter", sans-serif);
-      color: var(--color-text, #2b2b26);
+      color: var(--color-text, #222222);
       font-size: 1.15rem;
       line-height: 1.4;
       margin-top: 0.25rem;
@@ -168,24 +168,24 @@
       gap: 0.3rem;
       height: 100%;
       background-color: var(--color-surface, #ffffff);
-      border: 1px solid var(--color-border, #dce4d2);
+      border: 1px solid var(--color-border, #e1eee4);
       border-radius: 12px;
       padding: 0.85rem 0.95rem;
       transition: border-color 0.15s ease, background-color 0.15s ease;
     }
 
     .option-card:hover .option-card__body {
-      border-color: var(--color-secondary, #6fa25a);
+      border-color: var(--color-secondary, #6ba57a);
     }
 
     .option-card__input:checked + .option-card__body {
-      border-color: var(--color-primary, #2d5a3d);
-      background-color: var(--color-bg-alt, #eaf0e1);
-      box-shadow: 0 0 0 1px var(--color-primary, #2d5a3d);
+      border-color: var(--color-primary, #4caf68);
+      background-color: var(--color-bg-alt, #e8f5e9);
+      box-shadow: 0 0 0 1px var(--color-primary, #4caf68);
     }
 
     .option-card__input:focus-visible + .option-card__body {
-      outline: 2px solid var(--color-secondary, #6fa25a);
+      outline: 2px solid var(--color-secondary, #6ba57a);
       outline-offset: 2px;
     }
 
@@ -193,7 +193,7 @@
       font-family: var(--font-body, "Inter", sans-serif);
       font-weight: 600;
       font-size: 0.92rem;
-      color: var(--color-primary, #2d5a3d);
+      color: var(--color-primary-dark, #222222);
     }
 
     .option-card__desc {
@@ -260,7 +260,7 @@
 
     .rec-empty {
       background-color: var(--color-surface, #ffffff);
-      border: 1px solid var(--color-border, #dce4d2);
+      border: 1px solid var(--color-border, #e1eee4);
       border-radius: var(--radius-md, 16px);
       padding: 2rem;
       max-width: 680px;
@@ -269,7 +269,7 @@
 
     .rec-empty h3 {
       font-family: var(--font-heading, "Fraunces", serif);
-      color: var(--color-primary, #2d5a3d);
+      color: var(--color-primary-dark, #222222);
       margin-bottom: 0.6rem;
     }
 
@@ -285,7 +285,7 @@
       height: 180px;
       margin: 12px;
       border-radius: var(--radius-md, 16px);
-      background-color: var(--color-bg-alt, #eaf0e1);
+      background-color: var(--color-bg-alt, #e8f5e9);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -303,8 +303,8 @@
     }
 
     .rec-badge--exact {
-      background-color: #e4f0dd;
-      color: var(--color-primary, #2d5a3d);
+      background-color: var(--color-bg-alt, #e8f5e9);
+      color: var(--color-primary-dark, #222222);
     }
 
     .rec-badge--relaxed {
@@ -342,14 +342,14 @@
     .rec-pill__label { font-size: 0.7rem; font-weight: 500; opacity: 0.8; }
     .rec-pill__value { font-weight: 600; }
 
-    .rec-pill--match   { background: #e4f0dd; color: #2d5a3d; border-color: #c9dfbe; }
+    .rec-pill--match   { background: #e8f5e9; color: #222222; border-color: #e1eee4; }
     .rec-pill--partial { background: #fbf0d9; color: #8a6414; border-color: #ecd8a6; }
     .rec-pill--miss    { background: #fdf1ee; color: #a23b28; border-color: #f1c9c0; }
-    .rec-pill--neutral { background: #f1f3ee; color: #5c6355; border-color: #dce4d2; }
+    .rec-pill--neutral { background: #f5faf6; color: #5c6355; border-color: #e1eee4; }
 
     /* collapsible "Why it matches" */
     .rec-why {
-      border-top: 1px solid var(--color-border, #dce4d2);
+      border-top: 1px solid var(--color-border, #e1eee4);
       padding-top: 0.9rem;
       margin-bottom: 1.25rem;
     }
@@ -366,11 +366,11 @@
       font-family: var(--font-body, "Inter", sans-serif);
       font-size: 0.9rem;
       font-weight: 600;
-      color: var(--color-text, #2b2b26);
+      color: var(--color-text, #222222);
       text-align: left;
     }
     .rec-why__toggle:focus-visible {
-      outline: 2px solid var(--color-secondary, #6fa25a);
+      outline: 2px solid var(--color-secondary, #6ba57a);
       outline-offset: 3px;
       border-radius: 4px;
     }
@@ -413,7 +413,7 @@
 
     .rec-why li::before {
       content: "✓";
-      color: var(--color-primary, #2d5a3d);
+      color: var(--color-primary, #4caf68);
       font-weight: 700;
       margin-right: 0.5rem;
     }
@@ -458,13 +458,13 @@
 
   <header class="navbar">
     <div class="container navbar__inner">
-      <a href="index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
+      <a href="../index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
 
       <nav class="nav-links">
-        <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
+        <a href="../index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html">Explore Plants</a>
         <a href="my-plants.html" data-nav-private hidden>My Plants</a>
-        <a href="index.html#about">About</a>
+        <a href="../index.html#about">About</a>
       </nav>
 
       <div class="navbar__actions">
@@ -566,10 +566,10 @@
       </div>
 
       <nav class="footer__links">
-        <a href="index.html">Home</a>
+        <a href="../index.html">Home</a>
         <a href="explore.html">Explore Plants</a>
         <a href="my-plants.html">My Plants</a>
-        <a href="index.html#about">About</a>
+        <a href="../index.html#about">About</a>
       </nav>
     </div>
 
@@ -577,5 +577,6 @@
   </footer>
 
   <script src="../script/auth-ui.js"></script>
+  <script src="../chatbot/widget/plantora-chat.js" data-api="http://localhost:3001/api/chat" defer></script>
 </body>
 </html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plantora Chatbot Widget Test</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+    h1 { color: #222222; }
+    .info { background: #e8f5e9; border: 1px solid #e1eee4; border-radius: 12px; padding: 1rem; margin-bottom: 2rem; }
+    code { background: #f5faf6; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>Plantora Chatbot Widget Test</h1>
+  <div class="info">
+    <p>This page tests the chatbot widget in isolation.</p>
+    <p>Make sure the server is running at <code>http://localhost:3001</code> (run <code>npm run dev</code> in <code>chatbot/server/</code>).</p>
+    <p>The widget loads from <code>../chatbot/widget/plantora-chat.js</code> with <code>data-api</code> pointing to the local server.</p>
+  </div>
+  <p>Open this page in a browser. You should see a green floating button at bottom-right. Click it to test the chat.</p>
+  <hr style="margin: 2rem 0; border-color: #e1eee4;" />
+  <h2>Test different configurations</h2>
+  <p>Uncomment any of these script tags to test overrides:</p>
+  <pre style="background:#f5faf6;padding:1rem;border-radius:8px;overflow:auto;"><code><!-- Default config -->
+<script src="plantora-chat.js" data-api="http://localhost:3001/api/chat" defer></script>
+
+<!-- Custom title & greeting -->
+<!-- <script src="plantora-chat.js" data-api="http://localhost:3001/api/chat" data-title="My Garden Bot" data-greeting="Welcome! Ask me anything about plants." defer></script> -->
+
+<!-- Custom API endpoint (e.g., production) -->
+<!-- <script src="plantora-chat.js" data-api="https://api.myplantora.com/chat" defer></script> --></code></pre>
+
+  <!-- Default widget (edit data-api if your server runs elsewhere) -->
+  <script src="plantora-chat.js" data-api="http://localhost:3001/api/chat" defer></script>
+</body>
+</html>

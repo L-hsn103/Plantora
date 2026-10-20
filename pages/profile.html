@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile — Plantora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style/style.css" />
+  <script src="../script/auth.js" defer></script>
+  <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
+  <script>
+    try {
+      if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
+        document.documentElement.classList.add("is-auth");
+      }
+    } catch (err) {}
+  </script>
+</head>
+<body data-requires-auth="true">
+  <header class="navbar">
+    <div class="container navbar__inner">
+      <a href="dashboard.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
+      <nav class="nav-links">
+        <a href="../index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="my-plants.html" data-nav-private hidden>My Plants</a>
+        <a href="../index.html#about">About</a>
+      </nav>
+      <div class="navbar__actions">
+        <a href="login.html" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
+          <img src="../assets/image/user.png" alt="" />
+        </a>
+        <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="container">
+      <h1>Profile</h1>
+      <p>Profile page coming soon.</p>
+    </div>
+  </main>
+  <footer class="footer" id="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <p class="logo logo--footer"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</p>
+        <p>Helping you grow a greener space, one plant at a time.</p>
+      </div>
+      <nav class="footer__links">
+        <a href="../index.html">Home</a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="my-plants.html">My Plants</a>
+        <a href="../index.html#about">About</a>
+      </nav>
+    </div>
+    <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
+  </footer>
+  <script src="../script/auth-ui.js"></script>
+  <script src="../chatbot/widget/plantora-chat.js" data-api="http://localhost:3001/api/chat" defer></script>
+</body>
+</html>
