@@ -230,6 +230,15 @@
       color: var(--color-text-muted, #5c6355);
       font-size: 0.9rem;
       flex: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .care-list__task-icon {
+      width: 16px;
+      height: 16px;
+      flex: none;
     }
 
     .care-list__when {
@@ -384,15 +393,16 @@
     }
 
     .care-toggle input:checked::after {
-      content: "✓";
+      content: "";
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      color: #ffffff;
-      font-size: 12px;
-      font-weight: 700;
-      line-height: 1;
+      width: 11px;
+      height: 11px;
+      background-color: #ffffff;
+        -webkit-mask: url("%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") no-repeat center / contain;
+        mask: url("%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") no-repeat center / contain;
     }
 
     /* --- Upcoming Care: messages --- */
@@ -485,11 +495,12 @@
     }
 
     .care-task__check::after {
-      content: "✓";
-      font-size: 12px;
-      font-weight: 700;
-      line-height: 1;
-      color: #ffffff;
+      content: "";
+      width: 11px;
+      height: 11px;
+      background-color: #ffffff;
+        -webkit-mask: url("%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") no-repeat center / contain;
+        mask: url("%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") no-repeat center / contain;
       opacity: 0;
     }
 
@@ -689,6 +700,16 @@
       font-family: var(--font-heading, "Fraunces", serif);
       font-size: 1.35rem;
       color: var(--color-primary-dark, #222222);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .reminder-popup__title-icon {
+      width: 22px;
+      height: 22px;
+      color: #4d7c0f;
+      flex: none;
     }
 
     .reminder-popup__intro {
@@ -737,6 +758,15 @@
     .reminder-popup__task {
       font-size: 0.85rem;
       color: var(--color-text-muted, #5c6355);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .reminder-popup__task-icon {
+      width: 15px;
+      height: 15px;
+      flex: none;
     }
 
     .reminder-popup__when {

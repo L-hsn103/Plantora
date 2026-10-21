@@ -364,6 +364,16 @@
   color: var(--color-primary-dark);
   font-size: 1.05rem;
   margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.care-guide__item h3 svg.lucide {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary);
+  flex: none;
 }
 
 .care-guide__item p {

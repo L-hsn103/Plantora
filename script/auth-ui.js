@@ -29,6 +29,40 @@ const AUTH_UI_URL = (function () {
 })();
 
 
+// lucide swaps every <i data-lucide="..."> placeholder for an inline SVG when
+// createIcons() runs. This script is parsed before the deferred CDN bundle is
+// executed, so refresh() retries on a short timer until the library is ready.
+// All other scripts call window.PlantoraIcons.refresh() after they render icons.
+(function () {
+  var scheduled = false;
+  var attempts = 0;
+
+  function render() {
+    scheduled = false;
+    if (window.lucide && window.lucide.createIcons) {
+      try { window.lucide.createIcons(); } catch (err) { /* skip unknown icons */ }
+      return;
+    }
+    if (attempts++ < 200) {
+      scheduled = true;
+      setTimeout(render, 50);
+    }
+  }
+
+  window.PlantoraIcons = {
+    refresh: function () {
+      if (window.lucide && window.lucide.createIcons) {
+        render();
+      } else if (!scheduled) {
+        scheduled = true;
+        setTimeout(render, 50);
+      }
+    }
+  };
+
+  render();
+})();
+
 function updateNavHomeLinks(isLoggedIn) {
   const homeLink = document.querySelector("[data-nav-home]");
   if (!homeLink) return;
@@ -143,13 +177,14 @@ function updateNavbarForAuth(isLoggedIn) {
         </div>
         <hr class="user-menu__divider" />
         <button class="user-menu__item" role="menuitem" data-action="logout">
-          <span aria-hidden="true">🚪</span> Logout
+          <i data-lucide="log-out" aria-hidden="true"></i> Logout
         </button>
       </div>
     </div>
   `;
 
   setupUserMenu();
+  window.PlantoraIcons.refresh();
 }
 
 function injectUserMenuStyles() {

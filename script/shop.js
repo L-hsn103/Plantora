@@ -24,10 +24,19 @@
 
   var careHost;
 
+  function lucideIcon(name, className) {
+    var node = document.createElement("i");
+    node.setAttribute("data-lucide", name);
+    if (className) node.className = className;
+    return node;
+  }
+
   function buildEmptyState(kind, icon, title, text, cta) {
     var box = el("div", "empty-state" + (kind === "error" ? " empty-state--error" : ""));
     box.setAttribute("role", kind === "error" ? "alert" : "status");
-    box.appendChild(el("div", "empty-state__icon", icon));
+    var iconWrap = el("div", "empty-state__icon");
+    iconWrap.appendChild(lucideIcon(icon));
+    box.appendChild(iconWrap);
     box.appendChild(el("h3", "empty-state__title", title));
     box.appendChild(el("p", "empty-state__text", text));
 
@@ -55,7 +64,7 @@
     var box = el("span", className);
 
     if (!plant) {
-      box.textContent = "\uD83C\uDF31";
+      box.appendChild(lucideIcon("sprout"));
       box.setAttribute("role", "img");
       box.setAttribute("aria-label", "Plant image unavailable");
       return box;
@@ -67,7 +76,8 @@
     img.loading = "lazy";
 
     img.addEventListener("error", function () {
-      var fallback = el("span", "thumb-fallback", "\uD83E\uDEB4");
+      var fallback = el("span", "thumb-fallback");
+      fallback.appendChild(lucideIcon("image-off"));
       fallback.setAttribute("role", "img");
       fallback.setAttribute("aria-label", plant.name + " (image unavailable)");
 
@@ -100,7 +110,7 @@
     renderState(
       host,
       "error",
-      offline ? "\uD83D\uDD11" : "\u26A0\uFE0F",
+      offline ? "key-round" : "alert-triangle",
       offline ? "Please log in again" : "Can't reach the database right now",
       offline
         ? "Your session has expired. Log in again to see your plants."
@@ -154,7 +164,7 @@
     if (missing) {
       if (plantsHost) {
         renderState(
-          plantsHost, "error", "\u26A0\uFE0F",
+          plantsHost, "error", "alert-triangle",
           "Can't load your plants",
           "Dashboard could not start: " + missing + "."
         );
@@ -162,7 +172,7 @@
 
       if (careHost) {
         renderState(
-          careHost, "error", "\u26A0\uFE0F",
+          careHost, "error", "alert-triangle",
           "Can't load care tasks",
           "Dashboard could not start: " + missing + "."
         );
@@ -173,14 +183,14 @@
 
     if (plantsHost) {
       renderState(
-        plantsHost, "loading", "\uD83C\uDF31",
+        plantsHost, "loading", "sprout",
         "Loading your plants\u2026", "Checking your collection."
       );
     }
 
     if (careHost) {
       renderState(
-        careHost, "loading", "\uD83C\uDF19",
+        careHost, "loading", "moon",
         "Loading care tasks\u2026", "Working out what is due."
       );
     }
@@ -197,7 +207,7 @@
 
           if (!entries.length) {
             var empty = buildEmptyState(
-              "empty", "\uD83E\uDDB8",
+              "empty", "leaf",
               "No plants in your collection yet",
               "Plants you add yourself from Explore Plants will show up here with their own care schedule.",
               { label: "Explore Plants", href: "explore.html" }
@@ -261,6 +271,8 @@
           clear(careHost);
           renderCare(entries, careLimit);
         }
+
+        if (window.PlantoraIcons) window.PlantoraIcons.refresh();
       })
       .catch(function (err) {
         console.error("[Plantora Dashboard]", err);
@@ -274,7 +286,7 @@
 
         if (careHost) {
           renderState(
-            careHost, "error", "\u26A0\uFE0F",
+            careHost, "error", "alert-triangle",
             "Can't load care tasks",
             "These are worked out from your plants, so they need the database too."
           );
@@ -285,6 +297,23 @@
   var ROOMS = [
     "Living Room", "Bedroom", "Office", "Kitchen", "Balcony"
   ];
+
+  var LOCATION_ICONS = {
+    "Living Room": "sofa",
+    "Bedroom": "bed-double",
+    "Office": "laptop",
+    "Kitchen": "cooking-pot",
+    "Balcony": "flower-2",
+    "Unassigned": "circle-dashed"
+  };
+
+  // Create a <i data-lucide="..."> element — lucide.createIcons() replaces it with an inline SVG
+  function iconEl(name, className) {
+    var node = document.createElement("i");
+    node.setAttribute("data-lucide", name);
+    if (className) node.className = className;
+    return node;
+  }
 
   function hydrationPct(task) {
     if (!task || !(task.nextDue > 0) || !(task.intervalDays > 0)) {
@@ -344,13 +373,6 @@
     error.hidden = !message;
   }
 
-  function detailChip(icon, label) {
-    var chip = el("span", "plant-card__detail");
-    chip.appendChild(el("span", "plant-card__detail-icon", icon));
-    chip.appendChild(el("span", null, label));
-    return chip;
-  }
-
   function buildMyPlantCard(entry) {
     var S = window.PlantoraStore;
     var plant = window.PlantoraData.getPlantById(entry.plantId);
@@ -360,54 +382,17 @@
     var media = el("div", "plant-card__media");
 
     media.appendChild(plantThumb(plant, "my-plant__image"));
-
-    var badge = el(
-      "button", "plant-card__location",
-      entry.location || "Set location"
-    );
-
-    badge.type = "button";
-
-    if (!entry.location) {
-      badge.classList.add("plant-card__location--empty");
-    }
-
-    badge.setAttribute(
-      "aria-label",
-      "Location: " + (entry.location || "not set") + ". Click to change."
-    );
-
-    badge.addEventListener("click", function () {
-      if (badge.disabled) return;
-
-      var next = ROOMS[(ROOMS.indexOf(entry.location) + 1) % ROOMS.length];
-      badge.disabled = true;
-
-      S.setLocation(entry.id, next)
-        .then(function () {
-          entry.location = next;
-          badge.textContent = next;
-          badge.classList.remove("plant-card__location--empty");
-          badge.disabled = false;
-          showCardError(card, "");
-        })
-        .catch(function (err) {
-          console.error("[Plantora My Plants]", err);
-          badge.disabled = false;
-          showCardError(
-            card, "Could not save the location. Please try again."
-          );
-        });
-    });
-
-    media.appendChild(badge);
     card.appendChild(media);
 
     var body = el("div", "plant-card__body");
-    body.appendChild(el("h3", "plant-card__name", entryTitle(entry)));
+    var displayName = entry.nickname || entry.plantName;
+    body.appendChild(el("h3", "plant-card__name", displayName));
 
     if (plant) {
       body.appendChild(el("p", "my-plant__sci", plant.scientificName));
+      if (entry.nickname && entry.nickname !== plant.name) {
+        body.appendChild(el("p", "plant-card__species", plant.name));
+      }
     }
 
     var pct = hydrationPct(water);
@@ -436,16 +421,18 @@
     var details = el("div", "plant-card__details");
 
     if (plant && plant.light) {
-      details.appendChild(detailChip("\u2600\uFE0F", plant.light));
+      var lightChip = el("span", "plant-card__detail");
+      lightChip.appendChild(iconEl("sun", "plant-card__detail-icon"));
+      lightChip.appendChild(el("span", null, plant.light));
+      details.appendChild(lightChip);
     }
 
     var due = dueLabel(water);
 
     if (due) {
-      var dueChip = detailChip(
-        due.overdue ? "\u26A0\uFE0F" : "\uD83D\uDCC5",
-        due.text
-      );
+      var dueChip = el("span", "plant-card__detail");
+      dueChip.appendChild(iconEl(due.overdue ? "alert-triangle" : "calendar", "plant-card__detail-icon"));
+      dueChip.appendChild(el("span", null, due.text));
 
       if (due.overdue) {
         dueChip.classList.add("plant-card__detail--overdue");
@@ -457,7 +444,10 @@
     var last = lastWateredLabel(water);
 
     if (last) {
-      details.appendChild(detailChip("\u23F0", last));
+      var lastChip = el("span", "plant-card__detail");
+      lastChip.appendChild(iconEl("alarm-clock", "plant-card__detail-icon"));
+      lastChip.appendChild(el("span", null, last));
+      details.appendChild(lastChip);
     }
 
     var error = el("p", "plant-card__error");
@@ -511,7 +501,8 @@
     body.appendChild(footer);
 
     var detailsUrl =
-      "plant-details.html?id=" + encodeURIComponent(entry.plantId);
+      "my-plant-details.html?entryId=" + encodeURIComponent(entry.id) +
+      "&label=" + encodeURIComponent(entryTitle(entry));
 
     card.tabIndex = 0;
     card.setAttribute("aria-label", "View details for " + entryTitle(entry));
@@ -539,7 +530,7 @@
 
     if (missing) {
       renderState(
-        host, "error", "\u26A0\uFE0F",
+        host, "error", "alert-triangle",
         "Can't load your plants",
         "My Plants could not start: " + missing + "."
       );
@@ -547,7 +538,7 @@
     }
 
     renderState(
-      host, "loading", "\uD83C\uDF31",
+      host, "loading", "sprout",
       "Loading your plants\u2026", "Checking your collection."
     );
 
@@ -561,7 +552,7 @@
 
         if (!entries.length) {
           var emptyBox = buildEmptyState(
-            "empty", "\uD83E\uDDB8",
+            "empty", "leaf",
             "No plants in your collection yet",
             "Add one you already own from Explore Plants, and it will show up here with its own watering and feeding schedule.",
             { label: "Explore Plants", href: "explore.html" }
@@ -573,13 +564,41 @@
           return;
         }
 
-        var grid = el("div", "plant-grid");
+        // Group entries by location
+        var grouped = {};
+        ROOMS.forEach(function (room) { grouped[room] = []; });
+        grouped["Unassigned"] = [];
 
         entries.forEach(function (entry) {
-          grid.appendChild(buildMyPlantCard(entry));
+          var loc = entry.location || "Unassigned";
+          if (!grouped[loc]) grouped[loc] = [];
+          grouped[loc].push(entry);
         });
 
-        host.appendChild(grid);
+        // Render sections in order (skip empty sections)
+        var sectionOrder = ROOMS.concat(["Unassigned"]);
+        sectionOrder.forEach(function (room) {
+          var roomEntries = grouped[room];
+          if (!roomEntries.length) return;
+
+          var section = el("section", "my-plants-section");
+
+          var header = el("div", "my-plants-section__header");
+          header.appendChild(iconEl(LOCATION_ICONS[room] || "circle-dashed", "my-plants-section__icon"));
+          header.appendChild(el("h2", "my-plants-section__title", room));
+          header.appendChild(el("span", "my-plants-section__count", roomEntries.length + " plant" + (roomEntries.length !== 1 ? "s" : "")));
+          section.appendChild(header);
+
+          var grid = el("div", "my-plants-section__grid");
+          roomEntries.forEach(function (entry) {
+            grid.appendChild(buildMyPlantCard(entry));
+          });
+          section.appendChild(grid);
+
+          host.appendChild(section);
+        });
+
+        if (window.PlantoraIcons) window.PlantoraIcons.refresh();
       })
       .catch(function (err) {
         console.error("[Plantora My Plants]", err);
@@ -1060,11 +1079,10 @@
       entryTitle({ nickname: task.nickname, plantName: task.plantName })
     ));
 
-    info.appendChild(el(
-      "span",
-      "care-list__task",
-      task.icon + " " + task.label
-    ));
+    var taskSpan = el("span", "care-list__task");
+    taskSpan.appendChild(iconEl(task.icon || "leaf", "care-list__task-icon"));
+    taskSpan.appendChild(document.createTextNode(task.label));
+    info.appendChild(taskSpan);
 
     row.appendChild(info);
 
@@ -1225,7 +1243,7 @@
           if (!taskIds[id]) {
           var sched = entry.schedule && entry.schedule[key];
           if (sched && sched.completed === true && sched.lastDone != null && Number(sched.nextDue) > now) {
-            var meta = (S.TASK_META && S.TASK_META[key]) ? S.TASK_META[key] : { label: key, icon: "🌱" };
+            var meta = (S.TASK_META && S.TASK_META[key]) ? S.TASK_META[key] : { label: key, icon: "sprout" };
             tasks.push(enrichTask(entries, {
               entryId: entry.id,
               plantId: entry.plantId,
@@ -1303,7 +1321,7 @@
     if (!tasks.length) {
       careHost.appendChild(buildEmptyState(
         "empty",
-        "\u2705",
+        "circle-check",
         "Nothing due in the next 30 days",
         entries.length
           ? "Care tasks appear here before they are due. Tick one off to reschedule it on its repeat interval."
@@ -1312,6 +1330,7 @@
       ));
 
       maybeShowReminder(entries, tasks);
+      if (window.PlantoraIcons) window.PlantoraIcons.refresh();
       return;
     }
 
@@ -1325,6 +1344,7 @@
 
     careHost.appendChild(list);
     maybeShowReminder(entries, tasks);
+    if (window.PlantoraIcons) window.PlantoraIcons.refresh();
   }
 
   /* ===== Plantora Care Reminder Popup ===== */
@@ -1369,7 +1389,7 @@
         nickname: null,
         taskKey: "watering",
         label: "Watering",
-        icon: "\uD83D\uDCA7",
+        icon: "droplets",
         nextDue: Date.now()
       }];
     }
@@ -1440,9 +1460,10 @@
 
     var title = el(
       "h3",
-      "reminder-popup__title",
-      "\uD83C\uDF3F Plant Care Reminder"
+      "reminder-popup__title"
     );
+    title.appendChild(lucideIcon("leaf", "reminder-popup__title-icon"));
+    title.appendChild(document.createTextNode(" Plant Care Reminder"));
 
     title.id = "reminder-title";
 
@@ -1536,9 +1557,10 @@
 
       var taskLabel = el(
         "div",
-        "reminder-popup__task",
-        (task.icon || "\uD83C\uDF3F") + " " + task.label
+        "reminder-popup__task"
       );
+      taskLabel.appendChild(lucideIcon(task.icon || "leaf", "reminder-popup__task-icon"));
+      taskLabel.appendChild(document.createTextNode(task.label));
 
       Object.assign(taskLabel.style, {
         color: "#4b5563",
@@ -1665,6 +1687,7 @@
 
     overlay.appendChild(popup);
     document.body.appendChild(overlay);
+    if (window.PlantoraIcons) window.PlantoraIcons.refresh();
     closeBtn.focus();
   }
 

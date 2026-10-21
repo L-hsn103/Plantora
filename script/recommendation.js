@@ -411,6 +411,12 @@ function rankPlants(plants, answers) {
     (children || []).forEach(function (child) { if (child) { node.appendChild(child); } });
     return node;
   }
+
+  // lucide replaces <i data-lucide="..."> placeholders with inline SVGs
+  function refreshIcons() {
+    if (window.PlantoraIcons) window.PlantoraIcons.refresh();
+    else if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+  }
  
   var form, surveyView, resultsView, errorBox;
  
@@ -562,10 +568,15 @@ var matchPercentage = getMatchPercentage(plant, answers);
         className: "plant-card__image", src: plant.image, alt: plant.name, loading: "lazy"
       });
       image.addEventListener("error", function () {
-        image.replaceWith(el("div", { className: "rec-card__noimage", text: "🌿", "aria-hidden": "true" }));
+        image.replaceWith(el("div", { className: "rec-card__noimage", "aria-hidden": "true" }, [
+          el("i", { "data-lucide": "leaf" })
+        ]));
+        refreshIcons();
       });
     } else {
-      image = el("div", { className: "rec-card__noimage", text: "🌿", "aria-hidden": "true" });
+      image = el("div", { className: "rec-card__noimage", "aria-hidden": "true" }, [
+        el("i", { "data-lucide": "leaf" })
+      ]);
     }
  
     var meta = el("ul", { className: "rec-meta" });
@@ -694,6 +705,8 @@ el("span", {
     outcome.results.forEach(function (plant) {
       grid.appendChild(createPlantCard(plant, answers, outcome.mode));
     });
+
+    refreshIcons();
   }
  
   function showView(which) {

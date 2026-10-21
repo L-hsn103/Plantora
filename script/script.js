@@ -104,38 +104,11 @@ async function initExplorePage() {
   function renderPlants(list) {
     plantGrid.innerHTML = list.map(createPlantCard).join("");
     noResultsMessage.hidden = list.length > 0;
-    applyOwnedState();
   }
 
   // --- Add to My Plants -------------------------------------------------
   const store = window.PlantoraStore;
-  let ownedPlantIds = null;
-
-  function markAdded(btn) {
-    if (!btn) return;
-    btn.disabled = true;
-    btn.classList.add("is-added");
-    btn.textContent = "Added";
-  }
-
-  function applyOwnedState() {
-    if (!ownedPlantIds) return;
-    plantGrid.querySelectorAll(".plant-card__add").forEach((btn) => {
-      if (ownedPlantIds.has(Number(btn.dataset.plantId))) markAdded(btn);
-    });
-  }
-
-  function refreshOwnedPlants() {
-    if (!store) return Promise.resolve();
-    return store
-      .getCurrentUser()
-      .then((user) => (user ? store.listMyPlants() : []))
-      .then((entries) => {
-        ownedPlantIds = new Set(entries.map((entry) => Number(entry.plantId)));
-        applyOwnedState();
-      })
-      .catch((err) => console.error("[Plantora] could not load My Plants:", err));
-  }
+  const modal = new window.AddPlantModal();
 
   function addPlant(btn) {
     const plantId = Number(btn.dataset.plantId);
@@ -144,20 +117,26 @@ async function initExplorePage() {
       console.error("[Plantora] store.js is not loaded on this page.");
       return;
     }
-    if (btn.disabled) return;
 
-    btn.disabled = true;
-    btn.textContent = "Adding…";
+    const plant = plants.find((p) => p.id === plantId);
+    if (!plant) return;
 
-    store
-      .addPlantManually(plantId)
+    modal.open(plant)
+      .then(({ nickname, location, wateringInterval }) => {
+        btn.disabled = true;
+        btn.textContent = "Adding…";
+
+        return store.addPlantManually(plantId, { nickname, location, wateringInterval });
+      })
       .then(() => {
-        (ownedPlantIds = ownedPlantIds || new Set()).add(plantId);
-        markAdded(btn);
+        btn.disabled = false;
+        btn.textContent = "Add";
       })
       .catch((err) => {
         btn.disabled = false;
         btn.textContent = "Add";
+
+        if (err && err.message === "Modal cancelled") return;
 
         if (err && err.code === "plantora/unauthenticated") {
           const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
@@ -165,7 +144,6 @@ async function initExplorePage() {
           return;
         }
 
-        // Show full error details for debugging
         const errorMsg = err && err.message ? err.message : String(err);
         const errorCode = err && err.code ? err.code : "unknown";
         console.error("[Plantora] could not add the plant:", err);
@@ -181,8 +159,6 @@ async function initExplorePage() {
     const btn = event.target.closest(".plant-card__add");
     if (btn) addPlant(btn);
   });
-
-  refreshOwnedPlants();
 
   // Keep plants that match the search text and every dropdown at once
   function getFilteredPlants() {
@@ -427,43 +403,219 @@ async function initDetailsPage() {
     plant.difficulty.toLowerCase() +
     " care needs.";
 
-  // "Add to My Plants" button - now actually works with Firestore
+  // "Add to My Plants" button - opens the add-plant modal
   const addBtn = document.getElementById("add-to-my-plants");
   if (addBtn) {
-    addBtn.addEventListener("click", async () => {
-      const store = window.PlantoraStore;
+    addBtn.addEventListener("click", () => {
       if (!store) {
         console.error("[Plantora] store.js not loaded");
         alert("System not ready. Please refresh.");
         return;
       }
 
-      addBtn.disabled = true;
-      addBtn.textContent = "Adding…";
+      modal.open(plant)
+        .then(({ nickname, location, wateringInterval }) => {
+          addBtn.disabled = true;
+          addBtn.textContent = "Adding…";
 
-      try {
-        await store.addPlantManually(plant.id);
-        addBtn.disabled = true;
-        addBtn.classList.add("is-added");
-        addBtn.textContent = "Added to My Plants";
-      } catch (err) {
-        addBtn.disabled = false;
-        addBtn.textContent = "Add to My Plants";
+          return store.addPlantManually(plant.id, { nickname, location, wateringInterval });
+        })
+        .then(() => {
+          addBtn.disabled = false;
+          addBtn.textContent = "Add to My Plants";
+        })
+        .catch((err) => {
+          addBtn.disabled = false;
+          addBtn.textContent = "Add to My Plants";
 
-        if (err && err.code === "plantora/unauthenticated") {
-          const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-          window.location.href = "login.html?redirect=" + returnUrl;
-          return;
-        }
+          if (err && err.message === "Modal cancelled") return;
 
-        const errorMsg = err && err.message ? err.message : String(err);
-        const errorCode = err && err.code ? err.code : "unknown";
-        console.error("[Plantora] could not add the plant:", err);
-        alert(`Failed to add plant:\nCode: ${errorCode}\nMessage: ${errorMsg}\n\nCheck console (F12) for details.\n\nIf you see "ERR_BLOCKED_BY_CLIENT", disable ad blocker/privacy extension for this site.`);
-      }
+          if (err && err.code === "plantora/unauthenticated") {
+            const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = "login.html?redirect=" + returnUrl;
+            return;
+          }
+
+          const errorMsg = err && err.message ? err.message : String(err);
+          const errorCode = err && err.code ? err.code : "unknown";
+          console.error("[Plantora] could not add the plant:", err);
+          alert(`Failed to add plant:\nCode: ${errorCode}\nMessage: ${errorMsg}\n\nCheck console (F12) for details.\n\nIf you see "ERR_BLOCKED_BY_CLIENT", disable ad blocker/privacy extension for this site.`);
+        });
     });
   }
 }
+
+// Add Plant modal: species name (read-only), nickname (required),
+// location (optional), watering interval (optional, defaults from plant needs).
+class AddPlantModal {
+  constructor() {
+    this.overlay = null;
+    this.plant = null;
+    this.resolve = null;
+    this.reject = null;
+    this.locations = window.PlantoraStore?.LOCATIONS || ["Living Room", "Bedroom", "Office", "Kitchen", "Balcony"];
+  }
+
+  open(plant) {
+    this.plant = plant;
+    return new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+      this.render();
+      this.bindEvents();
+      this.focusFirstInput();
+      document.body.style.overflow = "hidden";
+    });
+  }
+
+  render() {
+    const defaultInterval = window.PlantoraStore?.defaultIntervalDays
+      ? window.PlantoraStore.defaultIntervalDays(this.plant, "watering")
+      : 7;
+    const locationOptions = this.locations.map(loc =>
+      `<option value="${loc}">${loc}</option>`
+    ).join("");
+
+    this.overlay = document.createElement("div");
+    this.overlay.className = "modal-overlay";
+    this.overlay.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button type="button" class="modal__close" aria-label="Close modal"><i data-lucide="x"></i></button>
+        <div class="modal__header">
+          <h2 class="modal__title" id="modal-title">Add to My Plants</h2>
+          <p class="modal__species">${this.plant?.name}</p>
+        </div>
+        <div class="modal__body">
+          <form class="modal__form" id="add-plant-form" novalidate>
+            <div class="modal__field">
+              <label class="modal__label" for="plant-nickname">Nickname <span class="required" aria-hidden="true">*</span></label>
+              <input
+                type="text"
+                id="plant-nickname"
+                class="modal__input"
+                placeholder="e.g. Living Room Monstera"
+                required
+                maxlength="60"
+                aria-required="true"
+              >
+              <p class="modal__helper">Give your plant a unique name</p>
+            </div>
+            <div class="modal__field">
+              <label class="modal__label" for="plant-location">Location</label>
+              <select id="plant-location" class="modal__select" aria-describedby="location-help">
+                <option value="">Select a room (optional)</option>
+                ${locationOptions}
+              </select>
+              <p class="modal__helper" id="location-help">Helps organize your plants by room</p>
+            </div>
+            <div class="modal__field">
+              <label class="modal__label" for="plant-watering">Watering interval (days)</label>
+              <input
+                type="number"
+                id="plant-watering"
+                class="modal__input"
+                min="1"
+                max="3650"
+                value="${defaultInterval}"
+                aria-describedby="watering-help"
+              >
+              <p class="modal__helper" id="watering-help">Default based on plant's water needs: ${defaultInterval} days</p>
+            </div>
+          </form>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn btn--secondary" id="modal-cancel">Cancel</button>
+          <button type="button" class="btn btn--primary" id="modal-submit">Add Plant</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(this.overlay);
+  }
+
+  bindEvents() {
+    const closeBtn = this.overlay.querySelector(".modal__close");
+    const cancelBtn = this.overlay.querySelector("#modal-cancel");
+    const submitBtn = this.overlay.querySelector("#modal-submit");
+    const form = this.overlay.querySelector("#add-plant-form");
+    const nicknameInput = this.overlay.querySelector("#plant-nickname");
+
+    const close = () => this.close(false);
+    const submit = () => this.handleSubmit();
+
+    closeBtn.addEventListener("click", close);
+    cancelBtn.addEventListener("click", close);
+    submitBtn.addEventListener("click", submit);
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      submit();
+    });
+
+    this.overlay.addEventListener("click", (e) => {
+      if (e.target === this.overlay) close();
+    });
+
+    const handleKeydown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close();
+      } else if (e.key === "Enter" && e.target === nicknameInput) {
+        e.preventDefault();
+        submit();
+      }
+    };
+    document.addEventListener("keydown", handleKeydown);
+    this._keydownHandler = handleKeydown;
+  }
+
+  focusFirstInput() {
+    setTimeout(() => {
+      const input = this.overlay?.querySelector("#plant-nickname");
+      input?.focus();
+    }, 100);
+  }
+
+  handleSubmit() {
+    const nicknameInput = this.overlay.querySelector("#plant-nickname");
+    const locationSelect = this.overlay.querySelector("#plant-location");
+    const wateringInput = this.overlay.querySelector("#plant-watering");
+
+    const nickname = nicknameInput.value.trim();
+    if (!nickname) {
+      nicknameInput.focus();
+      nicknameInput.reportValidity();
+      return;
+    }
+
+    const location = locationSelect.value || null;
+    const wateringInterval = parseInt(wateringInput.value, 10) || null;
+
+    this.close(true, { nickname, location, wateringInterval });
+  }
+
+  close(submitted, data) {
+    document.removeEventListener("keydown", this._keydownHandler);
+    document.body.style.overflow = "";
+
+    if (this.overlay) {
+      this.overlay.style.animation = "modalFadeIn 0.15s ease reverse";
+      setTimeout(() => {
+        if (this.overlay?.parentNode) {
+          this.overlay.parentNode.removeChild(this.overlay);
+        }
+        this.overlay = null;
+      }, 150);
+    }
+
+    if (submitted) {
+      this.resolve(data);
+    } else {
+      this.reject(new Error("Modal cancelled"));
+    }
+    this.resolve = this.reject = this.plant = null;
+  }
+}
+
+window.AddPlantModal = AddPlantModal;
 
 (async function boot() {
   await initExplorePage();

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My plant · Plantora</title>
+  <!-- INTEGRATION: adjust these relative paths if your folder layout differs. -->
+  <link rel="stylesheet" href="../style/style.css" />
+  <link rel="stylesheet" href="../style/my-plant-details.css" />
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <script src="../script/auth.js" defer></script>
+  <script src="../script/plant-data.js" defer></script>
+  <script src="../script/store.js" defer></script>
+  <script src="../script/my-plant-adapter.js" defer></script>
+  <script src="../script/my-plant-details.js" defer></script>
+  <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
+</head>
+<body class="mpd-body">
+
+  <header class="navbar">
+    <div class="container navbar__inner">
+      <a href="../index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
+
+      <nav class="nav-links">
+        <a href="../index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="my-plants.html" data-nav-private hidden>My Plants</a>
+        <a href="../index.html#about">About</a>
+    </nav>
+      <div class="navbar__actions">
+        <a href="login.html" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
+          <img src="../assets/image/user.png" alt="" />
+        </a>
+        <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="mpd" id="mpd-root">
+
+    <div class="container my-plant-details-container">
+      <div class="my-plant-details-header">
+        <a class="mpd-back" id="mpd-back-link" href="my-plants.html">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back to My Plants
+        </a>
+        <span class="mpd-brand">Plantora</span>
+      </div>
+
+      <div class="mpd-mock-banner" id="mpd-mock-banner" hidden role="status">
+        Sample data preview. Nothing here is real and no changes are saved.
+      </div>
+
+      <main class="mpd-main" id="mpd-main" aria-live="polite" aria-busy="true">
+        <div class="mpd-state" id="mpd-loading">
+          <div class="mpd-spinner" aria-hidden="true"></div>
+          <p>Loading your plant…</p>
+        </div>
+
+        <div class="mpd-state mpd-state--error" id="mpd-error" hidden>
+          <h1 id="mpd-error-title">We couldn't open this plant</h1>
+          <p id="mpd-error-text"></p>
+          <a class="mpd-btn mpd-btn--primary" id="mpd-error-back" href="my-plants.html">Back to My Plants</a>
+        </div>
+
+        <div id="mpd-content" hidden>
+          <!-- A. Overview -->
+          <section class="mpd-overview mpd-card" aria-labelledby="mpd-plant-name">
+            <div class="mpd-photo" id="mpd-photo"></div>
+            <div class="mpd-overview-body">
+              <p class="mpd-species" id="mpd-species"></p>
+              <h1 class="mpd-name" id="mpd-plant-name"></h1>
+              <p class="mpd-scientific" id="mpd-scientific"></p>
+              <dl class="mpd-facts" id="mpd-facts"></dl>
+              <div class="mpd-actions">
+                <button type="button" class="mpd-btn mpd-btn--primary" id="mpd-edit-btn">Edit plant</button>
+                <button type="button" class="mpd-btn mpd-btn--danger" id="mpd-remove-btn">Remove plant</button>
+              </div>
+            </div>
+          </section>
+
+          <div class="mpd-grid">
+            <!-- B. Care summary -->
+            <section class="mpd-card" aria-labelledby="mpd-summary-h">
+              <h2 id="mpd-summary-h">Care summary</h2>
+              <div class="mpd-summary" id="mpd-summary"></div>
+            </section>
+
+            <!-- C. Upcoming care -->
+            <section class="mpd-card" aria-labelledby="mpd-upcoming-h">
+              <h2 id="mpd-upcoming-h">Upcoming care</h2>
+              <ul class="mpd-list" id="mpd-upcoming"></ul>
+            </section>
+          </div>
+
+          <!-- D. History -->
+          <section class="mpd-card" aria-labelledby="mpd-history-h">
+            <h2 id="mpd-history-h">Care history</h2>
+            <p class="mpd-note" id="mpd-history-note" hidden></p>
+            <ul class="mpd-list" id="mpd-history"></ul>
+          </section>
+        </div>
+      </main>
+    </div>
+  </main>
+
+  <!-- E. Edit dialog -->
+  <dialog class="mpd-dialog" id="mpd-edit-dialog" aria-labelledby="mpd-edit-h">
+    <form id="mpd-edit-form" novalidate>
+      <h2 id="mpd-edit-h">Edit plant</h2>
+      <div class="mpd-field" data-field="nickname">
+        <label for="mpd-f-nickname">Plant name</label>
+        <input id="mpd-f-nickname" name="nickname" type="text" maxlength="60" autocomplete="off">
+        <p class="mpd-field-error" id="mpd-e-nickname" role="alert"></p>
+      </div>
+      <div class="mpd-field" data-field="location">
+        <label for="mpd-f-location">Location</label>
+        <select id="mpd-f-location" name="location">
+          <option value="">No location</option>
+          <option value="Living Room">Living Room</option>
+          <option value="Bedroom">Bedroom</option>
+          <option value="Office">Office</option>
+          <option value="Kitchen">Kitchen</option>
+          <option value="Balcony">Balcony</option>
+        </select>
+        <p class="mpd-field-error" id="mpd-e-location" role="alert"></p>
+      </div>
+      <div class="mpd-field" data-field="notes">
+        <label for="mpd-f-notes">Notes</label>
+        <textarea id="mpd-f-notes" name="notes" rows="4" maxlength="1000"></textarea>
+        <p class="mpd-field-error" id="mpd-e-notes" role="alert"></p>
+      </div>
+      <p class="mpd-form-error" id="mpd-edit-error" role="alert" hidden></p>
+      <div class="mpd-dialog-actions">
+        <button type="button" class="mpd-btn mpd-btn--ghost" id="mpd-edit-cancel">Cancel</button>
+        <button type="submit" class="mpd-btn mpd-btn--primary" id="mpd-edit-save">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- F. Remove dialog -->
+  <dialog class="mpd-dialog" id="mpd-remove-dialog" aria-labelledby="mpd-remove-h">
+    <h2 id="mpd-remove-h">Remove this plant?</h2>
+    <p id="mpd-remove-text"></p>
+    <p class="mpd-form-error" id="mpd-remove-error" role="alert" hidden></p>
+    <div class="mpd-dialog-actions">
+      <button type="button" class="mpd-btn mpd-btn--ghost" id="mpd-remove-cancel">Keep plant</button>
+      <button type="button" class="mpd-btn mpd-btn--danger-solid" id="mpd-remove-confirm">Remove plant</button>
+    </div>
+  </dialog>
+
+  <div class="mpd-toast" id="mpd-toast" role="status" aria-live="polite"></div>
+
+  <script src="../script/auth-ui.js"></script>
+  <script src="../chatbot/widget/plantora-chat.js" data-api="http://localhost:3001/api/chat" defer></script>
+</body>
+</html>

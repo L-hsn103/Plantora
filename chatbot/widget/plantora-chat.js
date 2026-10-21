@@ -5,7 +5,7 @@ const CONFIG = {
   // Bot identity
   botName: "Plantora Bot",
   // Greeting shown when chat opens
-  greeting: "Hi! I'm Plantora Bot 🌿 Ask me about Plantora or plant care!",
+  greeting: "Hi! I'm Plantora Bot! Ask me about Plantora or plant care!",
   // Clickable suggestion chips shown under greeting
   suggestionChips: [
     "What is Plantora?",
@@ -66,6 +66,12 @@ if (window.PlantoraChatbotInitialized) {
       }
     });
     return node;
+  }
+
+  // lucide replaces <i data-lucide="..."> placeholders with inline SVGs
+  function refreshIcons() {
+    if (window.PlantoraIcons) window.PlantoraIcons.refresh();
+    else if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
   }
 
   // ===== Create Shadow DOM host =====
@@ -390,18 +396,20 @@ if (window.PlantoraChatbotInitialized) {
   // ===== Add messages =====
   function addBotMessage(text) {
     const msg = el("div", { class: "msg msg--bot" }, [
-      el("div", { class: "msg__avatar" }, "🌿"),
+      el("div", { class: "msg__avatar" }, [el("i", { "data-lucide": "sprout" })]),
       el("div", { class: "msg__bubble" }, text)
     ]);
     messages.appendChild(msg);
+    refreshIcons();
     scrollToBottom();
   }
   function addUserMessage(text) {
     const msg = el("div", { class: "msg msg--user" }, [
       el("div", { class: "msg__bubble" }, text),
-      el("div", { class: "msg__avatar" }, "👤")
+      el("div", { class: "msg__avatar" }, [el("i", { "data-lucide": "user" })])
     ]);
     messages.appendChild(msg);
+    refreshIcons();
     scrollToBottom();
   }
   function showTyping(show) {

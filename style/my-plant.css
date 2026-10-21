@@ -72,38 +72,9 @@
       outline-offset: 2px;
     }
 
-    /* image with the room badge on top of it */
+    /* image */
     .plant-card__media {
       position: relative;
-    }
-
-    .plant-card__location {
-      position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
-      border: none;
-      background-color: rgba(255, 255, 255, 0.9);
-      color: var(--color-primary, #4caf68);
-      font-family: var(--font-body, "Inter", sans-serif);
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.35rem 0.7rem;
-      border-radius: 999px;
-      cursor: pointer;
-      box-shadow: 0 4px 10px -6px rgba(34, 64, 45, 0.2);
-    }
-
-    .plant-card__location--empty {
-      color: var(--color-text-muted, #5c6355);
-      background-color: rgba(255, 255, 255, 0.85);
-      border: 1px dashed var(--color-border, #e1eee4);
-    }
-
-    .plant-card__location:disabled {
-      opacity: 0.7;
-      cursor: default;
     }
 
     .plant-card__body {
@@ -118,6 +89,12 @@
       font-family: var(--font-heading, "Fraunces", serif);
       color: var(--color-primary-dark, #222222);
       font-size: 1.2rem;
+    }
+
+    .plant-card__species {
+      font-size: 0.85rem;
+      color: var(--color-text-muted, #5c6355);
+      margin-bottom: 0;
     }
 
     .plant-card .my-plant__sci {
@@ -191,13 +168,26 @@
     }
 
     .plant-card__detail-icon {
-      font-size: 1.15rem;
-      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-primary, #4caf68);
+    }
+
+    .plant-card__detail-icon svg.lucide {
+      width: 1.15rem;
+      height: 1.15rem;
+      color: inherit;
     }
 
     .plant-card__detail--overdue {
       color: var(--color-danger, #ff5252);
       font-weight: 700;
+    }
+
+    .plant-card__detail--overdue .plant-card__detail-icon,
+    .plant-card__detail--overdue .plant-card__detail-icon svg.lucide {
+      color: inherit;
     }
 
     .plant-card__error {
@@ -256,6 +246,83 @@
       opacity: 0.6;
       cursor: wait;
       transform: none;
+    }
+
+    /* Menu button in card footer */
+    .plant-card__menu-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--color-border, #e1eee4);
+      background-color: var(--color-bg, #f5faf6);
+      color: var(--color-primary-dark, #222222);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.25rem;
+      line-height: 1;
+      box-shadow: 0 4px 10px -6px rgba(34, 64, 45, 0.2);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+      margin-left: auto;
+    }
+
+    .plant-card__menu-btn:hover {
+      transform: translateY(-1px);
+      background-color: var(--color-bg-alt, #e8f5e9);
+    }
+
+    .plant-card__menu-btn:focus-visible {
+      outline: 2px solid var(--color-primary, #4caf68);
+      outline-offset: 2px;
+    }
+
+    /* My Plants Sections */
+    .my-plants-section__header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--color-border);
+    }
+
+    .my-plants-section__icon {
+      font-size: 1.25rem;
+    }
+
+    .my-plants-section__title {
+      font-family: var(--font-heading);
+      color: var(--color-primary-dark);
+      font-size: 1.15rem;
+    }
+
+    .my-plants-section__count {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      background: var(--color-bg-alt);
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      margin-left: auto;
+    }
+
+    .my-plants-section__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .my-plants-section__grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .my-plants-section__grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     /* text under the heading */
