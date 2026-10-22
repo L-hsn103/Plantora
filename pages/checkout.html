@@ -20,6 +20,7 @@
   <script src="../script/auth.js" defer></script>
   <script src="../script/plant-data.js" defer></script>
   <script src="../script/store.js" defer></script>
+  <script src="../script/loading.js" defer></script>
   <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
 
  
@@ -54,13 +55,18 @@
     </div>
   </header>
 
-  <main class="checkout">
+  <main class="checkout" aria-busy="true">
     <div class="container">
         <a href="explore.html" class="back-link">&larr; Back to Explore Plants</a>
       <h1>Checkout</h1>
 
       <!-- checkout.js swaps between these panels -->
-      <p class="co-center" id="co-loading" role="status">Loading your order…</p>
+      <div id="co-loading" role="status" aria-live="polite">
+        <div class="loading-block">
+          <span class="spinner spinner--lg" aria-hidden="true"></span>
+          <p class="loading-label">Loading your order…</p>
+        </div>
+      </div>
 
       <div class="co-card co-center" id="co-error" hidden>
         <p id="co-error-text"></p>

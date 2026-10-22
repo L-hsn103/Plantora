@@ -759,12 +759,23 @@ matchPercentage === 100 ? el("span", {
       return;
     }
  
+    var submitBtn = document.getElementById("submit-btn");
+    if (window.PlantoraLoading) window.PlantoraLoading.button(submitBtn, true, "Finding plants…");
+    else if (submitBtn) submitBtn.disabled = true;
+
+    function finish() {
+      if (window.PlantoraLoading) window.PlantoraLoading.button(submitBtn, false);
+      else if (submitBtn) submitBtn.disabled = false;
+    }
+
     loadPlants().then(function (plants) {
       renderResults(findRecommendations(plants, answers), answers);
       showView("results");
+      finish();
     }).catch(function (err) {
       console.error("Plantora recommendation:", err);
       showError("We could not load the plant list. Please refresh the page and try again.");
+      finish();
     });
   }
  

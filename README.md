@@ -198,6 +198,33 @@ A future chatbot could help users:
 - Get personalized plant-care advice.
 - Troubleshoot plant problems.
 - Ask about watering, sunlight, fertilizer, pests, etc.
+ 
+---
+
+## 5. ⚙️ Setup & API Configuration
+
+Plantora uses secure, git-ignored configuration files so your API keys are never exposed on GitHub.
+
+### 1. Plant Identification & Disease Diagnosis (Google Gemini API)
+You can configure your Google Gemini API key in either of two ways:
+- **Local Config File (Recommended for development):**
+  Copy `script/config.example.js` to `script/config.js` and add your key:
+  ```bash
+  cp script/config.example.js script/config.js
+  ```
+  *(Note: `script/config.js` is included in `.gitignore` and is never committed.)*
+- **Directly in the Browser UI:**
+  Navigate to the **Identify** page and click the **API Key** button in the top-right of the card to securely store your key in browser `localStorage`.
+
+### 2. Chatbot Server (Anthropic Claude API)
+If running the optional chatbot server:
+```bash
+cd chatbot/server
+cp .env.example .env
+# Edit .env and supply your ANTHROPIC_API_KEY
+npm install
+npm start
+```
 
 ---
 

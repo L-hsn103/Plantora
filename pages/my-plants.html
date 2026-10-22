@@ -22,6 +22,7 @@
   <script src="../script/auth.js" defer></script>
   <script src="../script/plant-data.js" defer></script>
   <script src="../script/store.js" defer></script>
+  <script src="../script/loading.js" defer></script>
   <script src="../script/shop.js" defer></script>
   <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
  
@@ -46,6 +47,7 @@
         <a href="../index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html">Explore Plants</a>
         <a href="my-plants.html" data-nav-private hidden class="active" aria-current="page">My Plants</a>
+        <a href="identify.html">Identify</a>
         <a href="../index.html#about">About</a>
     </nav>
 
@@ -74,8 +76,11 @@
     <section class="page-section">
       <div class="container">
         <!-- shop.js reads these from the database -->
-        <div id="my-plants-grid">
-          <p class="section-note">Loading your plants…</p>
+        <div id="my-plants-grid" aria-busy="true">
+          <div class="loading-block" role="status" aria-live="polite">
+            <span class="spinner spinner--lg" aria-hidden="true"></span>
+            <p class="loading-label">Loading your plants…</p>
+          </div>
         </div>
       </div>
     </section>

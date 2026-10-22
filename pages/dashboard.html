@@ -15,13 +15,17 @@
   <!-- shared Plantora theme + this page's own styles -->
   <link rel="stylesheet" href="../style/style.css" />
   <link rel="stylesheet" href="../style/dashboard.css" />
+  <link rel="stylesheet" href="../style/identify.css" />
 
   <!-- shop.js fills in the My Plants and Upcoming Care sections -->
   <script src="https://unpkg.com/lucide@0.469.0" defer></script>
+  <script src="../script/config.js" defer></script>
   <script src="../script/auth.js" defer></script>
   <script src="../script/plant-data.js" defer></script>
   <script src="../script/store.js" defer></script>
+  <script src="../script/loading.js" defer></script>
   <script src="../script/shop.js" defer></script>
+  <script src="../script/identify.js" defer></script>
 
   <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
 
@@ -44,6 +48,7 @@
         <a href="../index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html">Explore Plants</a>
         <a href="my-plants.html" data-nav-private hidden>My Plants</a>
+        <a href="identify.html" data-open-identify>Identify</a>
         <a href="../index.html#about">About</a>
     </nav>
 
@@ -66,6 +71,7 @@
         <div class="dashboard-hero__actions">
           <a href="recommendation.html" class="btn btn--primary">Find My Plant</a>
           <a href="reminders.html" class="btn btn--primary">Reminders</a>
+          <a href="identify.html" class="btn btn--primary" id="btn-hero-identify" data-open-identify>Identify</a>
         </div>
       </div>
     </section>
@@ -113,12 +119,15 @@
 
         <div class="section-header-row">
           <h2 class="section-title">My Plants</h2>
-          <span class="count-badge" id="dash-plant-count">Loading…</span>
+          <span class="count-badge is-loading" id="dash-plant-count" aria-live="polite">Loading…</span>
         </div>
 
         <!-- shop.js fills this with the user's own plants -->
-        <div id="dash-plants" class="dashboard-section__body">
-          <p class="section-note">Loading your plants…</p>
+        <div id="dash-plants" class="dashboard-section__body" aria-busy="true">
+          <div class="loading-block" role="status" aria-live="polite">
+            <span class="spinner spinner--lg" aria-hidden="true"></span>
+            <p class="loading-label">Loading your plants…</p>
+          </div>
         </div>
 
         <a href="my-plants.html" class="btn btn--secondary">View All My Plants</a>
@@ -130,8 +139,11 @@
         <h2 class="section-title">Upcoming Care</h2>
 
         <!-- care tasks due in the next 7 days, from shop.js -->
-        <div id="upcoming-care">
-          <p class="section-note">Loading care tasks…</p>
+        <div id="upcoming-care" aria-busy="true">
+          <div class="loading-block" role="status" aria-live="polite">
+            <span class="spinner spinner--lg" aria-hidden="true"></span>
+            <p class="loading-label">Loading care tasks…</p>
+          </div>
         </div>
       </div>
     </section>
@@ -214,6 +226,7 @@
         <a href="../index.html">Home</a>
         <a href="explore.html">Explore Plants</a>
         <a href="my-plants.html">My Plants</a>
+        <a href="identify.html">Identify</a>
         <a href="../index.html#about">About</a>
       </nav>
     </div>

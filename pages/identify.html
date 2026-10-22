@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plant Identification &amp; Disease Diagnosis — Plantora</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Shared Plantora styles + Identification styles -->
+  <link rel="stylesheet" href="../style/style.css" />
+  <link rel="stylesheet" href="../style/dashboard.css" />
+  <link rel="stylesheet" href="../style/identify.css" />
+
+  <script src="https://unpkg.com/lucide@0.469.0" defer></script>
+  <script src="../script/config.js" defer></script>
+  <script src="../script/auth.js" defer></script>
+  <script src="../script/plant-data.js" defer></script>
+  <script src="../script/store.js" defer></script>
+  <script src="../script/loading.js" defer></script>
+  <script src="../script/identify.js" defer></script>
+
+  <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
+
+  <!-- Set logged-in class early so navbar doesn't flicker -->
+  <script>
+    try {
+      if (JSON.parse(localStorage.getItem("plantora_user") || sessionStorage.getItem("plantora_user") || "null")) {
+        document.documentElement.classList.add("is-auth");
+      }
+    } catch (err) {}
+  </script>
+</head>
+<body class="page-identify" data-requires-auth="false">
+
+  <header class="navbar">
+    <div class="container navbar__inner">
+      <a href="dashboard.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
+
+      <nav class="nav-links">
+        <a href="../index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="my-plants.html" data-nav-private hidden>My Plants</a>
+        <a href="identify.html" class="active" aria-current="page">Identify</a>
+        <a href="../index.html#about">About</a>
+      </nav>
+
+      <div class="navbar__actions">
+        <a href="login.html" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
+          <img src="../assets/image/user.png" alt="" />
+        </a>
+        <a href="login.html" class="btn btn--primary nav-cta">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="identify-hero">
+      <div class="container identify-hero__inner">
+        <div class="identify-badge">
+          <i data-lucide="sparkles"></i> Powered by Google Gemini AI
+        </div>
+        <h1>Identify Plants &amp; Diagnose Diseases</h1>
+        <p>
+          Snap a picture or upload an image to identify any plant species, diagnose diseases,
+          and receive tailored recovery plans and care instructions.
+        </p>
+        <div style="margin-top: 1.25rem;">
+          <a href="dashboard.html" class="btn btn--secondary" style="font-size:0.88rem; padding: 0.6rem 1.4rem;">
+            <i data-lucide="arrow-left" style="width:15px;height:15px;vertical-align:middle;margin-right:6px;"></i> Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Identify App Mount -->
+    <div class="identify-container">
+      <div id="identify-page-mount"></div>
+    </div>
+
+    <!-- Quick Plant Photography Tips -->
+    <section class="dashboard-section" style="padding-top: 0;">
+      <div class="container">
+        <h2 class="section-title">Tips for Accurate AI Diagnosis</h2>
+
+        <div class="quick-actions__grid" style="grid-template-columns: repeat(3, 1fr);">
+          <article class="quick-action-card">
+            <span class="quick-action-card__icon"><i data-lucide="sun"></i></span>
+            <h3>Good Lighting</h3>
+            <p>Ensure the plant is well-lit with natural indirect light. Avoid heavy shadows or washed-out flash.</p>
+          </article>
+
+          <article class="quick-action-card">
+            <span class="quick-action-card__icon"><i data-lucide="focus"></i></span>
+            <h3>Focus on Leaves &amp; Symptoms</h3>
+            <p>Get a sharp close-up of spots, discoloration, or wilted leaves, as well as the full plant outline.</p>
+          </article>
+
+          <article class="quick-action-card">
+            <span class="quick-action-card__icon"><i data-lucide="shield-check"></i></span>
+            <h3>Single Specimen</h3>
+            <p>Frame one plant at a time in the center of the camera to give the AI the clearest view.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <p class="logo logo--footer"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</p>
+        <p>Helping you grow a greener space, one plant at a time.</p>
+      </div>
+
+      <nav class="footer__links">
+        <a href="../index.html">Home</a>
+        <a href="explore.html">Explore Plants</a>
+        <a href="my-plants.html">My Plants</a>
+        <a href="identify.html">Identify</a>
+        <a href="../index.html#about">About</a>
+      </nav>
+    </div>
+
+    <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
+  </footer>
+
+  <script src="../script/auth-ui.js"></script>
+  <script src="../chatbot/widget/plantora-chat.js" data-api="http://localhost:3001/api/chat" defer></script>
+</body>
+</html>

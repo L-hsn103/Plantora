@@ -11,11 +11,15 @@ ui-debug.log
 # Environment / secrets
 .env
 .env.*
+!.env.example
 *.pem
+script/config.js
+config.js
 
 # Local overrides
 *.local.json
 *.local.html
+*.local.js
 
 # Editor & OS cruft
 .vscode/

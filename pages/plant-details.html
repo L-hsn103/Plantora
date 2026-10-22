@@ -18,6 +18,7 @@
 <script src="../script/auth.js" defer></script>
   <script src="../script/plant-data.js" defer></script>
   <script src="../script/store.js" defer></script>
+  <script src="../script/loading.js" defer></script>
   <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
 
   <!-- set the logged in class early so the navbar doesn't flicker -->
@@ -55,7 +56,15 @@
         <a href="explore.html" class="back-link">&larr; Back to Explore Plants</a>
     </div>
 
+    <div class="loading-block" id="plant-details-loading" role="status" aria-live="polite">
+      <span class="spinner spinner--lg" aria-hidden="true"></span>
+      <p class="loading-label">Loading plant details…</p>
+    </div>
+
+    <div class="container" id="plant-details-error" hidden></div>
+
     <!-- script.js fills these from the id in the url -->
+    <div id="plant-details-content" hidden>
     <section class="plant-hero">
       <div class="container plant-hero__inner">
         <img class="plant-hero__image" id="plant-image" src="" alt="" />
@@ -152,6 +161,7 @@
         </div>
       </div>
     </section>
+    </div>
 
   </main>
 

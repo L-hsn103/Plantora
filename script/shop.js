@@ -32,11 +32,25 @@
   }
 
   function buildEmptyState(kind, icon, title, text, cta) {
-    var box = el("div", "empty-state" + (kind === "error" ? " empty-state--error" : ""));
+    var box = el(
+      "div",
+      "empty-state" +
+        (kind === "error" ? " empty-state--error" : "") +
+        (kind === "loading" ? " empty-state--loading" : "")
+    );
     box.setAttribute("role", kind === "error" ? "alert" : "status");
-    var iconWrap = el("div", "empty-state__icon");
-    iconWrap.appendChild(lucideIcon(icon));
-    box.appendChild(iconWrap);
+    box.setAttribute("aria-live", kind === "error" ? "assertive" : "polite");
+
+    if (kind === "loading") {
+      var spinner = el("span", "spinner spinner--lg");
+      spinner.setAttribute("aria-hidden", "true");
+      box.appendChild(spinner);
+    } else {
+      var iconWrap = el("div", "empty-state__icon");
+      iconWrap.appendChild(lucideIcon(icon));
+      box.appendChild(iconWrap);
+    }
+
     box.appendChild(el("h3", "empty-state__title", title));
     box.appendChild(el("p", "empty-state__text", text));
 
@@ -57,7 +71,35 @@
 
   function renderState(host, kind, icon, title, text, cta) {
     clear(host);
+    host.setAttribute("aria-busy", kind === "loading" ? "true" : "false");
     host.appendChild(buildEmptyState(kind, icon, title, text, cta));
+  }
+
+  function setBusyButton(btn, busy, text) {
+    if (!btn) return;
+    if (window.PlantoraLoading) window.PlantoraLoading.button(btn, busy, text);
+    else {
+      btn.disabled = busy;
+      if (text) btn.textContent = text;
+    }
+  }
+
+  function showSkeletonCards(host, count, label) {
+    if (!host) return;
+    if (window.PlantoraLoading) {
+      window.PlantoraLoading.skeletonGrid(host, count, label);
+    } else {
+      renderState(host, "loading", "sprout", label, "Please wait.");
+    }
+  }
+
+  function showSkeletonRows(host, count, label) {
+    if (!host) return;
+    if (window.PlantoraLoading) {
+      window.PlantoraLoading.skeletonRows(host, count, label);
+    } else {
+      renderState(host, "loading", "moon", label, "Please wait.");
+    }
   }
 
   function plantThumb(plant, className) {
@@ -129,8 +171,7 @@
     var status = el("p", "sample-seeder__status");
 
     btn.addEventListener("click", function () {
-      btn.disabled = true;
-      btn.textContent = "Adding\u2026";
+      setBusyButton(btn, true, "Adding…");
       status.textContent = "";
 
       SAMPLE_PLANT_IDS.reduce(function (chain, id) {
@@ -143,8 +184,7 @@
         })
         .catch(function (err) {
           console.error("[Plantora] sample seed failed:", err);
-          btn.disabled = false;
-          btn.textContent = "Load 3 sample plants";
+          setBusyButton(btn, false);
           status.textContent =
             "Could not add the sample plants: " +
             (err && err.message ? err.message : "unknown error");
@@ -181,19 +221,8 @@
       return;
     }
 
-    if (plantsHost) {
-      renderState(
-        plantsHost, "loading", "sprout",
-        "Loading your plants\u2026", "Checking your collection."
-      );
-    }
-
-    if (careHost) {
-      renderState(
-        careHost, "loading", "moon",
-        "Loading care tasks\u2026", "Working out what is due."
-      );
-    }
+    showSkeletonCards(plantsHost, 3, "Loading your plants…");
+    showSkeletonRows(careHost, 3, "Loading care tasks…");
 
     Promise.all([
       window.PlantoraData.loadPlants(),
@@ -204,6 +233,7 @@
 
         if (plantsHost) {
           clear(plantsHost);
+          plantsHost.setAttribute("aria-busy", "false");
 
           if (!entries.length) {
             var empty = buildEmptyState(
@@ -261,6 +291,7 @@
         var badge = document.getElementById("dash-plant-count");
 
         if (badge) {
+          badge.classList.remove("is-loading");
           badge.textContent =
             entries.length === 1 ? "1 plant" : entries.length + " plants";
         }
@@ -269,6 +300,7 @@
 
         if (careHost) {
           clear(careHost);
+          careHost.setAttribute("aria-busy", "false");
           renderCare(entries, careLimit);
         }
 
@@ -276,6 +308,12 @@
       })
       .catch(function (err) {
         console.error("[Plantora Dashboard]", err);
+
+        var failedBadge = document.getElementById("dash-plant-count");
+        if (failedBadge) {
+          failedBadge.classList.remove("is-loading");
+          failedBadge.textContent = "Unavailable";
+        }
 
         if (plantsHost) {
           renderListError(
@@ -476,7 +514,7 @@
     waterBtn.addEventListener("click", function () {
       if (waterBtn.disabled) return;
 
-      waterBtn.disabled = true;
+      setBusyButton(waterBtn, true);
       waterBtn.classList.add("is-saving");
 
       S.markTaskDone(entry.id, "watering")
@@ -489,8 +527,9 @@
         })
         .catch(function (err) {
           console.error("[Plantora My Plants]", err);
-          waterBtn.disabled = false;
+          setBusyButton(waterBtn, false);
           waterBtn.classList.remove("is-saving");
+          if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
           showCardError(
             card, "Could not save the watering. Please try again."
           );
@@ -537,10 +576,7 @@
       return;
     }
 
-    renderState(
-      host, "loading", "sprout",
-      "Loading your plants\u2026", "Checking your collection."
-    );
+    showSkeletonCards(host, 6, "Loading your plants…");
 
     Promise.all([
       window.PlantoraData.loadPlants(),
@@ -549,6 +585,7 @@
       .then(function (r) {
         var entries = r[1];
         clear(host);
+        host.setAttribute("aria-busy", "false");
 
         if (!entries.length) {
           var emptyBox = buildEmptyState(
@@ -666,6 +703,32 @@
 
   function careId(task) {
     return String(task.entryId) + ":" + String(task.taskKey);
+  }
+
+  function careRow(task) {
+    var id = String(careId(task)).replace(/"/g, '\\"');
+    return document.querySelector('.care-task[data-task-id="' + id + '"]');
+  }
+
+  function setCareRowBusy(task, busy, message) {
+    var row = careRow(task);
+    if (!row) return;
+
+    row.classList.toggle("is-loading", !!busy);
+    row.setAttribute("aria-busy", busy ? "true" : "false");
+
+    var checkbox = row.querySelector('input[type="checkbox"]');
+    if (checkbox) checkbox.disabled = !!busy;
+
+    var buttons = row.querySelectorAll("button");
+    Array.prototype.forEach.call(buttons, function (button) {
+      button.disabled = !!busy;
+    });
+
+    if (message) {
+      var when = row.querySelector(".care-list__when");
+      if (when) when.textContent = message;
+    }
   }
 
   function enrichTask(entries, task) {
@@ -814,7 +877,7 @@
     }, 6000);
   }
 
-  function checkOffTask(entries, task) {
+  function checkOffTask(entries, task, onDone) {
     var id = careId(task);
     var undoMap = loadCare("undo", {});
 
@@ -826,7 +889,7 @@
       saveCare("undo", undoMap);
     }
 
-    window.PlantoraStore.markTaskDone(task.entryId, task.taskKey)
+    return window.PlantoraStore.markTaskDone(task.entryId, task.taskKey)
       .then(function (schedule) {
         syncEntrySchedule(entries, task, schedule);
         if (schedule && schedule[task.taskKey]) {
@@ -842,16 +905,19 @@
           hidden.splice(i, 1);
           saveCare("hidden", hidden);
         }
+
+        if (onDone) onDone(true);
       })
       .catch(function (err) {
         delete undoMap[id];
         saveCare("undo", undoMap);
         console.error("[Plantora Care]", err);
         showCareError("Couldn't mark the task complete. Please try again.");
+        if (onDone) onDone(false);
       });
   }
 
-  function uncheckTask(entries, task) {
+  function uncheckTask(entries, task, onDone) {
     var id = careId(task);
     var undoMap = loadCare("undo", {});
     var snap = undoMap[id];
@@ -861,7 +927,7 @@
       ? (snap.lastDone == null ? null : snap.lastDone)
       : null;
 
-    window.PlantoraStore.setTaskDue(
+    return window.PlantoraStore.setTaskDue(
       task.entryId, task.taskKey, nextDue, lastDone
     )
       .then(function (schedule) {
@@ -876,15 +942,20 @@
           delete undoMap[id];
           saveCare("undo", undoMap);
         }
+
+        if (onDone) onDone(true);
       })
       .catch(function (err) {
         console.error("[Plantora Care]", err);
         showCareError("Couldn't reopen the task. Please try again.");
+        if (onDone) onDone(false);
       });
   }
 
   function snoozeTaskUi(entries, task, days) {
-    window.PlantoraStore.snoozeTask(
+    setCareRowBusy(task, true, "Snoozing…");
+
+    return window.PlantoraStore.snoozeTask(
       task.entryId, task.taskKey, days
     )
       .then(function (schedule) {
@@ -908,6 +979,7 @@
       })
       .catch(function (err) {
         console.error("[Plantora Care]", err);
+        setCareRowBusy(task, false);
         showCareError("Couldn't snooze the task. Please try again.");
       });
   }
@@ -990,10 +1062,16 @@
     saveBtn.addEventListener("click", function (e) {
       e.stopPropagation();
 
+      if (saveBtn.disabled) return;
+
       var n = Math.max(
         1,
         Math.min(365, Math.round(Number(input.value)) || 1)
       );
+
+      setBusyButton(saveBtn, true, "Saving…");
+      input.disabled = true;
+      cancel.disabled = true;
 
       window.PlantoraStore.setTaskInterval(
         task.entryId, task.taskKey, n
@@ -1007,6 +1085,9 @@
         })
         .catch(function (err) {
           console.error("[Plantora Care]", err);
+          setBusyButton(saveBtn, false);
+          input.disabled = false;
+          cancel.disabled = false;
           showCareError(
             "Couldn't update the repeat interval. Please try again."
           );
@@ -1102,12 +1183,11 @@
       done = newDone;
       input.checked = done;
       updateLabel();
+
       if (done) {
         li.classList.add("care-task--done");
         li.classList.remove("care-task--overdue");
         when.classList.remove("care-list__when--overdue", "care-list__when--today");
-        when.textContent = "Completed";
-        checkOffTask(entries, task);
       } else {
         li.classList.remove("care-task--done");
         if (task.nextDue <= Date.now()) {
@@ -1116,9 +1196,29 @@
         } else if (dueToday) {
           when.classList.add("care-list__when--today");
         }
-        when.textContent = S.describeDue(task);
-        uncheckTask(entries, task);
       }
+
+      setCareRowBusy(task, true, "Saving…");
+
+      function finish(ok) {
+        setCareRowBusy(task, false);
+
+        if (!ok) {
+          done = !newDone;
+          input.checked = done;
+          updateLabel();
+          li.classList.toggle("care-task--done", done);
+          li.classList.toggle(
+            "care-task--overdue",
+            !done && task.nextDue <= Date.now()
+          );
+        }
+
+        when.textContent = done ? "Completed" : S.describeDue(task);
+      }
+
+      if (done) checkOffTask(entries, task, finish);
+      else uncheckTask(entries, task, finish);
     }
 
     input.addEventListener("change", function () {
@@ -1599,7 +1699,7 @@
           return;
         }
 
-        doneBtn.disabled = true;
+        setBusyButton(doneBtn, true, "Saving…");
 
         window.PlantoraStore
           .markTaskDone(task.entryId, task.taskKey)
@@ -1614,7 +1714,8 @@
           })
           .catch(function (err) {
             console.error("[Plantora Care] Could not complete task:", err);
-            doneBtn.disabled = false;
+            setBusyButton(doneBtn, false);
+            if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
 
             showCareError(
               "Couldn't mark this task complete. Please try again."
@@ -1630,7 +1731,7 @@
           return;
         }
 
-        snoozeBtn.disabled = true;
+        setBusyButton(snoozeBtn, true, "Snoozing…");
 
         window.PlantoraStore
           .snoozeTask(task.entryId, task.taskKey, 1)
@@ -1651,7 +1752,7 @@
           })
           .catch(function (err) {
             console.error("[Plantora Care] Could not snooze task:", err);
-            snoozeBtn.disabled = false;
+            setBusyButton(snoozeBtn, false);
 
             showCareError(
               "Couldn't snooze this task. Please try again."

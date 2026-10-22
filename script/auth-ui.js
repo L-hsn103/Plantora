@@ -242,7 +242,23 @@ function setupUserMenu() {
     const item = e.target.closest(".user-menu__item");
     if (!item) return;
     if (item.dataset.action === "logout") {
-      if (window.__plantoraAuth) window.__plantoraAuth.signOut();
+      if (!window.__plantoraAuth || item.disabled) return;
+
+      const original = item.innerHTML;
+      item.disabled = true;
+      item.classList.add("is-loading");
+      item.setAttribute("aria-busy", "true");
+      item.innerHTML =
+        '<span class="spinner spinner--sm" aria-hidden="true"></span>' +
+        '<span>Signing out…</span>';
+
+      window.__plantoraAuth.signOut().catch((err) => {
+        console.error("[Plantora Auth] Sign out failed:", err);
+        item.disabled = false;
+        item.classList.remove("is-loading");
+        item.removeAttribute("aria-busy");
+        item.innerHTML = original;
+      });
     }
   });
 }

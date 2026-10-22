@@ -12,7 +12,7 @@
     other: 'M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z'
   };
 
-  /* ---------- Helpers ---------- */
+  /*  Helpers  */
   function $(id) { return document.getElementById(id); }
 
   function el(tag, opts, children) {
@@ -123,6 +123,16 @@
   var pendingTasks = {};
   var busy = { save: false, remove: false };
 
+  function setButtonBusy(btn, isBusy, label) {
+    if (!btn) return;
+    if (window.PlantoraLoading) {
+      window.PlantoraLoading.button(btn, isBusy, isBusy ? label : null);
+      return;
+    }
+    btn.disabled = isBusy;
+    if (isBusy && label) btn.textContent = label;
+  }
+
   /* ---------- Screen states ---------- */
   function showLoading() { $('mpd-loading').hidden = false; $('mpd-error').hidden = true; $('mpd-content').hidden = true; $('mpd-main').setAttribute('aria-busy', 'true'); }
   function showError(title, text) {
@@ -217,8 +227,19 @@
       var side = el('div', { cls: 'mpd-item-side' });
       if (st) side.appendChild(badge(st));
       if (task.canComplete !== false) {
-        var btn = el('button', { cls: 'mpd-btn mpd-btn--small', text: pendingTasks[task.id] ? 'Saving…' : 'Mark as done', attrs: { type: 'button', 'aria-label': 'Mark ' + careLabel(task.type, task.label) + ' as done' } });
-        btn.disabled = !!pendingTasks[task.id];
+        var pending = !!pendingTasks[task.id];
+        var btn = el('button', { cls: 'mpd-btn mpd-btn--small' + (pending ? ' is-loading' : ''), attrs: { type: 'button', 'aria-label': 'Mark ' + careLabel(task.type, task.label) + ' as done' } });
+
+        if (pending) {
+          var spinner = el('span', { cls: 'spinner spinner--sm' });
+          spinner.setAttribute('aria-hidden', 'true');
+          btn.appendChild(spinner);
+          btn.appendChild(document.createTextNode(' Saving…'));
+        } else {
+          btn.textContent = 'Mark as done';
+        }
+
+        btn.disabled = pending;
         btn.addEventListener('click', function () { onCompleteTask(task); });
         side.appendChild(btn);
       }
@@ -257,7 +278,7 @@
 
   function renderAll() { renderOverview(); renderSummary(); renderUpcoming(); renderHistory(); }
 
-  /* ---------- Data loading ---------- */
+  /*  Data loading */
   function normalizeHistory(h) {
     if (!h || typeof h !== 'object') return { supported: false, records: [] };
     return { supported: h.supported !== false, records: Array.isArray(h.records) ? h.records : [], note: h.note };
@@ -283,7 +304,7 @@
     });
   }
 
-  /* ---------- Actions ---------- */
+  /*  Actions  */
   function onCompleteTask(task) {
     if (pendingTasks[task.id]) return;
     pendingTasks[task.id] = true; renderUpcoming();
@@ -343,13 +364,13 @@
         $('mpd-e-nickname').textContent = 'Give your plant a name.'; form.querySelector('[data-field="nickname"]').classList.add('mpd-field--invalid'); valid = false;
       }
       if (!valid) return;
-      busy.save = true; $('mpd-edit-save').disabled = true; $('mpd-edit-save').textContent = 'Saving…';
+      busy.save = true; setButtonBusy($('mpd-edit-save'), true, 'Saving…');
       adapter.updateEntry(entryId, values).then(function (saved) {
         state.entry = saved || Object.assign({}, state.entry, values); // prefer the backend's response
         renderOverview(); dlg.close(); toast('Changes saved.');
       }).catch(function (err) {
         var box = $('mpd-edit-error'); box.textContent = 'Couldn\u2019t save your changes: ' + errorMessage(err, 'please try again.'); box.hidden = false;
-      }).then(function () { busy.save = false; $('mpd-edit-save').disabled = false; $('mpd-edit-save').textContent = 'Save changes'; });
+      }).then(function () { busy.save = false; setButtonBusy($('mpd-edit-save'), false); });
     });
   }
 
@@ -366,18 +387,18 @@
     dlg.addEventListener('cancel', function (ev) { if (busy.remove) ev.preventDefault(); });
     confirmBtn.addEventListener('click', function () {
       if (busy.remove) return;
-      busy.remove = true; confirmBtn.disabled = true; confirmBtn.textContent = 'Removing…';
+      busy.remove = true; setButtonBusy(confirmBtn, true, 'Removing…');
       adapter.removeEntry(entryId).then(function () {
         dlg.close();
         if (adapter.isMock) { toast('Sample mode: nothing was actually removed.'); return; }
         window.location.href = LIST_PAGE_URL;
       }).catch(function (err) {
         var box = $('mpd-remove-error'); box.textContent = 'Couldn\u2019t remove this plant: ' + errorMessage(err, 'please try again.'); box.hidden = false;
-      }).then(function () { busy.remove = false; confirmBtn.disabled = false; confirmBtn.textContent = 'Remove plant'; });
+      }).then(function () { busy.remove = false; setButtonBusy(confirmBtn, false); });
     });
   }
 
-  /* ---------- Init ---------- */
+  /*  Init  */
   function init() {
     $('mpd-back-link').href = LIST_PAGE_URL;
     $('mpd-error-back').href = LIST_PAGE_URL;

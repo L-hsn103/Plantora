@@ -66,15 +66,41 @@ async function initExplorePage() {
   }));
   const noResultsMessage = document.getElementById("no-results");
 
+  // Show placeholders immediately, while Firestore/JSON resolves.
+  if (window.PlantoraLoading) {
+    window.PlantoraLoading.skeletonGrid(plantGrid, 6, "Loading plants…");
+  } else {
+    plantGrid.setAttribute("aria-busy", "true");
+  }
+
+  if (searchInput) searchInput.disabled = true;
+  filters.forEach(({ element }) => {
+    if (element) element.disabled = true;
+  });
+
   // Load plants from PlantoraData (Firestore first, then JSON)
   let plants = [];
   try {
     plants = await window.PlantoraData.loadPlants();
   } catch (err) {
     console.error("[Plantora] Failed to load plants:", err);
-    plantGrid.innerHTML = `<p class="error">Failed to load plants. Please refresh.</p>`;
+    if (window.PlantoraLoading) {
+      window.PlantoraLoading.error(
+        plantGrid,
+        "Can't load the plant library",
+        "The plant data could not be reached. Check your connection, then try again.",
+        { label: "Try again", href: "explore.html" }
+      );
+    } else {
+      plantGrid.innerHTML = `<p class="error">Failed to load plants. Please refresh.</p>`;
+    }
     return;
   }
+
+  if (searchInput) searchInput.disabled = false;
+  filters.forEach(({ element }) => {
+    if (element) element.disabled = false;
+  });
 
   populateFilterOptions(plants);
 
@@ -118,7 +144,7 @@ async function initExplorePage() {
     return `
       <article class="plant-card">
         <div class="plant-card__media">
-          <img class="plant-card__image" src="${plant.image}" alt="${plant.name}" />
+          <img class="plant-card__image" src="${plant.image}" alt="${plant.name}" loading="lazy" decoding="async" />
           <span class="plant-card__badge"><i data-lucide="sun"></i>${plant.light} Light</span>
           <button
             type="button"
@@ -160,6 +186,9 @@ async function initExplorePage() {
     plantGrid.innerHTML = list.map(createPlantCard).join("");
     noResultsMessage.hidden = list.length > 0;
 
+    if (window.PlantoraLoading) window.PlantoraLoading.setBusy(plantGrid, false);
+    else plantGrid.removeAttribute("aria-busy");
+
     // Lucide's CDN bundle is deferred before this script, so it is ready here
     if (window.lucide && window.lucide.createIcons) {
       window.lucide.createIcons();
@@ -186,20 +215,29 @@ async function initExplorePage() {
     const plant = plants.find((p) => p.id === plantId);
     if (!plant) return;
 
+    function setBusy(busy) {
+      if (window.PlantoraLoading) window.PlantoraLoading.button(btn, busy);
+      else btn.disabled = busy;
+    }
+
+    function finish() {
+      setBusy(false);
+      setAddState(btn, plant, "Add");
+      if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+    }
+
     modal.open(plant)
       .then(({ nickname, location, wateringInterval }) => {
-        btn.disabled = true;
+        setBusy(true);
         setAddState(btn, plant, "Adding");
 
         return store.addPlantManually(plantId, { nickname, location, wateringInterval });
       })
       .then(() => {
-        btn.disabled = false;
-        setAddState(btn, plant, "Add");
+        finish();
       })
       .catch((err) => {
-        btn.disabled = false;
-        setAddState(btn, plant, "Add");
+        finish();
 
         if (err && err.message === "Modal cancelled") return;
 
@@ -414,12 +452,53 @@ async function initDetailsPage() {
   const plantNameEl = document.getElementById("plant-name");
   if (!plantNameEl) return;
 
+  const loadingEl = document.getElementById("plant-details-loading");
+  const contentEl = document.getElementById("plant-details-content");
+  const errorEl = document.getElementById("plant-details-error");
+
+  function showLoading() {
+    if (loadingEl) loadingEl.hidden = false;
+    if (contentEl) contentEl.hidden = true;
+    if (errorEl) errorEl.hidden = true;
+    document.querySelector("main")?.setAttribute("aria-busy", "true");
+  }
+
+  function showError(message) {
+    if (loadingEl) loadingEl.hidden = true;
+    if (contentEl) contentEl.hidden = true;
+    document.querySelector("main")?.setAttribute("aria-busy", "false");
+
+    if (errorEl) {
+      errorEl.hidden = false;
+      if (window.PlantoraLoading) {
+        window.PlantoraLoading.error(
+          errorEl,
+          "Can't load this plant",
+          message,
+          { label: "Back to Explore", href: "explore.html" }
+        );
+      } else {
+        errorEl.textContent = message;
+      }
+    }
+  }
+
+  function showContent() {
+    if (loadingEl) loadingEl.hidden = true;
+    if (errorEl) errorEl.hidden = true;
+    if (contentEl) contentEl.hidden = false;
+    document.querySelector("main")?.setAttribute("aria-busy", "false");
+  }
+
+  showLoading();
+
   // Load plants from PlantoraData
   let plants = [];
   try {
     plants = await window.PlantoraData.loadPlants();
   } catch (err) {
     console.error("[Plantora] Failed to load plants for details:", err);
+    showError("The plant data could not be reached. Check your connection, then try again.");
     return;
   }
 
@@ -432,6 +511,7 @@ async function initDetailsPage() {
 
   if (!plant) {
     console.error("[Plantora] Plant not found for id:", requestedId);
+    showError("That plant could not be found. It may have been removed from the library.");
     return;
   }
 
@@ -473,9 +553,19 @@ async function initDetailsPage() {
     plant.difficulty.toLowerCase() +
     " care needs.";
 
+  showContent();
+
   // "Add to My Plants" button - opens the add-plant modal
   const addBtn = document.getElementById("add-to-my-plants");
   if (addBtn) {
+    function setAddBusy(busy) {
+      if (window.PlantoraLoading) window.PlantoraLoading.button(addBtn, busy, busy ? "Adding…" : null);
+      else {
+        addBtn.disabled = busy;
+        addBtn.textContent = busy ? "Adding…" : "Add to My Plants";
+      }
+    }
+
     addBtn.addEventListener("click", () => {
       if (!store) {
         console.error("[Plantora] store.js not loaded");
@@ -485,18 +575,15 @@ async function initDetailsPage() {
 
       modal.open(plant)
         .then(({ nickname, location, wateringInterval }) => {
-          addBtn.disabled = true;
-          addBtn.textContent = "Adding…";
+          setAddBusy(true);
 
           return store.addPlantManually(plant.id, { nickname, location, wateringInterval });
         })
         .then(() => {
-          addBtn.disabled = false;
-          addBtn.textContent = "Add to My Plants";
+          setAddBusy(false);
         })
         .catch((err) => {
-          addBtn.disabled = false;
-          addBtn.textContent = "Add to My Plants";
+          setAddBusy(false);
 
           if (err && err.message === "Modal cancelled") return;
 

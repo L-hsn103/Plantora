@@ -1,11 +1,7 @@
 (function () {
   'use strict';
 
-  /* PlantoraMyPlantAdapter
-   * Wraps PlantoraStore methods to match the interface expected by
-   * pages/my-plant-details.js. Each My Plants entry is keyed by its Firestore
-   * document id (txId), so two instances of the same species remain independent.
-   */
+
 
   function fail(code, message) {
     var err = new Error(message);
