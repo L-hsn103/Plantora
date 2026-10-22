@@ -511,7 +511,8 @@
       waterBtn.classList.add("water-btn--due");
     }
 
-    waterBtn.addEventListener("click", function () {
+    waterBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
       if (waterBtn.disabled) return;
 
       setBusyButton(waterBtn, true);
@@ -547,7 +548,18 @@
     card.setAttribute("aria-label", "View details for " + entryTitle(entry));
 
     card.addEventListener("click", function (e) {
-      if (e.target.closest("button, a")) return;
+      var path = typeof e.composedPath === "function" ? e.composedPath() : [];
+      var onControl = path.some(function (node) {
+        return (
+          node &&
+          node.tagName &&
+          (node.tagName === "BUTTON" || node.tagName === "A")
+        );
+      });
+      if (!onControl && e.target.closest && e.target.closest("button, a")) {
+        onControl = true;
+      }
+      if (onControl) return;
       window.location.href = detailsUrl;
     });
 

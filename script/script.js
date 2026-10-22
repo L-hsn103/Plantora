@@ -195,10 +195,6 @@ async function initExplorePage() {
     }
   }
 
-  // --- Add to My Plants -------------------------------------------------
-  const store = window.PlantoraStore;
-  const modal = new window.AddPlantModal();
-
   // the Add button is icon-only, so all feedback goes through the accessible label
   function setAddState(btn, plant, label) {
     btn.setAttribute("aria-label", `${label} ${plant.name}`);
@@ -687,6 +683,10 @@ class AddPlantModal {
       </div>
     `;
     document.body.appendChild(this.overlay);
+
+    // Start with the real plant name; the user can edit it to something personal
+    const nicknameInput = this.overlay.querySelector("#plant-nickname");
+    nicknameInput.value = (this.plant?.name || "").slice(0, 60);
   }
 
   bindEvents() {
@@ -728,6 +728,7 @@ class AddPlantModal {
     setTimeout(() => {
       const input = this.overlay?.querySelector("#plant-nickname");
       input?.focus();
+      input?.select();
     }, 100);
   }
 
@@ -773,6 +774,10 @@ class AddPlantModal {
 }
 
 window.AddPlantModal = AddPlantModal;
+
+// --- Add to My Plants: shared by the explore grid and the details page ---
+const store = window.PlantoraStore;
+const modal = new window.AddPlantModal();
 
 (async function boot() {
   await initExplorePage();
