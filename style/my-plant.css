@@ -4,6 +4,41 @@
       font-weight: 600;
     }
 
+    /* same sunlit-room backdrop as the explore page, scoped to this page only */
+    .page-myplants {
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2)),
+        url('../assets/image/explore-bg.webp');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    /* frosted variant: blurred photo behind a heavy white wash */
+    .myplants-bg {
+      position: fixed;
+      inset: -20px;      /* margin hides the soft blur edge */
+      z-index: 0;
+      pointer-events: none;
+      background: url('../assets/image/explore-bg.webp') center / cover no-repeat;
+      filter: blur(14px);
+    }
+
+    .myplants-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.25);
+      /* high-opacity wash: page reads as near-white with ghosted plants */
+    }
+
+    /* lift real content above the blurred layer (navbar is sticky, leave it alone) */
+    .page-myplants > :not(.myplants-bg):not(.navbar) {
+      position: relative;
+      z-index: 1;
+    }
+
     .page-section {
       padding: 3rem 0;
     }

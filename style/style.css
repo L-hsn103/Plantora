@@ -42,6 +42,18 @@ body {
   line-height: 1.6;
 }
 
+/* home page background (scoped so only index.html gets the illustration) */
+.page-home {
+  background-color: #fbf2e4;  /* matches the warm cream of home-bg.webp (dominant rgb 216,200,184) */
+  background-image:
+    linear-gradient(rgba(251, 242, 228, 0.8), rgba(251, 242, 228, 0.62)),
+    url('../assets/image/home-bg.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
 img {
   max-width: 100%;
   display: block;

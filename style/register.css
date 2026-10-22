@@ -1,4 +1,5 @@
     .register-page {
+      position: relative;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -6,6 +7,12 @@
       justify-content: center;
       padding: 2.5rem 1.5rem;
       background-color: var(--color-bg, #f5faf6);
+    }
+
+    /* real page content sits above the fixed backdrop layer */
+    .register-page > :not(.login-bg) {
+      position: relative;
+      z-index: 1;
     }
 
     .register-back-link {

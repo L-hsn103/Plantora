@@ -9,6 +9,17 @@
   --shadow-soft: 0 12px 30px -18px rgba(34, 64, 45, 0.1);
 }
 
+/* Explore page background (scoped so it doesn't affect the other pages using this stylesheet) */
+.page-explore {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2)),
+    url('../assets/image/explore-bg.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
 .nav-links a.active {
   color: var(--color-primary);
   font-weight: 600;
@@ -148,6 +159,150 @@
 /* plants are shown in a grid */
 .explore-results {
   padding-bottom: 5rem;
+}
+
+/* --- Explore page card design (scoped so other pages using these classes keep the old look) --- */
+
+/* 4 columns on the explore page (tablet/phone overrides below keep responsiveness working) */
+.page-explore .plant-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.page-explore .plant-card {
+  border: none;
+  box-shadow: 0 16px 34px -22px rgba(34, 64, 45, 0.35);
+}
+
+.page-explore .plant-card__media {
+  position: relative;
+}
+
+.page-explore .plant-card__image {
+  width: 100%;
+  height: 200px;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* light chip in the top-left corner of the photo */
+.page-explore .plant-card__badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: var(--color-surface);
+  border-radius: 999px;
+  padding: 0.38rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px -4px rgba(34, 64, 45, 0.4);
+}
+
+/* star button in the top-right corner of the photo */
+.page-explore .plant-card__fav {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  box-shadow: 0 4px 12px -4px rgba(34, 64, 45, 0.4);
+}
+
+.page-explore .plant-card__fav[aria-pressed="true"] svg {
+  fill: currentColor;
+}
+
+/* horizontal sun / droplet / sprout info row */
+.page-explore .plant-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  padding: 0;
+  margin: 0 0 1.1rem;
+}
+
+.page-explore .plant-card__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.page-explore .plant-card__actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+/* View Details takes the space, plus button stays compact */
+.page-explore .plant-card__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+}
+
+/* compact icon-only "Add to My Plants" button */
+.page-explore .plant-card__add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  width: 46px;
+  padding: 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.page-explore .plant-card__add:hover:not(:disabled) {
+  background-color: var(--color-bg-alt);
+  transform: translateY(-1px);
+}
+
+.page-explore .plant-card__add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* icon sizing inside badges, meta rows and buttons */
+.page-explore .plant-card svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+/* responsive columns (same as the shared stylesheet, but with matching specificity) */
+@media (max-width: 900px) {
+  .page-explore .plant-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .page-explore .plant-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .plant-grid {

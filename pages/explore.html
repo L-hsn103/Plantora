@@ -14,7 +14,10 @@
 
   <link rel="stylesheet" href="../style/style.css" />
   <link rel="stylesheet" href="../style/explore.css" />
-  <script src="https://unpkg.com/lucide@latest" defer></script>
+
+  <!-- start fetching the backdrop as early as possible -->
+  <link rel="preload" as="image" href="../assets/image/explore-bg.webp" />
+  <script src="https://unpkg.com/lucide@0.469.0" defer></script>
   <script src="../script/auth.js" defer></script>
   <script src="../script/plant-data.js" defer></script>
   <script src="../script/store.js" defer></script>
@@ -29,7 +32,7 @@
     } catch (err) {}
   </script>
 </head>
-<body>
+<body class="page-explore">
 
   <header class="navbar">
     <div class="container navbar__inner">

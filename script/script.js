@@ -78,22 +78,77 @@ async function initExplorePage() {
 
   populateFilterOptions(plants);
 
+  // --- Explore card favorites (kept in localStorage) --------------------
+  const FAVORITES_KEY = "plantora-favorite-plants";
+
+  function getFavoriteIds() {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]"));
+    } catch {
+      return new Set();
+    }
+  }
+
+  function toggleFavorite(btn) {
+    const plantId = Number(btn.dataset.plantId);
+    const favorites = getFavoriteIds();
+    const plant = plants.find((p) => p.id === plantId);
+    const name = plant ? plant.name : "this plant";
+
+    if (favorites.has(plantId)) {
+      favorites.delete(plantId);
+    } else {
+      favorites.add(plantId);
+    }
+
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(Array.from(favorites)));
+
+    const pressed = favorites.has(plantId);
+    btn.setAttribute("aria-pressed", String(pressed));
+    btn.setAttribute(
+      "aria-label",
+      pressed ? `Remove ${name} from favorite` : `Mark ${name} as favorite`
+    );
+  }
+
   // Turn one plant object into a card's HTML
   function createPlantCard(plant) {
+    const isFavorite = getFavoriteIds().has(plant.id);
+
     return `
       <article class="plant-card">
-        <img class="plant-card__image" src="${plant.image}" alt="${plant.name}" />
+        <div class="plant-card__media">
+          <img class="plant-card__image" src="${plant.image}" alt="${plant.name}" />
+          <span class="plant-card__badge"><i data-lucide="sun"></i>${plant.light} Light</span>
+          <button
+            type="button"
+            class="plant-card__fav"
+            data-plant-id="${plant.id}"
+            aria-pressed="${isFavorite}"
+            aria-label="${isFavorite ? "Remove" : "Mark"} ${plant.name} ${isFavorite ? "from" : "as"} favorite"
+          >
+            <i data-lucide="star"></i>
+          </button>
+        </div>
         <div class="plant-card__content">
           <h3 class="plant-card__title">${plant.name}</h3>
           <p class="plant-card__scientific">${plant.scientificName}</p>
-          <ul class="plant-card__meta">
-            <li>Light: ${plant.light}</li>
-            <li>Water: ${plant.water}</li>
-            <li>Maintenance: ${plant.maintenance}</li>
-          </ul>
+          <div class="plant-card__meta">
+            <span class="plant-card__meta-item"><i data-lucide="droplets"></i>${plant.water}</span>
+            <span class="plant-card__meta-item"><i data-lucide="sprout"></i>${plant.maintenance}</span>
+          </div>
           <div class="plant-card__actions">
-            <button type="button" class="btn btn--primary plant-card__add" data-plant-id="${plant.id}">Add</button>
-            <a href="plant-details.html?id=${plant.id}" class="btn btn--secondary plant-card__btn">View Details</a>
+            <a href="plant-details.html?id=${plant.id}" class="btn btn--primary plant-card__btn">
+              View Details <i data-lucide="arrow-right"></i>
+            </a>
+            <button
+              type="button"
+              class="plant-card__add"
+              data-plant-id="${plant.id}"
+              aria-label="Add ${plant.name} to My Plants"
+            >
+              <i data-lucide="plus"></i>
+            </button>
           </div>
         </div>
       </article>
@@ -104,11 +159,21 @@ async function initExplorePage() {
   function renderPlants(list) {
     plantGrid.innerHTML = list.map(createPlantCard).join("");
     noResultsMessage.hidden = list.length > 0;
+
+    // Lucide's CDN bundle is deferred before this script, so it is ready here
+    if (window.lucide && window.lucide.createIcons) {
+      window.lucide.createIcons();
+    }
   }
 
   // --- Add to My Plants -------------------------------------------------
   const store = window.PlantoraStore;
   const modal = new window.AddPlantModal();
+
+  // the Add button is icon-only, so all feedback goes through the accessible label
+  function setAddState(btn, plant, label) {
+    btn.setAttribute("aria-label", `${label} ${plant.name}`);
+  }
 
   function addPlant(btn) {
     const plantId = Number(btn.dataset.plantId);
@@ -124,17 +189,17 @@ async function initExplorePage() {
     modal.open(plant)
       .then(({ nickname, location, wateringInterval }) => {
         btn.disabled = true;
-        btn.textContent = "Adding…";
+        setAddState(btn, plant, "Adding");
 
         return store.addPlantManually(plantId, { nickname, location, wateringInterval });
       })
       .then(() => {
         btn.disabled = false;
-        btn.textContent = "Add";
+        setAddState(btn, plant, "Add");
       })
       .catch((err) => {
         btn.disabled = false;
-        btn.textContent = "Add";
+        setAddState(btn, plant, "Add");
 
         if (err && err.message === "Modal cancelled") return;
 
@@ -148,12 +213,17 @@ async function initExplorePage() {
         const errorCode = err && err.code ? err.code : "unknown";
         console.error("[Plantora] could not add the plant:", err);
         alert(`Failed to add plant:\nCode: ${errorCode}\nMessage: ${errorMsg}\n\nCheck console (F12) for details.\n\nIf you see "ERR_BLOCKED_BY_CLIENT", disable ad blocker/privacy extension for this site.`);
-        btn.textContent = "Try again";
+        setAddState(btn, plant, "Failed to add");
         setTimeout(() => {
-          if (btn.isConnected && !btn.disabled) btn.textContent = "Add";
+          if (btn.isConnected && !btn.disabled) setAddState(btn, plant, "Add");
         }, 2000);
       });
   }
+
+  plantGrid.addEventListener("click", (event) => {
+    const favBtn = event.target.closest(".plant-card__fav");
+    if (favBtn) toggleFavorite(favBtn);
+  });
 
   plantGrid.addEventListener("click", (event) => {
     const btn = event.target.closest(".plant-card__add");

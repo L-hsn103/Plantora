@@ -14,8 +14,11 @@
  
   <link rel="stylesheet" href="../style/style.css" />
   <link rel="stylesheet" href="../style/my-plant.css" />
+
+  <!-- start fetching the frosted backdrop as early as possible -->
+  <link rel="preload" as="image" href="../assets/image/explore-bg.webp" />
  
-  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <script src="https://unpkg.com/lucide@0.469.0" defer></script>
   <script src="../script/auth.js" defer></script>
   <script src="../script/plant-data.js" defer></script>
   <script src="../script/store.js" defer></script>
@@ -31,7 +34,9 @@
     } catch (err) {}
   </script>
 </head>
-<body data-requires-auth="true">
+<body data-requires-auth="true" class="page-myplants">
+
+  <div class="myplants-bg" aria-hidden="true"></div>
 
   <header class="navbar">
     <div class="container navbar__inner">

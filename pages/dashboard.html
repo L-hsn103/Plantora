@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="../style/dashboard.css" />
 
   <!-- shop.js fills in the My Plants and Upcoming Care sections -->
-  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <script src="https://unpkg.com/lucide@0.469.0" defer></script>
   <script src="../script/auth.js" defer></script>
   <script src="../script/plant-data.js" defer></script>
   <script src="../script/store.js" defer></script>
@@ -63,8 +63,10 @@
       <div class="container dashboard-hero__inner">
         <h1 id="dash-welcome">Welcome Back,</h1>
         <p>Manage your plants, discover suitable plants, and keep up with their care.</p>
-        <a href="recommendation.html" class="btn btn--primary">Find My Plant</a>
-        <a href="reminders.html" class="btn btn--primary">Reminders</a>
+        <div class="dashboard-hero__actions">
+          <a href="recommendation.html" class="btn btn--primary">Find My Plant</a>
+          <a href="reminders.html" class="btn btn--primary">Reminders</a>
+        </div>
       </div>
     </section>
 
@@ -82,7 +84,7 @@
           </article>
 
           <article class="quick-action-card">
-            <span class="quick-action-card__icon"><i data-lucide="plant-pot"></i></span>
+            <span class="quick-action-card__icon"><i data-lucide="leaf"></i></span>
             <h3>My Plants</h3>
             <p>Keep track of the plants you own and their care status.</p>
             <a href="my-plants.html" class="btn btn--secondary">View My Plants</a>
