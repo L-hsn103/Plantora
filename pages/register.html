@@ -14,6 +14,11 @@
 
   <link rel="stylesheet" href="../style/style.css" />
   <link rel="stylesheet" href="../style/register.css" />
+  <!-- shared animated backdrop styles (login.css holds the .login-bg layer) -->
+  <link rel="stylesheet" href="../style/login.css" />
+  <script src="https://unpkg.com/lucide@0.469.0" defer></script>
+  <script src="../script/config.js" defer></script>
+  <script src="../script/loading.js" defer></script>
   <script src="../script/auth.js" defer></script>
   <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
 
@@ -30,7 +35,9 @@
 
   <div class="register-page">
 
-    <a href="index.html" class="register-back-link">&larr; Back to Home</a>
+    <div class="login-bg" aria-hidden="true"></div>
+
+    <a href="../index.html" class="register-back-link">&larr; Back to Home</a>
 
     <div class="register-card">
       <p class="register-card__logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</p>
@@ -72,6 +79,31 @@
   </div>
 
   <script src="../script/auth-ui.js"></script>
+  <script>
+    // gentle mouse parallax for the register backdrop (Ken Burns drift lives in CSS)
+    (function () {
+      var bg = document.querySelector(".login-bg");
+      if (!bg) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
+      var raf = 0;
+      var x = 0;
+      var y = 0;
+
+      function apply() {
+        raf = 0;
+        if (window.innerWidth < 640) return; // phones keep the calmer static zoom
+        bg.style.translate = String(-x * 7) + "px " + String(-y * 7) + "px";
+      }
+
+      window.addEventListener("mousemove", function (event) {
+        x = (event.clientX / window.innerWidth - 0.5) * 2;
+        y = (event.clientY / window.innerHeight - 0.5) * 2;
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+    })();
+  </script>
   <script src="../chatbot/widget/plantora-chat.js" data-api="http://localhost:3001/api/chat" defer></script>
 </body>
 </html>

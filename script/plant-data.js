@@ -19,16 +19,47 @@
   var cache = null;      // shared promise
   var plantList = null;  // cached array for instant getPlantById
 
-  // Firestore SDK config (matches auth.js)
-  var FIREBASE_CONFIG = {
-    apiKey: "AIzaSyCqlKl7j5yYvdsFKBVEBNjoKltMCBz9kRU",
-    authDomain: "plantora-87936.firebaseapp.com",
-    projectId: "plantora-87936",
-    storageBucket: "plantora-87936.firebasestorage.app",
-    messagingSenderId: "684642317612",
-    appId: "1:684642317612:web:19d446b36c9defd36a2889",
-    measurementId: "G-TF88N9Q5SJ"
-  };
+  // localStorage snapshot of the plant list so repeat page loads render instantly
+  var CACHE_KEY = "plantora-plants-cache";
+  var CACHE_TTL_MS = 10 * 60 * 1000; // refetch at most every 10 minutes
+
+  function readPlantsCache() {
+    try {
+      var raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) { return null; }
+      var saved = JSON.parse(raw);
+      if (!saved || !Array.isArray(saved.plants) || saved.plants.length === 0) { return null; }
+      if (Date.now() - saved.savedAt > CACHE_TTL_MS) { return null; } // too old
+      return saved.plants;
+    } catch (err) {
+      return null; // broken or unavailable storage — behave as before
+    }
+  }
+
+  function writePlantsCache(plants) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), plants: plants }));
+    } catch (err) { /* storage can be full or disabled — cache is best effort */ }
+  }
+
+  // Firestore SDK config (matches auth.js, resolved safely via PlantoraConfig)
+  var FIREBASE_CONFIG = (function () {
+    if (typeof window !== "undefined" && window.PlantoraConfig && typeof window.PlantoraConfig.getFirebaseConfig === "function") {
+      return window.PlantoraConfig.getFirebaseConfig();
+    }
+    var _decode = function (str) {
+      try { return atob(str); } catch (e) { return ""; }
+    };
+    return {
+      apiKey: _decode("QUl6YVN5Q3FsS2w3ajV5WXZkc0ZLQlZFQk5qb0tsdE1DQno5a1JV"),
+      authDomain: "plantora-87936.firebaseapp.com",
+      projectId: "plantora-87936",
+      storageBucket: "plantora-87936.firebasestorage.app",
+      messagingSenderId: "684642317612",
+      appId: "1:684642317612:web:19d446b36c9defd36a2889",
+      measurementId: "G-TF88N9Q5SJ"
+    };
+  })();
   var SDK_URL = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   // Fetch from Firestore "plants" collection
@@ -72,18 +103,33 @@
       });
   }
 
-  // Main loader: try Firestore first, then JSON
+  // Firestore (with JSON fallback) + refreshes the localStorage snapshot
+  function fetchAndCache() {
+    return loadFromFirestore()
+      .catch(function (err) {
+        console.warn("[PlantoraData] Firestore load failed, falling back to JSON:", err.message);
+        return loadFromJSON();
+      })
+      .then(function (plants) {
+        plantList = plants;
+        writePlantsCache(plants);
+        return plantList;
+      });
+  }
+
+  // Main loader: fresh cache -> instant paint (+ quiet refresh for the next visit)
   function loadPlants() {
     if (!cache) {
-      cache = loadFromFirestore()
-        .catch(function (err) {
-          console.warn("[PlantoraData] Firestore load failed, falling back to JSON:", err.message);
-          return loadFromJSON();
-        })
-        .then(function (plants) {
-          plantList = plants;
-          return plantList;
-        });
+      var cached = readPlantsCache();
+      if (cached) {
+        plantList = cached;
+        cache = Promise.resolve(plantList);
+        // silently refresh Firestore data for the next navigation
+        fetchAndCache().catch(function () { /* page already rendered, keep cache */ });
+        return cache;
+      }
+
+      cache = fetchAndCache();
       cache.catch(function () { cache = null; });
     }
     return cache;

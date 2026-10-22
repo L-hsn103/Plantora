@@ -14,10 +14,16 @@
  
   <link rel="stylesheet" href="../style/style.css" />
   <link rel="stylesheet" href="../style/my-plant.css" />
+
+  <!-- start fetching the frosted backdrop as early as possible -->
+  <link rel="preload" as="image" href="../assets/image/explore-bg.webp" />
  
+  <script src="https://unpkg.com/lucide@0.469.0" defer></script>
+  <script src="../script/config.js" defer></script>
   <script src="../script/auth.js" defer></script>
   <script src="../script/plant-data.js" defer></script>
   <script src="../script/store.js" defer></script>
+  <script src="../script/loading.js" defer></script>
   <script src="../script/shop.js" defer></script>
   <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
  
@@ -30,17 +36,20 @@
     } catch (err) {}
   </script>
 </head>
-<body data-requires-auth="true">
+<body data-requires-auth="true" class="page-myplants">
+
+  <div class="myplants-bg" aria-hidden="true"></div>
 
   <header class="navbar">
     <div class="container navbar__inner">
-      <a href="index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
+      <a href="../index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
 
       <nav class="nav-links">
-        <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
+        <a href="../index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html">Explore Plants</a>
         <a href="my-plants.html" data-nav-private hidden class="active" aria-current="page">My Plants</a>
-        <a href="index.html#about">About</a>
+        <a href="identify.html">Identify</a>
+        <a href="../index.html#about">About</a>
     </nav>
 
       <div class="navbar__actions">
@@ -68,8 +77,11 @@
     <section class="page-section">
       <div class="container">
         <!-- shop.js reads these from the database -->
-        <div id="my-plants-grid">
-          <p class="section-note">Loading your plants…</p>
+        <div id="my-plants-grid" aria-busy="true">
+          <div class="loading-block" role="status" aria-live="polite">
+            <span class="spinner spinner--lg" aria-hidden="true"></span>
+            <p class="loading-label">Loading your plants…</p>
+          </div>
         </div>
       </div>
     </section>
@@ -83,19 +95,19 @@
 
         <div class="action-grid">
           <article class="action-card">
-            <span class="action-card__icon">💧</span>
+            <span class="action-card__icon"><i data-lucide="droplets"></i></span>
             <h3>Watering</h3>
             <p>Keep track of your next watering.</p>
           </article>
 
           <article class="action-card">
-            <span class="action-card__icon">🌿</span>
+            <span class="action-card__icon"><i data-lucide="sprout"></i></span>
             <h3>Fertilizing</h3>
             <p>Remember when your plants need fertilizer.</p>
           </article>
 
           <article class="action-card">
-            <span class="action-card__icon">🩺</span>
+            <span class="action-card__icon"><i data-lucide="stethoscope"></i></span>
             <h3>Plant Health</h3>
             <p>Monitor the health and condition of your plants.</p>
           </article>
@@ -113,10 +125,10 @@
       </div>
 
       <nav class="footer__links">
-        <a href="index.html">Home</a>
+        <a href="../index.html">Home</a>
         <a href="explore.html">Explore Plants</a>
         <a href="my-plants.html">My Plants</a>
-        <a href="index.html#about">About</a>
+        <a href="../index.html#about">About</a>
       </nav>
     </div>
 

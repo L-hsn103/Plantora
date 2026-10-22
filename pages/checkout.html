@@ -16,9 +16,12 @@
   <link rel="stylesheet" href="../style/explore.css" />
   <link rel="stylesheet" href="../style/checkout.css" />
  
+  <script src="https://unpkg.com/lucide@0.469.0" defer></script>
+  <script src="../script/config.js" defer></script>
   <script src="../script/auth.js" defer></script>
   <script src="../script/plant-data.js" defer></script>
   <script src="../script/store.js" defer></script>
+  <script src="../script/loading.js" defer></script>
   <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
 
  
@@ -35,14 +38,14 @@
 
   <header class="navbar">
     <div class="container navbar__inner">
-      <a href="index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
+      <a href="../index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
 
       <nav class="nav-links">
-        <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
+        <a href="../index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html">Explore Plants</a>
         <a href="checkout.html" class="active" aria-current="page">Checkout</a>
         <a href="my-plants.html" data-nav-private hidden>My Plants</a>
-        <a href="index.html#about">About</a>
+        <a href="../index.html#about">About</a>
     </nav>
       <div class="navbar__actions">
         <a href="login.html" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
@@ -53,13 +56,18 @@
     </div>
   </header>
 
-  <main class="checkout">
+  <main class="checkout" aria-busy="true">
     <div class="container">
         <a href="explore.html" class="back-link">&larr; Back to Explore Plants</a>
       <h1>Checkout</h1>
 
       <!-- checkout.js swaps between these panels -->
-      <p class="co-center" id="co-loading" role="status">Loading your order…</p>
+      <div id="co-loading" role="status" aria-live="polite">
+        <div class="loading-block">
+          <span class="spinner spinner--lg" aria-hidden="true"></span>
+          <p class="loading-label">Loading your order…</p>
+        </div>
+      </div>
 
       <div class="co-card co-center" id="co-error" hidden>
         <p id="co-error-text"></p>
@@ -109,7 +117,7 @@
 
       <!-- shown after the order is saved -->
       <div class="co-card co-center" id="co-success" hidden>
-        <h2>Demo order saved 🌱</h2>
+        <h2>Demo order saved <i data-lucide="sprout"></i></h2>
         <p id="co-success-text"></p>
         <p><small>Order ID: <span id="co-order-id"></span></small></p>
         <a href="my-plants.html" class="btn btn--primary">View My Plants</a>
@@ -126,10 +134,10 @@
       </div>
 
       <nav class="footer__links">
-        <a href="index.html">Home</a>
+        <a href="../index.html">Home</a>
         <a href="explore.html">Explore Plants</a>
         <a href="my-plants.html">My Plants</a>
-        <a href="index.html#about">About</a>
+        <a href="../index.html#about">About</a>
       </nav>
     </div>
 

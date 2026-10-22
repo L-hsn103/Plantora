@@ -66,34 +66,115 @@ async function initExplorePage() {
   }));
   const noResultsMessage = document.getElementById("no-results");
 
+  // Show placeholders immediately, while Firestore/JSON resolves.
+  if (window.PlantoraLoading) {
+    window.PlantoraLoading.skeletonGrid(plantGrid, 6, "Loading plants…");
+  } else {
+    plantGrid.setAttribute("aria-busy", "true");
+  }
+
+  if (searchInput) searchInput.disabled = true;
+  filters.forEach(({ element }) => {
+    if (element) element.disabled = true;
+  });
+
   // Load plants from PlantoraData (Firestore first, then JSON)
   let plants = [];
   try {
     plants = await window.PlantoraData.loadPlants();
   } catch (err) {
     console.error("[Plantora] Failed to load plants:", err);
-    plantGrid.innerHTML = `<p class="error">Failed to load plants. Please refresh.</p>`;
+    if (window.PlantoraLoading) {
+      window.PlantoraLoading.error(
+        plantGrid,
+        "Can't load the plant library",
+        "The plant data could not be reached. Check your connection, then try again.",
+        { label: "Try again", href: "explore.html" }
+      );
+    } else {
+      plantGrid.innerHTML = `<p class="error">Failed to load plants. Please refresh.</p>`;
+    }
     return;
   }
 
+  if (searchInput) searchInput.disabled = false;
+  filters.forEach(({ element }) => {
+    if (element) element.disabled = false;
+  });
+
   populateFilterOptions(plants);
+
+  // --- Explore card favorites (kept in localStorage) --------------------
+  const FAVORITES_KEY = "plantora-favorite-plants";
+
+  function getFavoriteIds() {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]"));
+    } catch {
+      return new Set();
+    }
+  }
+
+  function toggleFavorite(btn) {
+    const plantId = Number(btn.dataset.plantId);
+    const favorites = getFavoriteIds();
+    const plant = plants.find((p) => p.id === plantId);
+    const name = plant ? plant.name : "this plant";
+
+    if (favorites.has(plantId)) {
+      favorites.delete(plantId);
+    } else {
+      favorites.add(plantId);
+    }
+
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(Array.from(favorites)));
+
+    const pressed = favorites.has(plantId);
+    btn.setAttribute("aria-pressed", String(pressed));
+    btn.setAttribute(
+      "aria-label",
+      pressed ? `Remove ${name} from favorite` : `Mark ${name} as favorite`
+    );
+  }
 
   // Turn one plant object into a card's HTML
   function createPlantCard(plant) {
+    const isFavorite = getFavoriteIds().has(plant.id);
+
     return `
       <article class="plant-card">
-        <img class="plant-card__image" src="${plant.image}" alt="${plant.name}" />
+        <div class="plant-card__media">
+          <img class="plant-card__image" src="${plant.image}" alt="${plant.name}" loading="lazy" decoding="async" />
+          <span class="plant-card__badge"><i data-lucide="sun"></i>${plant.light} Light</span>
+          <button
+            type="button"
+            class="plant-card__fav"
+            data-plant-id="${plant.id}"
+            aria-pressed="${isFavorite}"
+            aria-label="${isFavorite ? "Remove" : "Mark"} ${plant.name} ${isFavorite ? "from" : "as"} favorite"
+          >
+            <i data-lucide="star"></i>
+          </button>
+        </div>
         <div class="plant-card__content">
           <h3 class="plant-card__title">${plant.name}</h3>
           <p class="plant-card__scientific">${plant.scientificName}</p>
-          <ul class="plant-card__meta">
-            <li>Light: ${plant.light}</li>
-            <li>Water: ${plant.water}</li>
-            <li>Maintenance: ${plant.maintenance}</li>
-          </ul>
+          <div class="plant-card__meta">
+            <span class="plant-card__meta-item"><i data-lucide="droplets"></i>${plant.water}</span>
+            <span class="plant-card__meta-item"><i data-lucide="sprout"></i>${plant.maintenance}</span>
+          </div>
           <div class="plant-card__actions">
-            <button type="button" class="btn btn--primary plant-card__add" data-plant-id="${plant.id}">Add</button>
-            <a href="plant-details.html?id=${plant.id}" class="btn btn--secondary plant-card__btn">View Details</a>
+            <a href="plant-details.html?id=${plant.id}" class="btn btn--primary plant-card__btn">
+              View Details <i data-lucide="arrow-right"></i>
+            </a>
+            <button
+              type="button"
+              class="plant-card__add"
+              data-plant-id="${plant.id}"
+              aria-label="Add ${plant.name} to My Plants"
+            >
+              <i data-lucide="plus"></i>
+            </button>
           </div>
         </div>
       </article>
@@ -104,37 +185,23 @@ async function initExplorePage() {
   function renderPlants(list) {
     plantGrid.innerHTML = list.map(createPlantCard).join("");
     noResultsMessage.hidden = list.length > 0;
-    applyOwnedState();
+
+    if (window.PlantoraLoading) window.PlantoraLoading.setBusy(plantGrid, false);
+    else plantGrid.removeAttribute("aria-busy");
+
+    // Lucide's CDN bundle is deferred before this script, so it is ready here
+    if (window.lucide && window.lucide.createIcons) {
+      window.lucide.createIcons();
+    }
   }
 
   // --- Add to My Plants -------------------------------------------------
   const store = window.PlantoraStore;
-  let ownedPlantIds = null;
+  const modal = new window.AddPlantModal();
 
-  function markAdded(btn) {
-    if (!btn) return;
-    btn.disabled = true;
-    btn.classList.add("is-added");
-    btn.textContent = "Added";
-  }
-
-  function applyOwnedState() {
-    if (!ownedPlantIds) return;
-    plantGrid.querySelectorAll(".plant-card__add").forEach((btn) => {
-      if (ownedPlantIds.has(Number(btn.dataset.plantId))) markAdded(btn);
-    });
-  }
-
-  function refreshOwnedPlants() {
-    if (!store) return Promise.resolve();
-    return store
-      .getCurrentUser()
-      .then((user) => (user ? store.listMyPlants() : []))
-      .then((entries) => {
-        ownedPlantIds = new Set(entries.map((entry) => Number(entry.plantId)));
-        applyOwnedState();
-      })
-      .catch((err) => console.error("[Plantora] could not load My Plants:", err));
+  // the Add button is icon-only, so all feedback goes through the accessible label
+  function setAddState(btn, plant, label) {
+    btn.setAttribute("aria-label", `${label} ${plant.name}`);
   }
 
   function addPlant(btn) {
@@ -144,20 +211,35 @@ async function initExplorePage() {
       console.error("[Plantora] store.js is not loaded on this page.");
       return;
     }
-    if (btn.disabled) return;
 
-    btn.disabled = true;
-    btn.textContent = "Adding…";
+    const plant = plants.find((p) => p.id === plantId);
+    if (!plant) return;
 
-    store
-      .addPlantManually(plantId)
+    function setBusy(busy) {
+      if (window.PlantoraLoading) window.PlantoraLoading.button(btn, busy);
+      else btn.disabled = busy;
+    }
+
+    function finish() {
+      setBusy(false);
+      setAddState(btn, plant, "Add");
+      if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+    }
+
+    modal.open(plant)
+      .then(({ nickname, location, wateringInterval }) => {
+        setBusy(true);
+        setAddState(btn, plant, "Adding");
+
+        return store.addPlantManually(plantId, { nickname, location, wateringInterval });
+      })
       .then(() => {
-        (ownedPlantIds = ownedPlantIds || new Set()).add(plantId);
-        markAdded(btn);
+        finish();
       })
       .catch((err) => {
-        btn.disabled = false;
-        btn.textContent = "Add";
+        finish();
+
+        if (err && err.message === "Modal cancelled") return;
 
         if (err && err.code === "plantora/unauthenticated") {
           const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
@@ -165,24 +247,26 @@ async function initExplorePage() {
           return;
         }
 
-        // Show full error details for debugging
         const errorMsg = err && err.message ? err.message : String(err);
         const errorCode = err && err.code ? err.code : "unknown";
         console.error("[Plantora] could not add the plant:", err);
         alert(`Failed to add plant:\nCode: ${errorCode}\nMessage: ${errorMsg}\n\nCheck console (F12) for details.\n\nIf you see "ERR_BLOCKED_BY_CLIENT", disable ad blocker/privacy extension for this site.`);
-        btn.textContent = "Try again";
+        setAddState(btn, plant, "Failed to add");
         setTimeout(() => {
-          if (btn.isConnected && !btn.disabled) btn.textContent = "Add";
+          if (btn.isConnected && !btn.disabled) setAddState(btn, plant, "Add");
         }, 2000);
       });
   }
 
   plantGrid.addEventListener("click", (event) => {
+    const favBtn = event.target.closest(".plant-card__fav");
+    if (favBtn) toggleFavorite(favBtn);
+  });
+
+  plantGrid.addEventListener("click", (event) => {
     const btn = event.target.closest(".plant-card__add");
     if (btn) addPlant(btn);
   });
-
-  refreshOwnedPlants();
 
   // Keep plants that match the search text and every dropdown at once
   function getFilteredPlants() {
@@ -368,12 +452,53 @@ async function initDetailsPage() {
   const plantNameEl = document.getElementById("plant-name");
   if (!plantNameEl) return;
 
+  const loadingEl = document.getElementById("plant-details-loading");
+  const contentEl = document.getElementById("plant-details-content");
+  const errorEl = document.getElementById("plant-details-error");
+
+  function showLoading() {
+    if (loadingEl) loadingEl.hidden = false;
+    if (contentEl) contentEl.hidden = true;
+    if (errorEl) errorEl.hidden = true;
+    document.querySelector("main")?.setAttribute("aria-busy", "true");
+  }
+
+  function showError(message) {
+    if (loadingEl) loadingEl.hidden = true;
+    if (contentEl) contentEl.hidden = true;
+    document.querySelector("main")?.setAttribute("aria-busy", "false");
+
+    if (errorEl) {
+      errorEl.hidden = false;
+      if (window.PlantoraLoading) {
+        window.PlantoraLoading.error(
+          errorEl,
+          "Can't load this plant",
+          message,
+          { label: "Back to Explore", href: "explore.html" }
+        );
+      } else {
+        errorEl.textContent = message;
+      }
+    }
+  }
+
+  function showContent() {
+    if (loadingEl) loadingEl.hidden = true;
+    if (errorEl) errorEl.hidden = true;
+    if (contentEl) contentEl.hidden = false;
+    document.querySelector("main")?.setAttribute("aria-busy", "false");
+  }
+
+  showLoading();
+
   // Load plants from PlantoraData
   let plants = [];
   try {
     plants = await window.PlantoraData.loadPlants();
   } catch (err) {
     console.error("[Plantora] Failed to load plants for details:", err);
+    showError("The plant data could not be reached. Check your connection, then try again.");
     return;
   }
 
@@ -386,6 +511,7 @@ async function initDetailsPage() {
 
   if (!plant) {
     console.error("[Plantora] Plant not found for id:", requestedId);
+    showError("That plant could not be found. It may have been removed from the library.");
     return;
   }
 
@@ -427,43 +553,226 @@ async function initDetailsPage() {
     plant.difficulty.toLowerCase() +
     " care needs.";
 
-  // "Add to My Plants" button - now actually works with Firestore
+  showContent();
+
+  // "Add to My Plants" button - opens the add-plant modal
   const addBtn = document.getElementById("add-to-my-plants");
   if (addBtn) {
-    addBtn.addEventListener("click", async () => {
-      const store = window.PlantoraStore;
+    function setAddBusy(busy) {
+      if (window.PlantoraLoading) window.PlantoraLoading.button(addBtn, busy, busy ? "Adding…" : null);
+      else {
+        addBtn.disabled = busy;
+        addBtn.textContent = busy ? "Adding…" : "Add to My Plants";
+      }
+    }
+
+    addBtn.addEventListener("click", () => {
       if (!store) {
         console.error("[Plantora] store.js not loaded");
         alert("System not ready. Please refresh.");
         return;
       }
 
-      addBtn.disabled = true;
-      addBtn.textContent = "Adding…";
+      modal.open(plant)
+        .then(({ nickname, location, wateringInterval }) => {
+          setAddBusy(true);
 
-      try {
-        await store.addPlantManually(plant.id);
-        addBtn.disabled = true;
-        addBtn.classList.add("is-added");
-        addBtn.textContent = "Added to My Plants";
-      } catch (err) {
-        addBtn.disabled = false;
-        addBtn.textContent = "Add to My Plants";
+          return store.addPlantManually(plant.id, { nickname, location, wateringInterval });
+        })
+        .then(() => {
+          setAddBusy(false);
+        })
+        .catch((err) => {
+          setAddBusy(false);
 
-        if (err && err.code === "plantora/unauthenticated") {
-          const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-          window.location.href = "login.html?redirect=" + returnUrl;
-          return;
-        }
+          if (err && err.message === "Modal cancelled") return;
 
-        const errorMsg = err && err.message ? err.message : String(err);
-        const errorCode = err && err.code ? err.code : "unknown";
-        console.error("[Plantora] could not add the plant:", err);
-        alert(`Failed to add plant:\nCode: ${errorCode}\nMessage: ${errorMsg}\n\nCheck console (F12) for details.\n\nIf you see "ERR_BLOCKED_BY_CLIENT", disable ad blocker/privacy extension for this site.`);
-      }
+          if (err && err.code === "plantora/unauthenticated") {
+            const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = "login.html?redirect=" + returnUrl;
+            return;
+          }
+
+          const errorMsg = err && err.message ? err.message : String(err);
+          const errorCode = err && err.code ? err.code : "unknown";
+          console.error("[Plantora] could not add the plant:", err);
+          alert(`Failed to add plant:\nCode: ${errorCode}\nMessage: ${errorMsg}\n\nCheck console (F12) for details.\n\nIf you see "ERR_BLOCKED_BY_CLIENT", disable ad blocker/privacy extension for this site.`);
+        });
     });
   }
 }
+
+// Add Plant modal: species name (read-only), nickname (required),
+// location (optional), watering interval (optional, defaults from plant needs).
+class AddPlantModal {
+  constructor() {
+    this.overlay = null;
+    this.plant = null;
+    this.resolve = null;
+    this.reject = null;
+    this.locations = window.PlantoraStore?.LOCATIONS || ["Living Room", "Bedroom", "Office", "Kitchen", "Balcony"];
+  }
+
+  open(plant) {
+    this.plant = plant;
+    return new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+      this.render();
+      this.bindEvents();
+      this.focusFirstInput();
+      document.body.style.overflow = "hidden";
+    });
+  }
+
+  render() {
+    const defaultInterval = window.PlantoraStore?.defaultIntervalDays
+      ? window.PlantoraStore.defaultIntervalDays(this.plant, "watering")
+      : 7;
+    const locationOptions = this.locations.map(loc =>
+      `<option value="${loc}">${loc}</option>`
+    ).join("");
+
+    this.overlay = document.createElement("div");
+    this.overlay.className = "modal-overlay";
+    this.overlay.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button type="button" class="modal__close" aria-label="Close modal"><i data-lucide="x"></i></button>
+        <div class="modal__header">
+          <h2 class="modal__title" id="modal-title">Add to My Plants</h2>
+          <p class="modal__species">${this.plant?.name}</p>
+        </div>
+        <div class="modal__body">
+          <form class="modal__form" id="add-plant-form" novalidate>
+            <div class="modal__field">
+              <label class="modal__label" for="plant-nickname">Nickname <span class="required" aria-hidden="true">*</span></label>
+              <input
+                type="text"
+                id="plant-nickname"
+                class="modal__input"
+                placeholder="e.g. Living Room Monstera"
+                required
+                maxlength="60"
+                aria-required="true"
+              >
+              <p class="modal__helper">Give your plant a unique name</p>
+            </div>
+            <div class="modal__field">
+              <label class="modal__label" for="plant-location">Location</label>
+              <select id="plant-location" class="modal__select" aria-describedby="location-help">
+                <option value="">Select a room (optional)</option>
+                ${locationOptions}
+              </select>
+              <p class="modal__helper" id="location-help">Helps organize your plants by room</p>
+            </div>
+            <div class="modal__field">
+              <label class="modal__label" for="plant-watering">Watering interval (days)</label>
+              <input
+                type="number"
+                id="plant-watering"
+                class="modal__input"
+                min="1"
+                max="3650"
+                value="${defaultInterval}"
+                aria-describedby="watering-help"
+              >
+              <p class="modal__helper" id="watering-help">Default based on plant's water needs: ${defaultInterval} days</p>
+            </div>
+          </form>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn btn--secondary" id="modal-cancel">Cancel</button>
+          <button type="button" class="btn btn--primary" id="modal-submit">Add Plant</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(this.overlay);
+  }
+
+  bindEvents() {
+    const closeBtn = this.overlay.querySelector(".modal__close");
+    const cancelBtn = this.overlay.querySelector("#modal-cancel");
+    const submitBtn = this.overlay.querySelector("#modal-submit");
+    const form = this.overlay.querySelector("#add-plant-form");
+    const nicknameInput = this.overlay.querySelector("#plant-nickname");
+
+    const close = () => this.close(false);
+    const submit = () => this.handleSubmit();
+
+    closeBtn.addEventListener("click", close);
+    cancelBtn.addEventListener("click", close);
+    submitBtn.addEventListener("click", submit);
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      submit();
+    });
+
+    this.overlay.addEventListener("click", (e) => {
+      if (e.target === this.overlay) close();
+    });
+
+    const handleKeydown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close();
+      } else if (e.key === "Enter" && e.target === nicknameInput) {
+        e.preventDefault();
+        submit();
+      }
+    };
+    document.addEventListener("keydown", handleKeydown);
+    this._keydownHandler = handleKeydown;
+  }
+
+  focusFirstInput() {
+    setTimeout(() => {
+      const input = this.overlay?.querySelector("#plant-nickname");
+      input?.focus();
+    }, 100);
+  }
+
+  handleSubmit() {
+    const nicknameInput = this.overlay.querySelector("#plant-nickname");
+    const locationSelect = this.overlay.querySelector("#plant-location");
+    const wateringInput = this.overlay.querySelector("#plant-watering");
+
+    const nickname = nicknameInput.value.trim();
+    if (!nickname) {
+      nicknameInput.focus();
+      nicknameInput.reportValidity();
+      return;
+    }
+
+    const location = locationSelect.value || null;
+    const wateringInterval = parseInt(wateringInput.value, 10) || null;
+
+    this.close(true, { nickname, location, wateringInterval });
+  }
+
+  close(submitted, data) {
+    document.removeEventListener("keydown", this._keydownHandler);
+    document.body.style.overflow = "";
+
+    if (this.overlay) {
+      this.overlay.style.animation = "modalFadeIn 0.15s ease reverse";
+      setTimeout(() => {
+        if (this.overlay?.parentNode) {
+          this.overlay.parentNode.removeChild(this.overlay);
+        }
+        this.overlay = null;
+      }, 150);
+    }
+
+    if (submitted) {
+      this.resolve(data);
+    } else {
+      this.reject(new Error("Modal cancelled"));
+    }
+    this.resolve = this.reject = this.plant = null;
+  }
+}
+
+window.AddPlantModal = AddPlantModal;
 
 (async function boot() {
   await initExplorePage();

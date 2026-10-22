@@ -7,6 +7,24 @@
 
       function show(id) {
         ["co-loading", "co-error", "co-form-wrap", "co-success"].forEach(function (x) { $(x).hidden = (x !== id); });
+        var main = document.querySelector("main.checkout");
+        if (main) main.setAttribute("aria-busy", id === "co-loading" ? "true" : "false");
+      }
+
+      function setSubmitBusy(busyState, label) {
+        var btn = $("co-submit");
+        if (window.PlantoraLoading) window.PlantoraLoading.button(btn, busyState, label);
+        else {
+          btn.disabled = busyState;
+          if (label) btn.textContent = label;
+        }
+      }
+
+      function setFormDisabled(disabled) {
+        var controls = $("co-form").querySelectorAll("input, textarea, select, button");
+        Array.prototype.forEach.call(controls, function (control) {
+          control.disabled = disabled;
+        });
       }
       function showError(text) { $("co-error-text").textContent = text; show("co-error"); }
       function showMsg(text) { var m = $("co-msg"); m.textContent = text; m.hidden = false; }
@@ -106,8 +124,9 @@
         if (problem) { showMsg(problem); return; }
         if (!$("co-demo-ok").checked) { showMsg("Please tick the box to confirm you understand this is a demo order."); return; }
 
-        var btn = $("co-submit");
-        busy = true; btn.disabled = true; btn.textContent = "Placing demo order…";
+        busy = true;
+        setSubmitBusy(true, "Placing demo order…");
+        setFormDisabled(true);
 
         S.placeDemoOrder({ plantId: plantId, delivery: delivery }).then(function (result) {
           $("co-success-text").textContent = result.recovered
@@ -118,7 +137,10 @@
         }).catch(function (err) {
           console.error("[Plantora Checkout]", err);
           showMsg(friendly(err));
-          busy = false; btn.disabled = false; btn.textContent = "Place demo order";
+          busy = false;
+          setFormDisabled(false);
+          setSubmitBusy(false);
+          if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
         });
       });
     });

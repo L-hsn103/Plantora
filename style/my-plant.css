@@ -1,7 +1,42 @@
 
     .nav-links a.active {
-      color: var(--color-primary, #2d5a3d);
+      color: var(--color-primary, #4caf68);
       font-weight: 600;
+    }
+
+    /* same sunlit-room backdrop as the explore page, scoped to this page only */
+    .page-myplants {
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2)),
+        url('../assets/image/explore-bg.webp');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    /* frosted variant: blurred photo behind a heavy white wash */
+    .myplants-bg {
+      position: fixed;
+      inset: -20px;      /* margin hides the soft blur edge */
+      z-index: 0;
+      pointer-events: none;
+      background: url('../assets/image/explore-bg.webp') center / cover no-repeat;
+      filter: blur(14px);
+    }
+
+    .myplants-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.25);
+      /* high-opacity wash: page reads as near-white with ghosted plants */
+    }
+
+    /* lift real content above the blurred layer (navbar is sticky, leave it alone) */
+    .page-myplants > :not(.myplants-bg):not(.navbar) {
+      position: relative;
+      z-index: 1;
     }
 
     .page-section {
@@ -9,12 +44,12 @@
     }
 
     .page-section--alt {
-      background-color: var(--color-bg-alt, #eaf0e1);
+      background-color: var(--color-bg-alt, #e8f5e9);
     }
 
     .section-title {
       font-family: var(--font-heading, "Fraunces", serif);
-      color: var(--color-primary, #2d5a3d);
+      color: var(--color-primary-dark, #222222);
       font-size: 1.8rem;
       margin-bottom: 0.75rem;
     }
@@ -33,7 +68,7 @@
 
     .my-plants-header h1 {
       font-family: var(--font-heading, "Fraunces", serif);
-      color: var(--color-primary, #2d5a3d);
+      color: var(--color-primary-dark, #222222);
       font-size: 2.1rem;
       margin-bottom: 0.5rem;
     }
@@ -52,63 +87,277 @@
 
     .plant-card {
       background-color: #ffffff;
-      border: 1px solid var(--color-border, #dce4d2);
+      border: 1px solid var(--color-border, #e1eee4);
       border-radius: 16px;
-      padding: 1.5rem 1.5rem 1.75rem;
-      box-shadow: 0 12px 30px -20px rgba(23, 48, 31, 0.2);
+      overflow: hidden;
+      box-shadow: 0 12px 30px -20px rgba(34, 64, 45, 0.12);
       display: flex;
       flex-direction: column;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .plant-card__header {
+    .plant-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 34px -20px rgba(34, 64, 45, 0.18);
+    }
+
+    .plant-card:focus-visible {
+      outline: 2px solid var(--color-primary, #4caf68);
+      outline-offset: 2px;
+    }
+
+    /* image */
+    .plant-card__media {
+      position: relative;
+    }
+
+    .plant-card__body {
+      padding: 1.15rem 1.25rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 0.65rem;
+    }
+
+    .plant-card__name {
+      font-family: var(--font-heading, "Fraunces", serif);
+      color: var(--color-primary-dark, #222222);
+      font-size: 1.2rem;
+    }
+
+    .plant-card__species {
+      font-size: 0.85rem;
+      color: var(--color-text-muted, #5c6355);
+      margin-bottom: 0;
+    }
+
+    .plant-card .my-plant__sci {
+      margin-bottom: 0;
+      color: var(--color-secondary, #6ba57a);
+    }
+
+    /* share of the watering cycle left, estimated from the schedule */
+    .hydration__top {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.75rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.4rem;
     }
 
-    .plant-card__header h3 {
-      font-family: var(--font-heading, "Fraunces", serif);
-      color: var(--color-primary, #2d5a3d);
+    .hydration__label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-text, #222222);
+    }
+
+    .hydration__value {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--color-primary, #4caf68);
+    }
+
+    .hydration__bar {
+      height: 6px;
+      border-radius: 999px;
+      background-color: var(--color-border, #e1eee4);
+      overflow: hidden;
+    }
+
+    .hydration__fill {
+      height: 100%;
+      border-radius: inherit;
+      background-color: var(--color-bright, #00e83a);
+      transition: width 0.3s ease;
+    }
+
+    .hydration--low .hydration__value {
+      color: var(--color-danger, #ff5252);
+    }
+
+    .hydration--low .hydration__fill {
+      background-color: var(--color-danger, #ff5252);
+    }
+
+    /* icon above the label, like the reference design */
+    .plant-card__details {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem 1.4rem;
+    }
+
+    .plant-card__detail {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--color-primary, #4caf68);
+    }
+
+    .plant-card__detail-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-primary, #4caf68);
+    }
+
+    .plant-card__detail-icon svg.lucide {
+      width: 1.15rem;
+      height: 1.15rem;
+      color: inherit;
+    }
+
+    .plant-card__detail--overdue {
+      color: var(--color-danger, #ff5252);
+      font-weight: 700;
+    }
+
+    .plant-card__detail--overdue .plant-card__detail-icon,
+    .plant-card__detail--overdue .plant-card__detail-icon svg.lucide {
+      color: inherit;
+    }
+
+    .plant-card__error {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--color-danger, #ff5252);
+    }
+
+    .plant-card__footer {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .water-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--color-border, #e1eee4);
+      background-color: var(--color-bg, #f5faf6);
+      color: var(--color-primary-dark, #222222);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px -6px rgba(34, 64, 45, 0.2);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .water-btn svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+
+    .water-btn:hover {
+      transform: translateY(-1px);
+      background-color: var(--color-bg-alt, #e8f5e9);
+    }
+
+    /* bright green when watering is overdue */
+    .water-btn--due {
+      background-color: var(--color-bright, #00e83a);
+      border-color: var(--color-bright, #00e83a);
+      box-shadow: 0 6px 14px -8px rgba(0, 232, 58, 0.55);
+    }
+
+    .water-btn--due:hover {
+      background-color: #00cf35;
+      border-color: #00cf35;
+    }
+
+    .water-btn.is-saving {
+      opacity: 0.6;
+      cursor: wait;
+      transform: none;
+    }
+
+    /* Menu button in card footer */
+    .plant-card__menu-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--color-border, #e1eee4);
+      background-color: var(--color-bg, #f5faf6);
+      color: var(--color-primary-dark, #222222);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.25rem;
+      line-height: 1;
+      box-shadow: 0 4px 10px -6px rgba(34, 64, 45, 0.2);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+      margin-left: auto;
+    }
+
+    .plant-card__menu-btn:hover {
+      transform: translateY(-1px);
+      background-color: var(--color-bg-alt, #e8f5e9);
+    }
+
+    .plant-card__menu-btn:focus-visible {
+      outline: 2px solid var(--color-primary, #4caf68);
+      outline-offset: 2px;
+    }
+
+    /* My Plants Sections */
+    .my-plants-section__header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--color-border);
+    }
+
+    .my-plants-section__icon {
+      font-size: 1.25rem;
+    }
+
+    .my-plants-section__title {
+      font-family: var(--font-heading);
+      color: var(--color-primary-dark);
       font-size: 1.15rem;
     }
 
-    .status-pill {
-      display: inline-block;
-      font-family: var(--font-body, "Inter", sans-serif);
-      font-size: 0.75rem;
-      font-weight: 600;
+    .my-plants-section__count {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      background: var(--color-bg-alt);
+      padding: 0.15rem 0.5rem;
       border-radius: 999px;
-      padding: 0.25rem 0.75rem;
-      white-space: nowrap;
+      margin-left: auto;
     }
 
-    .status-pill--healthy {
-      background-color: #e4f0dd;
-      color: var(--color-primary, #2d5a3d);
+    .my-plants-section__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
     }
 
-    .status-pill--needs-water {
-      background-color: #fbf0d9;
-      color: #8a6414;
+    @media (max-width: 900px) {
+      .my-plants-section__grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
-    .plant-card__meta {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 1.5rem;
-      font-family: var(--font-body, "Inter", sans-serif);
-      font-size: 0.9rem;
-      color: var(--color-text, #2b2b26);
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .plant-card .btn {
-      margin-top: auto;
-      align-self: flex-start;
+    @media (max-width: 640px) {
+      .my-plants-section__grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     /* text under the heading */
@@ -127,7 +376,7 @@
 
     .action-card {
       background-color: #ffffff;
-      border: 1px solid var(--color-border, #dce4d2);
+      border: 1px solid var(--color-border, #e1eee4);
       border-radius: 16px;
       padding: 1.75rem 1.5rem;
       text-align: left;
@@ -140,14 +389,14 @@
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background-color: var(--color-bg-alt, #eaf0e1);
+      background-color: var(--color-bg-alt, #e8f5e9);
       font-size: 1.3rem;
       margin-bottom: 1rem;
     }
 
     .action-card h3 {
       font-family: var(--font-heading, "Fraunces", serif);
-      color: var(--color-primary, #2d5a3d);
+      color: var(--color-primary-dark, #222222);
       font-size: 1.05rem;
       margin-bottom: 0.4rem;
     }

@@ -1,12 +1,23 @@
 
 :root {
   --color-surface: #ffffff;
-  --color-bg-alt: #eaf0e1;
-  --color-text: #2b2b26;
+  --color-bg-alt: #e8f5e9;
+  --color-text: #222222;
   --color-text-muted: #5c6355;
-  --color-border: #dce4d2;
+  --color-border: #e1eee4;
   --radius-md: 16px;
-  --shadow-soft: 0 12px 30px -18px rgba(23, 48, 31, 0.2);
+  --shadow-soft: 0 12px 30px -18px rgba(34, 64, 45, 0.1);
+}
+
+/* Explore page background (scoped so it doesn't affect the other pages using this stylesheet) */
+.page-explore {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2)),
+    url('../assets/image/explore-bg.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 .nav-links a.active {
@@ -21,7 +32,7 @@
 
 .explore-header h1 {
   font-family: var(--font-heading);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: 2.4rem;
   margin-bottom: 0.75rem;
 }
@@ -150,6 +161,150 @@
   padding-bottom: 5rem;
 }
 
+/* --- Explore page card design (scoped so other pages using these classes keep the old look) --- */
+
+/* 4 columns on the explore page (tablet/phone overrides below keep responsiveness working) */
+.page-explore .plant-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.page-explore .plant-card {
+  border: none;
+  box-shadow: 0 16px 34px -22px rgba(34, 64, 45, 0.35);
+}
+
+.page-explore .plant-card__media {
+  position: relative;
+}
+
+.page-explore .plant-card__image {
+  width: 100%;
+  height: 200px;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* light chip in the top-left corner of the photo */
+.page-explore .plant-card__badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: var(--color-surface);
+  border-radius: 999px;
+  padding: 0.38rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px -4px rgba(34, 64, 45, 0.4);
+}
+
+/* star button in the top-right corner of the photo */
+.page-explore .plant-card__fav {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  box-shadow: 0 4px 12px -4px rgba(34, 64, 45, 0.4);
+}
+
+.page-explore .plant-card__fav[aria-pressed="true"] svg {
+  fill: currentColor;
+}
+
+/* horizontal sun / droplet / sprout info row */
+.page-explore .plant-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  padding: 0;
+  margin: 0 0 1.1rem;
+}
+
+.page-explore .plant-card__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.page-explore .plant-card__actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+/* View Details takes the space, plus button stays compact */
+.page-explore .plant-card__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+}
+
+/* compact icon-only "Add to My Plants" button */
+.page-explore .plant-card__add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  width: 46px;
+  padding: 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.page-explore .plant-card__add:hover:not(:disabled) {
+  background-color: var(--color-bg-alt);
+  transform: translateY(-1px);
+}
+
+.page-explore .plant-card__add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* icon sizing inside badges, meta rows and buttons */
+.page-explore .plant-card svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+/* responsive columns (same as the shared stylesheet, but with matching specificity) */
+@media (max-width: 900px) {
+  .page-explore .plant-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .page-explore .plant-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .plant-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -166,13 +321,13 @@
 
 .plant-card__image {
   width: calc(100% - 24px);
-  height: 180px;
+  height: 150px;
   margin: 12px auto 0;
   display: block;
   object-fit: cover;
   object-position: center;
-  border-radius: 58% 42% 55% 45% / 56% 46% 58% 42%;
-  box-shadow: 0 14px 18px -10px rgba(23, 48, 31, 0.32);
+  border-radius: 12px;
+  box-shadow: 0 14px 18px -10px rgba(34, 64, 45, 0.16);
 }
 
 .plant-card__content {
@@ -184,7 +339,7 @@
 
 .plant-card__title {
   font-family: var(--font-heading);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: 1.15rem;
   margin-bottom: 0.2rem;
 }
@@ -228,9 +383,9 @@
 
 .plant-card__add.is-added,
 .plant-card__add:disabled {
-  background-color: var(--color-bg-alt, #eaf0e1);
-  border: 1.5px solid var(--color-border, #dce4d2);
-  color: var(--color-primary, #2d5a3d);
+  background-color: var(--color-bg-alt, #e8f5e9);
+  border: 1.5px solid var(--color-border, #e1eee4);
+  color: var(--color-primary, #4caf68);
   cursor: default;
 }
 
@@ -280,7 +435,7 @@
 
 .plant-hero__info h1 {
   font-family: var(--font-heading);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: 2.1rem;
   margin-bottom: 0.35rem;
 }
@@ -326,7 +481,7 @@
 
 .info-item__value {
   font-family: var(--font-heading);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: 1.05rem;
 }
 
@@ -361,9 +516,19 @@
 
 .care-guide__item h3 {
   font-family: var(--font-heading);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: 1.05rem;
   margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.care-guide__item h3 svg.lucide {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary);
+  flex: none;
 }
 
 .care-guide__item p {
@@ -377,15 +542,15 @@
 }
 
 .suitability-banner {
-  background-color: var(--color-primary);
-  color: #ffffff;
+  background-color: var(--color-bg-alt);
+  color: var(--color-text);
   border-radius: var(--radius-md);
   padding: 2rem 2.5rem;
   text-align: center;
 }
 
 .suitability-banner h2 {
-  color: #ffffff;
+  color: var(--color-primary-dark);
   font-size: 1.4rem;
   margin-bottom: 0.5rem;
 }
@@ -393,12 +558,12 @@
 .suitability-banner__value {
   font-family: var(--font-heading);
   font-size: 1.3rem;
-  color: var(--color-accent);
+  color: var(--color-primary-dark);
   margin-bottom: 0.5rem;
 }
 
 .suitability-banner__note {
-  color: #eef3e7;
+  color: var(--color-text-muted);
   max-width: 52ch;
   margin: 0 auto;
   font-size: 0.92rem;

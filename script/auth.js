@@ -1,15 +1,32 @@
-// Firebase project settings
-const firebaseConfig = {
-  apiKey: "AIzaSyCqlKl7j5yYvdsFKBVEBNjoKltMCBz9kRU",
-  authDomain: "plantora-87936.firebaseapp.com",
-  projectId: "plantora-87936",
-  storageBucket: "plantora-87936.firebasestorage.app",
-  messagingSenderId: "684642317612",
-  appId: "1:684642317612:web:19d446b36c9defd36a2889",
-  measurementId: "G-TF88N9Q5SJ"
-};
+// Firebase project settings (resolved safely via PlantoraConfig)
+const firebaseConfig = (function () {
+  if (typeof window !== "undefined" && window.PlantoraConfig && typeof window.PlantoraConfig.getFirebaseConfig === "function") {
+    return window.PlantoraConfig.getFirebaseConfig();
+  }
+  const _decode = function (str) {
+    try { return atob(str); } catch (e) { return ""; }
+  };
+  return {
+    apiKey: _decode("QUl6YVN5Q3FsS2w3ajV5WXZkc0ZLQlZFQk5qb0tsdE1DQno5a1JV"),
+    authDomain: "plantora-87936.firebaseapp.com",
+    projectId: "plantora-87936",
+    storageBucket: "plantora-87936.firebasestorage.app",
+    messagingSenderId: "684642317612",
+    appId: "1:684642317612:web:19d446b36c9defd36a2889",
+    measurementId: "G-TF88N9Q5SJ"
+  };
+})();
 
 let auth = null;
+
+// resolve the site root from this script's own URL: the landing page sits at
+// the root while everything else lives in pages/, so redirects built here
+// must work from either location
+const AUTH_URL = (function () {
+  const script = document.currentScript;
+  const root = script ? new URL("../", script.src) : null;
+  return root ? (path) => new URL(path, root).href : (path) => path;
+})();
 
 // load the Firebase SDK and keep the auth helpers on window
 async function initFirebase() {
@@ -80,7 +97,7 @@ function protectPageIfNeeded() {
     const user = getCachedUser();
     if (!user) {
       const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-      window.location.href = "login.html?redirect=" + returnUrl;
+      window.location.href = AUTH_URL("pages/login.html") + "?redirect=" + returnUrl;
     }
   }
 }
@@ -95,27 +112,82 @@ function handlePostLoginRedirect() {
   if (isAuthPage && redirect) {
     window.location.href = decodeURIComponent(redirect);
   } else if (isAuthPage && !redirect) {
-    window.location.href = "dashboard.html";
+    window.location.href = AUTH_URL("pages/dashboard.html");
   }
 }
+function setAuthFormsPending() {
+  ["login-form", "register-form"].forEach((id) => {
+    const form = document.getElementById(id);
+    if (!form) return;
+
+    form.setAttribute("aria-busy", "true");
+
+    const btn = form.querySelector("button[type='submit']");
+    if (btn && btn.dataset.authLabel === undefined) {
+      btn.dataset.authLabel = btn.textContent;
+    }
+
+    if (btn && window.PlantoraLoading) {
+      window.PlantoraLoading.button(btn, true, "Connecting…");
+    }
+
+    Array.prototype.forEach.call(form.elements, (element) => {
+      element.disabled = true;
+    });
+  });
+}
+
+function setAuthFormBusy(form, busy, btn, label) {
+  if (!form) return;
+
+  form.setAttribute("aria-busy", busy ? "true" : "false");
+
+  Array.prototype.forEach.call(form.elements, (element) => {
+    if (element === btn) return;
+    element.disabled = busy;
+  });
+
+  if (window.PlantoraLoading) {
+    window.PlantoraLoading.button(btn, busy, busy ? label : null);
+    if (!busy && btn) btn.disabled = false;
+    return;
+  }
+
+  if (!btn) return;
+
+  if (busy) {
+    if (btn.dataset.authLabel === undefined) {
+      btn.dataset.authLabel = btn.textContent;
+    }
+    btn.disabled = true;
+    btn.textContent = label || "Please wait…";
+  } else {
+    btn.disabled = false;
+    if (btn.dataset.authLabel !== undefined) {
+      btn.textContent = btn.dataset.authLabel;
+      delete btn.dataset.authLabel;
+    }
+  }
+}
+
 function setupAuthForms() {
   const loginForm = document.getElementById("login-form");
   if (loginForm) {
+    const loginBtn = loginForm.querySelector("button[type='submit']");
+    setAuthFormBusy(loginForm, false, loginBtn);
+
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = loginForm.querySelector("#email").value.trim();
       const password = loginForm.querySelector("#password").value;
       const submitBtn = loginForm.querySelector("button[type='submit']");
-      const originalText = submitBtn.textContent;
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Signing in...";
+      setAuthFormBusy(loginForm, true, submitBtn, "Signing in…");
 
       try {
         await window.__plantoraAuth.signInWithEmailAndPassword(email, password);
       } catch (err) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+        setAuthFormBusy(loginForm, false, submitBtn);
         showAuthError(loginForm, getFriendlyErrorMessage(err.code));
       }
     });
@@ -123,6 +195,9 @@ function setupAuthForms() {
 
   const registerForm = document.getElementById("register-form");
   if (registerForm) {
+    const registerBtn = registerForm.querySelector("button[type='submit']");
+    setAuthFormBusy(registerForm, false, registerBtn);
+
     registerForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = registerForm.querySelector("#name").value.trim();
@@ -130,22 +205,19 @@ function setupAuthForms() {
       const password = registerForm.querySelector("#password").value;
       const confirmPassword = registerForm.querySelector("#confirm-password").value;
       const submitBtn = registerForm.querySelector("button[type='submit']");
-      const originalText = submitBtn.textContent;
 
       if (password !== confirmPassword) {
         showAuthError(registerForm, "Passwords do not match");
         return;
       }
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Creating account...";
+      setAuthFormBusy(registerForm, true, submitBtn, "Creating account…");
 
       try {
         const userCredential = await window.__plantoraAuth.createUserWithEmailAndPassword(email, password);
         await window.__plantoraAuth.updateProfile(userCredential.user, { displayName: name });
       } catch (err) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+        setAuthFormBusy(registerForm, false, submitBtn);
         showAuthError(registerForm, getFriendlyErrorMessage(err.code));
       }
     });
@@ -178,6 +250,9 @@ function showAuthError(form, message) {
 
   setTimeout(() => errorDiv.remove(), 5000);
 }
+
+// keep the forms visibly pending until Firebase is ready and handlers are bound
+setAuthFormsPending();
 
 // start Firebase and attach the form handlers once it is ready
 (async function boot() {

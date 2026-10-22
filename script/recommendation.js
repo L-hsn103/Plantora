@@ -38,7 +38,7 @@
         { value: "Low", description: "Every 2–3 weeks" },
         { value: "Medium", description: "About once a week" },
         { value: "High", description: "2–3 times a week" },
-        { value: "Very High", description: "Daily checks; happy with constantly moist or water-grown plants" }
+        { value: "Very High", description: "Daily checks (happy with constantly moist or water-grown plants)" }
       ]
     },
     {
@@ -46,11 +46,11 @@
       question: "How humid is the room where the plant will live?",
       hint: "Plants can struggle when the air is much drier or much wetter than they like.",
       options: [
-        { value: "Very Low", description: "Very dry; air conditioning running most of the day" },
-        { value: "Low", description: "Dry; air-conditioned for part of the day" },
+        { value: "Very Low", description: "Very dry (air conditioning running most of the day)" },
+        { value: "Low", description: "Dry (air-conditioned for part of the day)" },
         { value: "Medium", description: "Normal, comfortable air" },
-        { value: "High", description: "Humid; typical monsoon or non-air-conditioned room" },
-        { value: "Very High", description: "Very humid; for example a poorly ventilated bathroom or kitchen" }
+        { value: "High", description: "Humid (typical monsoon or non-air-conditioned room)" },
+        { value: "Very High", description: "Very humid (for example a poorly ventilated bathroom or kitchen)" }
       ]
     },
     {
@@ -86,7 +86,7 @@
         { value: "Low", description: "A few minutes" },
         { value: "Medium", description: "About 15–30 minutes" },
         { value: "High", description: "Attention several times a week" },
-        { value: "Very High", description: "Daily care; plants are a hobby" }
+        { value: "Very High", description: "Daily care (plants are a hobby)" }
       ]
     },
     {
@@ -193,7 +193,12 @@
     return SURVEY.map(function (q) {
       var plantLevel = getLevel(q.field, plant[q.field]);
       var userLevel = getLevel(q.field, answers[q.field]);
-      return { field: q.field, passedExactly: passesRule(q.rule, plantLevel, userLevel, 0) };
+      return {
+        field: q.field,
+        passedExactly: passesRule(q.rule, plantLevel, userLevel, 0),
+        plantLevel: plantLevel,
+        userLevel: userLevel
+      };
     });
   }
   function getMatchPercentage(plant, answers) {
@@ -411,6 +416,12 @@ function rankPlants(plants, answers) {
     (children || []).forEach(function (child) { if (child) { node.appendChild(child); } });
     return node;
   }
+
+  // lucide replaces <i data-lucide="..."> placeholders with inline SVGs
+  function refreshIcons() {
+    if (window.PlantoraIcons) window.PlantoraIcons.refresh();
+    else if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+  }
  
   var form, surveyView, resultsView, errorBox;
  
@@ -518,12 +529,29 @@ function rankPlants(plants, answers) {
     size: "Stays within your size limit"
   };
  
-  var RELAXED_TEXT = {
-    space: "Needs a bit more space than you listed",
-    maintenance: "Needs a bit more care time than you listed",
-    difficulty: "More demanding than your experience level",
-    size: "Grows larger than your size limit"
+  // real reasons: name the plant's actual need vs the user's answer
+  var FIELD_NOUNS = {
+    light: "light",
+    water: "watering",
+    humidity: "humidity",
+    temperature: "temperature",
+    space: "space",
+    maintenance: "care time",
+    difficulty: "experience level",
+    size: "size"
   };
+
+  // builds a truthful reason line with the real tier values
+  function getWhyText(result) {
+    if (result.passedExactly) { return PASS_TEXT[result.field]; }
+
+    var levels = LEVEL_MAPS[result.field];
+    var need = levels[result.plantLevel - 1] || "unknown";
+    var listed = levels[result.userLevel - 1] || "unknown";
+    var noun = FIELD_NOUNS[result.field] || result.field;
+
+    return "Needs " + need + " " + noun + ", but you chose " + listed;
+  }
  
   var META_FIELDS = [
     ["light", "Light"], ["water", "Water"], ["humidity", "Humidity"], ["temperature", "Temperature"],
@@ -562,10 +590,15 @@ var matchPercentage = getMatchPercentage(plant, answers);
         className: "plant-card__image", src: plant.image, alt: plant.name, loading: "lazy"
       });
       image.addEventListener("error", function () {
-        image.replaceWith(el("div", { className: "rec-card__noimage", text: "🌿", "aria-hidden": "true" }));
+        image.replaceWith(el("div", { className: "rec-card__noimage", "aria-hidden": "true" }, [
+          el("i", { "data-lucide": "leaf" })
+        ]));
+        refreshIcons();
       });
     } else {
-      image = el("div", { className: "rec-card__noimage", text: "🌿", "aria-hidden": "true" });
+      image = el("div", { className: "rec-card__noimage", "aria-hidden": "true" }, [
+        el("i", { "data-lucide": "leaf" })
+      ]);
     }
  
     var meta = el("ul", { className: "rec-meta" });
@@ -580,12 +613,16 @@ var matchPercentage = getMatchPercentage(plant, answers);
     var why = el("ul");
     getRuleResults(plant, answers).forEach(function (result) {
       var isRelaxedItem = !result.passedExactly;
+      var mark = isRelaxedItem
+        ? el("span", { className: "rec-why__alert", "aria-hidden": "true", text: "!" })
+        : el("i", { "data-lucide": "check", className: "rec-why__icon", "aria-hidden": "true" });
+
       why.appendChild(el("li", {
-        className: isRelaxedItem ? "is-relaxed" : "",
-        text: isRelaxedItem
-  ? (RELAXED_TEXT[result.field] || "Does not match your preference")
-  : PASS_TEXT[result.field]
-      }));
+        className: isRelaxedItem ? "is-relaxed" : ""
+      }, [
+        mark,
+        el("span", { text: getWhyText(result) })
+      ]));
     });
  
     var whyId = "why-" + (++whyCounter);
@@ -613,13 +650,11 @@ var matchPercentage = getMatchPercentage(plant, answers);
         className: "rec-match-score",
         text: matchPercentage + "% Match"
     }),
-el("span", {
-  className: "rec-badge " + (matchPercentage === 100 ? "rec-badge--exact" : "rec-badge--relaxed"),
-  text: matchPercentage === 100 ? "Matches all your answers" : "Closest match"
-}),
+matchPercentage === 100 ? el("span", {
+  className: "rec-badge rec-badge--exact",
+  text: "Matches all your answers"
+}) : null,
       el("h3", { className: "plant-card__title", text: plant.name }),
-      plant.scientificName ? el("p", { className: "plant-card__scientific", text: plant.scientificName }) : null,
-      plant.description ? el("p", { className: "rec-card__description", text: plant.description }) : null,
       meta,
       whyBox,
       el("a", {
@@ -694,6 +729,8 @@ el("span", {
     outcome.results.forEach(function (plant) {
       grid.appendChild(createPlantCard(plant, answers, outcome.mode));
     });
+
+    refreshIcons();
   }
  
   function showView(which) {
@@ -722,12 +759,23 @@ el("span", {
       return;
     }
  
+    var submitBtn = document.getElementById("submit-btn");
+    if (window.PlantoraLoading) window.PlantoraLoading.button(submitBtn, true, "Finding plants…");
+    else if (submitBtn) submitBtn.disabled = true;
+
+    function finish() {
+      if (window.PlantoraLoading) window.PlantoraLoading.button(submitBtn, false);
+      else if (submitBtn) submitBtn.disabled = false;
+    }
+
     loadPlants().then(function (plants) {
       renderResults(findRecommendations(plants, answers), answers);
       showView("results");
+      finish();
     }).catch(function (err) {
       console.error("Plantora recommendation:", err);
       showError("We could not load the plant list. Please refresh the page and try again.");
+      finish();
     });
   }
  

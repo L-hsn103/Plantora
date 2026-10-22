@@ -11,11 +11,16 @@ ui-debug.log
 # Environment / secrets
 .env
 .env.*
+*.env
+chatbot/server/.env
 *.pem
 
 # Local overrides
 *.local.json
 *.local.html
+*.local.js
+config.local.js
+script/config.local.js
 
 # Editor & OS cruft
 .vscode/

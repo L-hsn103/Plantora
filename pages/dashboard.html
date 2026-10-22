@@ -15,12 +15,17 @@
   <!-- shared Plantora theme + this page's own styles -->
   <link rel="stylesheet" href="../style/style.css" />
   <link rel="stylesheet" href="../style/dashboard.css" />
+  <link rel="stylesheet" href="../style/identify.css" />
 
   <!-- shop.js fills in the My Plants and Upcoming Care sections -->
+  <script src="https://unpkg.com/lucide@0.469.0" defer></script>
+  <script src="../script/config.js" defer></script>
   <script src="../script/auth.js" defer></script>
   <script src="../script/plant-data.js" defer></script>
   <script src="../script/store.js" defer></script>
+  <script src="../script/loading.js" defer></script>
   <script src="../script/shop.js" defer></script>
+  <script src="../script/identify.js" defer></script>
 
   <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
 
@@ -40,10 +45,11 @@
       <a href="dashboard.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
 
       <nav class="nav-links">
-        <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
+        <a href="../index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html">Explore Plants</a>
         <a href="my-plants.html" data-nav-private hidden>My Plants</a>
-        <a href="index.html#about">About</a>
+        <a href="identify.html" data-open-identify>Identify</a>
+        <a href="../index.html#about">About</a>
     </nav>
 
       <!-- auth-ui.js swaps this button for the user's dropdown -->
@@ -62,7 +68,11 @@
       <div class="container dashboard-hero__inner">
         <h1 id="dash-welcome">Welcome Back,</h1>
         <p>Manage your plants, discover suitable plants, and keep up with their care.</p>
-        <a href="recommendation.html" class="btn btn--primary">Find My Plant</a>
+        <div class="dashboard-hero__actions">
+          <a href="recommendation.html" class="btn btn--primary">Find My Plant</a>
+          <a href="reminders.html" class="btn btn--primary">Reminders</a>
+          <a href="identify.html" class="btn btn--primary" id="btn-hero-identify" data-open-identify>Identify</a>
+        </div>
       </div>
     </section>
 
@@ -73,31 +83,31 @@
         <div class="quick-actions__grid">
 
           <article class="quick-action-card">
-            <span class="quick-action-card__icon">🌱</span>
+            <span class="quick-action-card__icon"><i data-lucide="sprout"></i></span>
             <h3>Find My Plant</h3>
             <p>Get plant recommendations based on your space and lifestyle.</p>
             <a href="recommendation.html" class="btn btn--secondary">Get Recommendation</a>
           </article>
 
           <article class="quick-action-card">
-            <span class="quick-action-card__icon">🪴</span>
+            <span class="quick-action-card__icon"><i data-lucide="leaf"></i></span>
             <h3>My Plants</h3>
             <p>Keep track of the plants you own and their care status.</p>
             <a href="my-plants.html" class="btn btn--secondary">View My Plants</a>
           </article>
 
           <article class="quick-action-card">
-            <span class="quick-action-card__icon">📚</span>
+            <span class="quick-action-card__icon"><i data-lucide="book-open"></i></span>
             <h3>Explore Plant Library</h3>
             <p>Browse indoor plants and learn about their requirements.</p>
             <a href="explore.html" class="btn btn--secondary">Explore Plants</a>
           </article>
 
           <article class="quick-action-card">
-            <span class="quick-action-card__icon">💧</span>
+            <span class="quick-action-card__icon"><i data-lucide="droplets"></i></span>
             <h3>Care &amp; Reminders</h3>
             <p>Stay updated with watering, fertilizing, and other plant care tasks.</p>
-            <a href="#upcoming-care-section" class="btn btn--secondary">View Reminders</a>
+            <a href="reminders.html" class="btn btn--secondary">View Reminders</a>
           </article>
 
         </div>
@@ -109,12 +119,15 @@
 
         <div class="section-header-row">
           <h2 class="section-title">My Plants</h2>
-          <span class="count-badge" id="dash-plant-count">Loading…</span>
+          <span class="count-badge is-loading" id="dash-plant-count" aria-live="polite">Loading…</span>
         </div>
 
         <!-- shop.js fills this with the user's own plants -->
-        <div id="dash-plants" class="dashboard-section__body">
-          <p class="section-note">Loading your plants…</p>
+        <div id="dash-plants" class="dashboard-section__body" aria-busy="true">
+          <div class="loading-block" role="status" aria-live="polite">
+            <span class="spinner spinner--lg" aria-hidden="true"></span>
+            <p class="loading-label">Loading your plants…</p>
+          </div>
         </div>
 
         <a href="my-plants.html" class="btn btn--secondary">View All My Plants</a>
@@ -126,8 +139,11 @@
         <h2 class="section-title">Upcoming Care</h2>
 
         <!-- care tasks due in the next 7 days, from shop.js -->
-        <div id="upcoming-care">
-          <p class="section-note">Loading care tasks…</p>
+        <div id="upcoming-care" aria-busy="true">
+          <div class="loading-block" role="status" aria-live="polite">
+            <span class="spinner spinner--lg" aria-hidden="true"></span>
+            <p class="loading-label">Loading care tasks…</p>
+          </div>
         </div>
       </div>
     </section>
@@ -176,19 +192,19 @@
 
         <div class="about__grid">
           <article class="about__card">
-            <span class="about__icon">🌱</span>
+            <span class="about__icon"><i data-lucide="sprout"></i></span>
             <h3>What We Do</h3>
             <p>We match plants to your light, space and routine, so you buy one that actually thrives.</p>
           </article>
 
           <article class="about__card">
-            <span class="about__icon">🤝</span>
+            <span class="about__icon"><i data-lucide="handshake"></i></span>
             <h3>Who It's For</h3>
             <p>First-time plant owners and collectors who want guidance without the guesswork.</p>
           </article>
 
           <article class="about__card">
-            <span class="about__icon">🎓</span>
+            <span class="about__icon"><i data-lucide="graduation-cap"></i></span>
             <h3>Student Project</h3>
             <p>Plantora is built as a student project — feedback and ideas are always welcome.</p>
           </article>
@@ -207,10 +223,11 @@
       </div>
 
       <nav class="footer__links">
-        <a href="index.html">Home</a>
+        <a href="../index.html">Home</a>
         <a href="explore.html">Explore Plants</a>
         <a href="my-plants.html">My Plants</a>
-        <a href="index.html#about">About</a>
+        <a href="identify.html">Identify</a>
+        <a href="../index.html#about">About</a>
       </nav>
     </div>
 
@@ -218,6 +235,11 @@
   </footer>
 
   <script src="../script/auth-ui.js"></script>
-  <script src="../chatbot/widget/plantora-chat.js" data-api="http://localhost:3001/api/chat" defer></script>
+  <script src="../chatbot/widget/plantora-chat.js" defer></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+    });
+  </script>
 </body>
 </html>

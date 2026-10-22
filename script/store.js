@@ -8,13 +8,14 @@
   var TX_ID_RE = /^tx_[a-f0-9]{32}$/;
   var DAY_MS = 86400000;
   var NICKNAME_MAX = 60;
+  var LOCATIONS = ["Living Room", "Bedroom", "Office", "Kitchen", "Balcony"];
 
   var TASK_KEYS = ["watering", "fertilizing", "repotting", "cleaning"];
   var TASK_META = {
-    watering: { label: "Watering", icon: "\uD83D\uDCA7" },
-    fertilizing: { label: "Fertilizing", icon: "\uD83C\uDF3F" },
-    repotting: { label: "Repotting", icon: "\uD83E\uDED4" },
-    cleaning: { label: "Cleaning", icon: "\uD83E\uDDF9" }
+    watering: { label: "Watering", icon: "droplets" },
+    fertilizing: { label: "Fertilizing", icon: "sprout" },
+    repotting: { label: "Repotting", icon: "plant-pot" },
+    cleaning: { label: "Cleaning", icon: "brush" }
   };
 
   var WATER_DAYS = { "Very Low": 21, "Low": 14, "Medium": 7, "High": 4, "Very High": 2 };
@@ -49,7 +50,7 @@
     var s = {};
     TASK_KEYS.forEach(function (key) {
       var days = defaultIntervalDays(plant, key);
-      s[key] = { intervalDays: days, lastDone: null, nextDue: nowMs + days * DAY_MS };
+      s[key] = { intervalDays: days, lastDone: null, nextDue: nowMs + days * DAY_MS,completed: false };
     });
     return s;
   }
@@ -61,7 +62,8 @@
       out[key] = {
         intervalDays: clampInterval(t.intervalDays || 7),
         lastDone: t.lastDone == null ? null : Number(t.lastDone),
-        nextDue: Number(t.nextDue) || 0
+        nextDue: Number(t.nextDue) || 0,
+        completed: t.completed === true
       };
     });
     return out;
@@ -81,6 +83,7 @@
     var task = next[taskKey];
     task.lastDone = nowMs;
     task.nextDue = nowMs + task.intervalDays * DAY_MS;
+    task.completed = true;
     return next;
   }
 
@@ -130,6 +133,7 @@
           label: TASK_META[key].label,
           icon: TASK_META[key].icon,
           nextDue: task.nextDue,
+          completed: task.completed === true,
           overdueDays: task.nextDue <= nowMs ? Math.floor((nowMs - task.nextDue) / DAY_MS) : 0
         });
       });
@@ -306,7 +310,9 @@
                     plantId: data.plantId,
                     plantName: data.plantName,
                     nickname: data.nickname == null ? null : data.nickname,
+                    location: data.location == null ? null : data.location,
                     source: data.source,
+                    notes: data.notes == null ? null : data.notes,
                     orderId: data.orderId == null ? null : data.orderId,
                     addedAt: data.addedAt && data.addedAt.toMillis ? data.addedAt.toMillis() : null,
                     schedule: cloneSchedule(data.schedule)
@@ -368,16 +374,27 @@
             },
 
             // Add a plant to the user's collection without buying it
-            addManual: function (uid, docId, plant) {
+            addManual: function (uid, docId, plant, options) {
+              options = options || {};
+              var nickname = cleanNickname(options.nickname);
+              var location = null;
+              if (options.location && LOCATIONS.indexOf(options.location) !== -1) {
+                location = options.location;
+              }
+              var schedule = buildSchedule(plant, Date.now());
+              if (options.wateringInterval) {
+                schedule = scheduleWithInterval(schedule, "watering", options.wateringInterval);
+              }
               return fs.setDoc(plantRef(uid, docId), {
                 uid: uid,
                 plantId: plant.id,
                 plantName: plant.name,
-                nickname: null,
+                nickname: nickname,
+                location: location,
                 source: "manual",
                 orderId: null,
                 addedAt: fs.serverTimestamp(),
-                schedule: buildSchedule(plant, Date.now())
+                schedule: schedule
               });
             }
           };
@@ -513,7 +530,7 @@
     });
   }
 
-  function addPlantManually(plantId) {
+  function addPlantManually(plantId, options) {
     plantId = Number(plantId);
     return Promise.all([loadCatalog(), requireUser()]).then(function (r) {
       var plant = r[0].filter(function (p) { return p.id === plantId; })[0];
@@ -521,7 +538,7 @@
       if (!plant) throw fail("plantora/unknown-plant", "That plant could not be found.");
       var docId = "tx_" + randomHex(16);
       return firebaseBackend().then(function (b) {
-        return b.addManual(user.uid, docId, plant).then(function () {
+        return b.addManual(user.uid, docId, plant, options).then(function () {
           return { entryId: docId, plantId: plant.id, plantName: plant.name, source: "manual" };
         });
       });
@@ -549,6 +566,24 @@
     }).then(function () { return clean; });
   }
 
+  function setLocation(entryId, location) {
+    var clean = String(location == null ? "" : location).trim().slice(0, NICKNAME_MAX);
+    return requireUser().then(function (user) {
+      return firebaseBackend().then(function (b) {
+        return b.updatePlantFields(user.uid, entryId, { location: clean || null });
+      });
+    }).then(function () { return clean || null; });
+  }
+
+  function updateNotes(entryId, notes) {
+    var clean = String(notes == null ? "" : notes).trim().slice(0, 1000);
+    return requireUser().then(function (user) {
+      return firebaseBackend().then(function (b) {
+        return b.updatePlantFields(user.uid, entryId, { notes: clean || null });
+      });
+    }).then(function () { return clean || null; });
+  }
+
   function setTaskInterval(entryId, taskKey, days) {
     if (TASK_KEYS.indexOf(taskKey) === -1) {
       return Promise.reject(fail("plantora/unknown-task", "Unknown care task."));
@@ -563,6 +598,35 @@
         });
       }).then(function () { return schedule; });
     });
+  }
+
+  // set a task's due date directly (used by snooze / reopen), keeping its interval
+  function setTaskDue(entryId, taskKey, nextDueMs, lastDoneMs) {
+    if (TASK_KEYS.indexOf(taskKey) === -1) {
+      return Promise.reject(fail("plantora/unknown-task", "Unknown care task."));
+    }
+    nextDueMs = Math.max(0, Math.round(Number(nextDueMs)) || 0);
+    return listMyPlants().then(function (entries) {
+      var entry = entries.filter(function (e) { return e.id === entryId; })[0];
+      if (!entry) throw fail("plantora/unknown-plant", "That plant is no longer in your collection.");
+      var schedule = cloneSchedule(entry.schedule);
+      var task = schedule[taskKey];
+      task.nextDue = nextDueMs;
+      task.completed = false;
+      if (lastDoneMs !== undefined) {
+        task.lastDone = lastDoneMs == null ? null : Math.max(0, Math.round(Number(lastDoneMs)) || 0);
+      }
+      return requireUser().then(function (user) {
+        return firebaseBackend().then(function (b) {
+          return b.updatePlantFields(user.uid, entryId, { schedule: schedule });
+        });
+      }).then(function () { return schedule; });
+    });
+  }
+
+  // snooze a task: push its due date forward by the given number of days
+  function snoozeTask(entryId, taskKey, days) {
+    return setTaskDue(entryId, taskKey, Date.now() + Math.max(1, Math.round(Number(days))) * DAY_MS);
   }
 
   function markTaskDone(entryId, taskKey) {
@@ -586,6 +650,7 @@
     TASK_KEYS: TASK_KEYS,
     TASK_META: TASK_META,
     DAY_MS: DAY_MS,
+    LOCATIONS: LOCATIONS,
     defaultIntervalDays: defaultIntervalDays,
     buildSchedule: buildSchedule,
     getDueTasks: getDueTasks,
@@ -609,8 +674,12 @@
     listMyPlants: listMyPlants,
     removePlant: removePlant,
     renamePlant: renamePlant,
+    setLocation: setLocation,
     setTaskInterval: setTaskInterval,
+    setTaskDue: setTaskDue,
+    snoozeTask: snoozeTask,
     markTaskDone: markTaskDone,
+    updateNotes: updateNotes,
 
     _setBackendForTests: function (b) { backendPromise = Promise.resolve(b); } // offline tests only
   };

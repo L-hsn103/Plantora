@@ -14,9 +14,12 @@
 
   <link rel="stylesheet" href="../style/style.css" />
   <link rel="stylesheet" href="../style/explore.css" />
-  <script src="../script/auth.js" defer></script>
+    <script src="https://unpkg.com/lucide@0.469.0" defer></script>
+    <script src="../script/config.js" defer></script>
+    <script src="../script/auth.js" defer></script>
   <script src="../script/plant-data.js" defer></script>
-   <script src="../script/store.js" defer></script>
+  <script src="../script/store.js" defer></script>
+  <script src="../script/loading.js" defer></script>
   <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
 
   <!-- set the logged in class early so the navbar doesn't flicker -->
@@ -31,13 +34,13 @@
 <body>
   <header class="navbar">
     <div class="container navbar__inner">
-      <a href="index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
+      <a href="../index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
 
       <nav class="nav-links">
-        <a href="index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
+        <a href="../index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html" class="active" aria-current="page">Explore Plants</a>
         <a href="my-plants.html" data-nav-private hidden>My Plants</a>
-        <a href="index.html#about">About</a>
+        <a href="../index.html#about">About</a>
     </nav>
       <div class="navbar__actions">
         <a href="login.html" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
@@ -54,7 +57,15 @@
         <a href="explore.html" class="back-link">&larr; Back to Explore Plants</a>
     </div>
 
+    <div class="loading-block" id="plant-details-loading" role="status" aria-live="polite">
+      <span class="spinner spinner--lg" aria-hidden="true"></span>
+      <p class="loading-label">Loading plant details…</p>
+    </div>
+
+    <div class="container" id="plant-details-error" hidden></div>
+
     <!-- script.js fills these from the id in the url -->
+    <div id="plant-details-content" hidden>
     <section class="plant-hero">
       <div class="container plant-hero__inner">
         <img class="plant-hero__image" id="plant-image" src="" alt="" />
@@ -123,19 +134,19 @@
 
         <div class="care-guide__grid">
           <div class="care-guide__item">
-            <h3>💧 Watering</h3>
+            <h3><i data-lucide="droplets"></i> Watering</h3>
             <p id="care-watering"></p>
           </div>
           <div class="care-guide__item">
-            <h3>🌿 Fertilizing</h3>
+            <h3><i data-lucide="sprout"></i> Fertilizing</h3>
             <p id="care-fertilizer"></p>
           </div>
           <div class="care-guide__item">
-            <h3>🪴 Repotting</h3>
+            <h3><i data-lucide="plant-pot"></i> Repotting</h3>
             <p id="care-repotting"></p>
           </div>
           <div class="care-guide__item">
-            <h3>🧹 Cleaning</h3>
+            <h3><i data-lucide="brush"></i> Cleaning</h3>
             <p id="care-cleaning"></p>
           </div>
         </div>
@@ -151,6 +162,7 @@
         </div>
       </div>
     </section>
+    </div>
 
   </main>
 
@@ -162,10 +174,10 @@
       </div>
 
       <nav class="footer__links">
-        <a href="index.html">Home</a>
+        <a href="../index.html">Home</a>
         <a href="explore.html">Explore Plants</a>
         <a href="my-plants.html">My Plants</a>
-        <a href="index.html#about">About</a>
+        <a href="../index.html#about">About</a>
       </nav>
     </div>
 
