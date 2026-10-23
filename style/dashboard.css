@@ -137,7 +137,7 @@
     /* small plant cards on the dashboard */
     .mini-plant-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 1.25rem;
       margin-bottom: 1.75rem;
     }
@@ -331,7 +331,7 @@
       }
 
       .mini-plant-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
       }
     }
 

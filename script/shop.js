@@ -248,7 +248,7 @@
           } else {
             var grid = el("div", "mini-plant-grid");
 
-            entries.slice(0, 6).forEach(function (entry) {
+            entries.slice(0, 4).forEach(function (entry) {
               var plant = window.PlantoraData.getPlantById(entry.plantId);
               var card = el("div", "mini-plant-card");
 
@@ -278,11 +278,11 @@
 
             plantsHost.appendChild(grid);
 
-            if (entries.length > 6) {
+            if (entries.length > 4) {
               plantsHost.appendChild(el(
                 "p",
                 "section-note",
-                "Showing 6 of " + entries.length + " plants."
+                "Showing 4 of " + entries.length + " plants."
               ));
             }
           }
