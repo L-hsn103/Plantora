@@ -8,9 +8,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../style/style.css" />
+  <link rel="stylesheet" href="../style/profile.css" />
   <script src="https://unpkg.com/lucide@0.469.0" defer></script>
   <script src="../script/config.js" defer></script>
   <script src="../script/auth.js" defer></script>
+  <script src="../script/store.js" defer></script>
   <link rel="icon" type="image/png" href="../assets/image/Plantora_log.png" />
   <script>
     try {
@@ -39,12 +41,163 @@
       </div>
     </div>
   </header>
-  <main>
-    <div class="container">
-      <h1>Profile</h1>
-      <p>Profile page coming soon.</p>
-    </div>
+
+  <!-- All profile UI lives inside .pf-page so profile.css cannot affect the navbar or footer -->
+  <div class="pf-page">
+  <main class="pf-main" id="pf-main">
+
+    <div class="pf-banner" id="pf-banner" role="status" hidden></div>
+
+    <!-- Profile header -->
+    <section class="pf-card pf-profile" aria-labelledby="pf-name">
+      <div class="pf-avatar" id="pf-avatar" aria-hidden="true">
+        <img id="pf-avatar-img" alt="" hidden>
+        <svg id="pf-avatar-default" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4" fill="currentColor"/><path d="M4 21c0-4.400 3.600-7 8-7s8 2.600 8 7" fill="currentColor"/></svg>
+      </div>
+      <div class="pf-profile__text">
+        <span class="pf-tag">Plantora Gardener</span>
+        <h1 id="pf-name" class="pf-profile__name">Loading…</h1>
+        <p id="pf-email" class="pf-profile__email"></p>
+      </div>
+      <button type="button" class="pf-btn pf-btn--soft" id="pf-edit-btn" disabled>Edit profile</button>
+    </section>
+
+    <!-- Statistics -->
+    <section aria-labelledby="pf-stats-title">
+      <h2 id="pf-stats-title" class="pf-section-title">Your gardening</h2>
+      <div class="pf-stats" id="pf-stats">
+        <article class="pf-card pf-stat" data-stat="total" data-state="loading">
+          <span class="pf-stat__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21v-9m0 0C12 7 9 4 4 4c0 5 3 8 8 8Zm0 3c0-4 3-7 8-7 0 5-3 7-8 7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <p class="pf-stat__value" data-role="value" aria-live="polite">…</p>
+          <p class="pf-stat__label">Total plants</p>
+          <p class="pf-stat__note" data-role="note">Entries in My Plants</p>
+        </article>
+        <article class="pf-card pf-stat" data-stat="completed" data-state="loading">
+          <span class="pf-stat__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m8 12.500 3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <p class="pf-stat__value" data-role="value" aria-live="polite">…</p>
+          <p class="pf-stat__label">Care tasks completed</p>
+          <p class="pf-stat__note" data-role="note">Watering, feeding and more</p>
+        </article>
+        <article class="pf-card pf-stat" data-stat="upcoming" data-state="loading" hidden>
+          <span class="pf-stat__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3c3 4 5 6.500 5 10a5 5 0 0 1-10 0c0-3.500 2-6 5-10Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+          <p class="pf-stat__value" data-role="value" aria-live="polite">…</p>
+          <p class="pf-stat__label">Upcoming care</p>
+          <p class="pf-stat__note" data-role="note">Tasks still to do</p>
+        </article>
+      </div>
+      <button type="button" class="pf-link" id="pf-stats-retry" hidden>Try loading statistics again</button>
+    </section>
+
+    <!-- Account settings -->
+    <section class="pf-card pf-settings" aria-labelledby="pf-settings-title">
+      <h2 id="pf-settings-title" class="pf-section-title pf-section-title--inner">Account settings</h2>
+      <ul class="pf-list">
+        <li>
+          <button type="button" class="pf-row" id="pf-row-edit" disabled>
+            <span class="pf-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4Zm9-13 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="pf-row__text"><strong>Edit profile</strong><small>Update your display name and photo</small></span>
+            <svg class="pf-row__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="pf-row" id="pf-row-password" disabled>
+            <span class="pf-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></span>
+            <span class="pf-row__text"><strong>Change password</strong><small>Choose a new password for sign-in</small></span>
+            <svg class="pf-row__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="pf-row pf-row--danger" id="pf-row-logout" disabled>
+            <span class="pf-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4m5-12 5 5-5 5m5-5H10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="pf-row__text"><strong>Log out</strong><small>End your session on this device</small></span>
+            <svg class="pf-row__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </li>
+      </ul>
+    </section>
   </main>
+
+  <!-- Edit profile dialog -->
+  <dialog class="pf-dialog" id="pf-edit-dialog" aria-labelledby="pf-edit-title">
+    <form class="pf-form" id="pf-edit-form" novalidate>
+      <h2 id="pf-edit-title">Edit profile</h2>
+      <div class="pf-field" id="pf-photo-field" hidden>
+        <label for="pf-photo-input">Profile picture</label>
+        <input type="file" id="pf-photo-input" accept="image/png,image/jpeg,image/webp">
+        <p class="pf-hint">PNG, JPG or WebP, up to 2 MB.</p>
+        <p class="pf-error" data-error-for="pf-photo-input" role="alert"></p>
+      </div>
+      <div class="pf-field">
+        <label for="pf-name-input">Name</label>
+        <input type="text" id="pf-name-input" autocomplete="name" maxlength="80" required>
+        <p class="pf-error" data-error-for="pf-name-input" role="alert"></p>
+      </div>
+      <div class="pf-field">
+        <label for="pf-email-readonly">Email</label>
+        <input type="email" id="pf-email-readonly" readonly aria-describedby="pf-email-hint">
+        <p class="pf-hint" id="pf-email-hint">Your email is tied to your account and can’t be changed here.</p>
+      </div>
+      <p class="pf-form-status" id="pf-edit-status" role="alert" hidden></p>
+      <div class="pf-actions">
+        <button type="button" class="pf-btn pf-btn--ghost" data-close>Cancel</button>
+        <button type="submit" class="pf-btn pf-btn--primary" id="pf-edit-save">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Change password dialog -->
+  <dialog class="pf-dialog" id="pf-password-dialog" aria-labelledby="pf-password-title">
+    <form class="pf-form" id="pf-password-form" novalidate>
+      <h2 id="pf-password-title">Change password</h2>
+      <div class="pf-field" data-password-field="current">
+        <label for="pf-current-password">Current password</label>
+        <div class="pf-pw">
+          <input type="password" id="pf-current-password" autocomplete="current-password" required>
+          <button type="button" class="pf-pw__toggle" aria-pressed="false" aria-label="Show current password" data-toggle-for="pf-current-password">Show</button>
+        </div>
+        <p class="pf-error" data-error-for="pf-current-password" role="alert"></p>
+      </div>
+      <div class="pf-field">
+        <label for="pf-new-password">New password</label>
+        <div class="pf-pw">
+          <input type="password" id="pf-new-password" autocomplete="new-password" required aria-describedby="pf-new-hint">
+          <button type="button" class="pf-pw__toggle" aria-pressed="false" aria-label="Show new password" data-toggle-for="pf-new-password">Show</button>
+        </div>
+        <p class="pf-hint" id="pf-new-hint"></p>
+        <p class="pf-error" data-error-for="pf-new-password" role="alert"></p>
+      </div>
+      <div class="pf-field">
+        <label for="pf-confirm-password">Confirm new password</label>
+        <div class="pf-pw">
+          <input type="password" id="pf-confirm-password" autocomplete="new-password" required>
+          <button type="button" class="pf-pw__toggle" aria-pressed="false" aria-label="Show confirmation password" data-toggle-for="pf-confirm-password">Show</button>
+        </div>
+        <p class="pf-error" data-error-for="pf-confirm-password" role="alert"></p>
+      </div>
+      <p class="pf-form-status" id="pf-password-status" role="alert" hidden></p>
+      <div class="pf-actions">
+        <button type="button" class="pf-btn pf-btn--ghost" data-close>Cancel</button>
+        <button type="submit" class="pf-btn pf-btn--primary" id="pf-password-save">Update password</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Logout confirmation dialog -->
+  <dialog class="pf-dialog pf-dialog--small" id="pf-logout-dialog" aria-labelledby="pf-logout-title">
+    <div class="pf-form">
+      <h2 id="pf-logout-title">Log out of Plantora?</h2>
+      <p class="pf-hint pf-hint--body">You’ll need to sign in again to see your plants.</p>
+      <p class="pf-form-status" id="pf-logout-status" role="alert" hidden></p>
+      <div class="pf-actions">
+        <button type="button" class="pf-btn pf-btn--ghost" data-close>Stay signed in</button>
+        <button type="button" class="pf-btn pf-btn--danger" id="pf-logout-confirm">Log out</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="pf-toast" id="pf-toast" role="status" aria-live="polite" hidden></div>
+  </div>
+
   <footer class="footer" id="footer">
     <div class="container footer__inner">
       <div class="footer__brand">
@@ -60,6 +213,161 @@
     </div>
     <p class="footer__copyright">&copy; 2026 Plantora. Student project — all rights reserved.</p>
   </footer>
+
+  <script>
+    // Connect the profile page to Plantora's existing Firebase auth and data layer.
+    window.PlantoraProfileConfig = { loginUrl: "login.html" };
+
+    window.PlantoraProfileAdapter = (function () {
+      'use strict';
+
+      function codedError(message, code) {
+        var error = new Error(message);
+        error.code = code;
+        return error;
+      }
+
+      // Normalise Firebase error codes (strip "auth/") so profile.js can map them.
+      function normalise(fn) {
+        return fn.catch(function (err) {
+          if (err && typeof err.code === 'string' && err.code.indexOf('auth/') === 0) {
+            var normalised = new Error(err.message);
+            normalised.code = err.code.slice(5);
+            throw normalised;
+          }
+          throw err;
+        });
+      }
+
+      // Wait for auth.js to expose window.__plantoraAuth
+      function waitForAuth() {
+        return new Promise(function (resolve, reject) {
+          var tries = 0;
+          function check() {
+            if (window.__plantoraAuth) return resolve(window.__plantoraAuth);
+            if (++tries > 200) return reject(codedError('Authentication service did not load.', 'auth-unavailable'));
+            setTimeout(check, 50);
+          }
+          check();
+        });
+      }
+
+      function getCurrentUser() {
+        return waitForAuth().then(function (auth) {
+          return new Promise(function (resolve) {
+            var done = false;
+            var off = auth.onAuthStateChanged(function (user) {
+              if (done) return;
+              done = true;
+              if (typeof off === 'function') off();
+              if (user) {
+                resolve({ uid: user.uid, email: user.email || '', displayName: user.displayName || '', photoUrl: user.photoURL || null });
+              } else {
+                resolve(null);
+              }
+            });
+          });
+        });
+      }
+
+      // One shared read of the user's plants feeds all three statistics.
+      var plantsPromise = null;
+      function listPlants() {
+        if (!window.PlantoraStore) {
+          return Promise.reject(codedError('Plantora data layer (store.js) is not loaded.', 'not-connected'));
+        }
+        if (!plantsPromise) {
+          plantsPromise = window.PlantoraStore.listMyPlants();
+          plantsPromise.catch(function () { plantsPromise = null; });
+        }
+        return plantsPromise;
+      }
+
+      function getPlantEntryCount() {
+        return getCurrentUser().then(function (user) {
+          if (!user) throw codedError('Not signed in.', 'unauthenticated');
+          return listPlants().then(function (entries) { return entries.length; });
+        });
+      }
+
+      function countCompletedTasks(entries) {
+        var count = 0;
+        for (var i = 0; i < entries.length; i++) {
+          var sched = entries[i] && entries[i].schedule;
+          if (!sched) continue;
+          for (var key in sched) {
+            if (sched[key] && sched[key].completed === true) count++;
+          }
+        }
+        return count;
+      }
+
+      function getCompletedCareTaskCount() {
+        return getCurrentUser().then(function (user) {
+          if (!user) return null;
+          return listPlants().then(function (entries) { return countCompletedTasks(entries); });
+        });
+      }
+
+      function getUpcomingCareCount() {
+        return getCurrentUser().then(function (user) {
+          if (!user) return null;
+          var now = Date.now();
+          var horizon = now + 7 * 24 * 60 * 60 * 1000;
+          return listPlants().then(function (entries) {
+            var count = 0;
+            for (var i = 0; i < entries.length; i++) {
+              var sched = entries[i] && entries[i].schedule;
+              if (!sched) continue;
+              for (var key in sched) {
+                var t = sched[key];
+                if (t && t.nextDue > 0 && t.nextDue <= horizon && t.completed !== true) count++;
+              }
+            }
+            return count;
+          });
+        });
+      }
+
+      function updateProfile(input) {
+        return getCurrentUser().then(function (user) {
+          if (!user) throw codedError('Not signed in.', 'unauthenticated');
+          var updates = {};
+          if (typeof input.displayName === 'string' && input.displayName.trim() && input.displayName.trim() !== user.displayName) {
+            updates.displayName = input.displayName.trim();
+          }
+          if (Object.keys(updates).length === 0) return user;
+          return normalise(window.__plantoraAuth.updateProfile(user, updates)).then(function () {
+            return { uid: user.uid, email: user.email, displayName: updates.displayName || user.displayName, photoUrl: user.photoUrl };
+          });
+        });
+      }
+
+      function changePassword(input) {
+        return getCurrentUser().then(function (user) {
+          if (!user) throw codedError('Not signed in.', 'unauthenticated');
+          if (!input.currentPassword) throw codedError('Enter your current password.', 'wrong-password');
+          return normalise(window.__plantoraAuth.signInWithEmailAndPassword(user.email, input.currentPassword))
+            .then(function (cred) { return cred.user.updatePassword(input.newPassword); });
+        });
+      }
+
+      function signOut() {
+        return waitForAuth().then(function (auth) { return auth.signOut(); });
+      }
+
+      return {
+        getCurrentUser: getCurrentUser,
+        getPlantEntryCount: getPlantEntryCount,
+        getCompletedCareTaskCount: getCompletedCareTaskCount,
+        getUpcomingCareCount: getUpcomingCareCount,
+        updateProfile: updateProfile,
+        changePassword: changePassword,
+        signOut: signOut
+      };
+    })();
+  </script>
+  <script src="../script/profile.js" defer></script>
   <script src="../script/auth-ui.js"></script>
   <script src="../chatbot/widget/plantora-chat.js" data-api="http://localhost:3001/api/chat" defer></script>
 </body>

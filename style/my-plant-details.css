@@ -21,7 +21,7 @@
   --mpd-serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
 }
 
-.mpd-body { margin: 0; background: var(--mpd-bg); color: var(--mpd-text); font-family: var(--mpd-font); line-height: 1.5; }
+.mpd-body { margin: 0; background-color: var(--mpd-bg); color: var(--mpd-text); font-family: var(--mpd-font); line-height: 1.5; }
 .mpd, .mpd * , .mpd-dialog, .mpd-dialog * { box-sizing: border-box; }
 .mpd { min-height: 100vh; overflow-x: hidden; }
 .mpd [hidden], .mpd-dialog [hidden] { display: none !important; }
@@ -108,7 +108,7 @@
 @keyframes mpd-spin { to { transform: rotate(360deg); } }
 
 /* Dialogs */
-.mpd-dialog { font-family: var(--mpd-font); color: var(--mpd-text); border: 0; border-radius: var(--mpd-radius-card); padding: 24px; width: min(480px, calc(100vw - 24px)); background: var(--mpd-card); box-shadow: 0 20px 60px rgba(32, 53, 43, .3); }
+.mpd-dialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: var(--mpd-font); color: var(--mpd-text); border: 0; border-radius: var(--mpd-radius-card); padding: 24px; width: min(480px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: auto; background: var(--mpd-card); box-shadow: 0 20px 60px rgba(32, 53, 43, .3); }
 .mpd-dialog::backdrop { background: rgba(32, 53, 43, .45); }
 .mpd-dialog h2 { margin: 0 0 14px; font-family: var(--mpd-serif); font-weight: 400; font-size: 1.5rem; color: var(--mpd-primary); }
 .mpd-dialog p { margin: 0 0 12px; }

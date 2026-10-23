@@ -146,45 +146,30 @@ function updateNavbarForAuth(isLoggedIn) {
 
   if (!isLoggedIn) {
     // put the plain profile icon link back (it sends visitors to login)
+    const loginHtml = `
+      <a href="${AUTH_UI_URL("pages/login.html")}" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
+        <img src="${AUTH_UI_ASSETS}user.png" alt="" />
+      </a>
+    `;
     if (menu) {
-      menu.outerHTML = `
-        <a href="${AUTH_UI_URL("pages/login.html")}" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Account">
-          <img src="${AUTH_UI_ASSETS}user.png" alt="" />
-        </a>
-      `;
+      menu.outerHTML = loginHtml;
+    } else if (profileBtn && profileBtn.tagName === "A" && !/login\.html$/.test(profileBtn.getAttribute("href") || "")) {
+      profileBtn.outerHTML = loginHtml;
     }
     return;
   }
 
-  if (menu || !profileBtn) return;
-
-  const user = readCachedUser();
-  if (!user) return;
-
-  const displayName = user.displayName || (user.email || "").split("@")[0] || "Account";
-
-  injectUserMenuStyles();
-
-  profileBtn.outerHTML = `
-    <div class="user-menu" id="user-menu">
-      <button class="user-menu__trigger nav-icon-btn" type="button" aria-expanded="false" aria-haspopup="true" aria-label="Account menu">
-        <img src="${AUTH_UI_ASSETS}user.png" alt="" />
-      </button>
-      <div class="user-menu__dropdown" role="menu" hidden>
-        <div class="user-menu__header">
-          <span class="user-menu__name">${escapeHtml(displayName)}</span>
-          <span class="user-menu__email">${escapeHtml(user.email || "")}</span>
-        </div>
-        <hr class="user-menu__divider" />
-        <button class="user-menu__item" role="menuitem" data-action="logout">
-          <i data-lucide="log-out" aria-hidden="true"></i> Logout
-        </button>
-      </div>
-    </div>
+  // Signed in: clicking the icon opens the Profile page (logout lives there)
+  const profileHtml = `
+    <a href="${AUTH_UI_URL("pages/profile.html")}" class="nav-icon-btn nav-icon-btn--profile" id="nav-profile-btn" aria-label="Profile">
+      <img src="${AUTH_UI_ASSETS}user.png" alt="" />
+    </a>
   `;
 
-  setupUserMenu();
-  window.PlantoraIcons.refresh();
+  const profileUrl = AUTH_UI_URL("pages/profile.html");
+  if (profileBtn && profileBtn.tagName === "A" && profileBtn.getAttribute("href") === profileUrl) return;
+  if (menu) menu.outerHTML = profileHtml;
+  else if (profileBtn) profileBtn.outerHTML = profileHtml;
 }
 
 function injectUserMenuStyles() {

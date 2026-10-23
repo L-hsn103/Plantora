@@ -39,6 +39,15 @@ body {
   font-family: var(--font-body);
   color: var(--color-text);
   background-color: var(--color-bg);
+  /* same sunlit-room backdrop as the explore page — pages with their own
+     background (home/explore/my-plants/login) override this via their body/wrapper class */
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2)),
+    url('../assets/image/explore-bg.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   line-height: 1.6;
 }
 
