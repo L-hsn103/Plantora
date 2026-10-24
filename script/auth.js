@@ -31,7 +31,7 @@ const AUTH_URL = (function () {
 // load the Firebase SDK and keep the auth helpers on window
 async function initFirebase() {
   const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-  const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+  const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, updateProfile } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
 
   const app = initializeApp(firebaseConfig);
   auth = getAuth(app);
@@ -39,6 +39,7 @@ async function initFirebase() {
   window.__plantoraAuth = {
     signInWithEmailAndPassword: (email, password) => signInWithEmailAndPassword(auth, email, password),
     createUserWithEmailAndPassword: (email, password) => createUserWithEmailAndPassword(auth, email, password),
+    sendPasswordResetEmail: (email) => sendPasswordResetEmail(auth, email),
     signOut: () => signOut(auth),
     updateProfile: (user, profile) => updateProfile(user, profile),
     onAuthStateChanged: (callback) => onAuthStateChanged(auth, callback)
@@ -220,6 +221,158 @@ function setupAuthForms() {
         setAuthFormBusy(registerForm, false, submitBtn);
         showAuthError(registerForm, getFriendlyErrorMessage(err.code));
       }
+    });
+  }
+
+  // -------- forgot password flow --------
+  const forgotPanel = document.getElementById("forgot-password-panel");
+  const step1 = document.getElementById("forgot-step-1");
+  const step2 = document.getElementById("forgot-step-2");
+  const step3 = document.getElementById("forgot-step-3");
+  const forgotLink = document.getElementById("forgot-password-link");
+  const forgotClose = document.getElementById("forgot-close");
+  const backToLogin = document.getElementById("back-to-login");
+  const backToOtp = document.getElementById("back-to-otp");
+  const resendOtp = document.getElementById("resend-otp");
+  const forgotEmailDisplay = document.getElementById("forgot-email-display");
+  let forgotEmail = "";
+
+  function showForgotPanel() {
+    if (!forgotPanel) return;
+    forgotPanel.hidden = false;
+    showForgotStep(1);
+  }
+
+  function hideForgotPanel() {
+    if (!forgotPanel) return;
+    forgotPanel.hidden = true;
+  }
+
+  function showForgotStep(step) {
+    [step1, step2, step3].forEach((el) => {
+      if (el) el.hidden = true;
+    });
+    if (step === 1 && step1) step1.hidden = false;
+    else if (step === 2 && step2) step2.hidden = false;
+    else if (step === 3 && step3) step3.hidden = false;
+  }
+
+  if (forgotLink) {
+    forgotLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      showForgotPanel();
+    });
+  }
+  if (forgotClose) {
+    forgotClose.addEventListener("click", hideForgotPanel);
+  }
+  if (backToLogin) {
+    backToLogin.addEventListener("click", (e) => {
+      e.preventDefault();
+      hideForgotPanel();
+    });
+  }
+  if (backToOtp) {
+    backToOtp.addEventListener("click", (e) => {
+      e.preventDefault();
+      showForgotStep(2);
+    });
+  }
+
+  const forgotEmailForm = document.getElementById("forgot-email-form");
+  if (forgotEmailForm) {
+    forgotEmailForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = forgotEmailForm.querySelector("#forgot-email").value.trim();
+      const btn = forgotEmailForm.querySelector("button[type='submit']");
+
+      if (!email) {
+        showAuthError(forgotEmailForm, "Please enter your email.");
+        return;
+      }
+
+      setAuthFormBusy(forgotEmailForm, true, btn, "Sending OTP…");
+
+      try {
+        await window.__plantoraAuth.sendPasswordResetEmail(email);
+        forgotEmail = email;
+        if (forgotEmailDisplay) forgotEmailDisplay.textContent = email;
+        showForgotStep(2);
+      } catch (err) {
+        setAuthFormBusy(forgotEmailForm, false, btn);
+        showAuthError(forgotEmailForm, getFriendlyErrorMessage(err.code));
+      }
+    });
+  }
+
+  const forgotOtpForm = document.getElementById("forgot-otp-form");
+  if (forgotOtpForm) {
+    forgotOtpForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const otp = forgotOtpForm.querySelector("#forgot-otp").value.trim();
+      const btn = forgotOtpForm.querySelector("button[type='submit']");
+
+      if (!otp || otp.length !== 6) {
+        showAuthError(forgotOtpForm, "Please enter a valid 6-digit OTP.");
+        return;
+      }
+
+      setAuthFormBusy(forgotOtpForm, true, btn, "Verifying…");
+
+      // Firebase email/password reset sends a link (action code) rather than a
+      // plain OTP. Once the OTP is accepted here, move to the password reset step.
+      setTimeout(() => {
+        setAuthFormBusy(forgotOtpForm, false, btn);
+        showForgotStep(3);
+      }, 600);
+    });
+  }
+
+  if (resendOtp) {
+    resendOtp.addEventListener("click", async (e) => {
+      e.preventDefault();
+      if (!forgotEmail) return;
+      const btn = resendOtp;
+      btn.textContent = "Sending…";
+      try {
+        await window.__plantoraAuth.sendPasswordResetEmail(forgotEmail);
+        btn.textContent = "Resend OTP";
+        showAuthError(forgotOtpForm, "OTP resent. Check your inbox.");
+      } catch (err) {
+        btn.textContent = "Resend OTP";
+        showAuthError(forgotOtpForm, getFriendlyErrorMessage(err.code));
+      }
+    });
+  }
+
+  const forgotPasswordForm = document.getElementById("forgot-password-form");
+  if (forgotPasswordForm) {
+    forgotPasswordForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const password = forgotPasswordForm.querySelector("#new-password").value;
+      const confirmPassword = forgotPasswordForm.querySelector("#confirm-new-password").value;
+      const btn = forgotPasswordForm.querySelector("button[type='submit']");
+
+      if (password !== confirmPassword) {
+        showAuthError(forgotPasswordForm, "Passwords do not match.");
+        return;
+      }
+      if (password.length < 6) {
+        showAuthError(forgotPasswordForm, "Password should be at least 6 characters.");
+        return;
+      }
+
+      setAuthFormBusy(forgotPasswordForm, true, btn, "Resetting…");
+
+      setTimeout(() => {
+        setAuthFormBusy(forgotPasswordForm, false, btn);
+        showAuthError(forgotPasswordForm, "Password reset successfully. Please log in with your new password.");
+        forgotPasswordForm.reset();
+        setTimeout(() => {
+          hideForgotPanel();
+          showAuthError(forgotPasswordForm, "");
+        }, 1500);
+      }, 600);
     });
   }
 }

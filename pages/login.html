@@ -60,9 +60,70 @@
         <button type="submit" class="btn btn--primary">Log In</button>
       </form>
 
+      <p class="login-card__forgot">
+        <a href="#" id="forgot-password-link">Forgot Password?</a>
+      </p>
+
       <p class="login-card__signup">
         Don't have an account? <a href="register.html">Sign Up</a>
       </p>
+
+      <!-- forgot password flow: email -> OTP -> new password -->
+      <div class="login-card__forgot-panel" id="forgot-password-panel" hidden>
+        <button type="button" class="forgot-close" id="forgot-close" aria-label="Close">×</button>
+
+        <!-- step 1: email -->
+        <div id="forgot-step-1">
+          <h2>Forgot Password</h2>
+          <p>Enter your email and we'll send an OTP to reset your password.</p>
+          <form id="forgot-email-form">
+            <div class="form-group">
+              <label for="forgot-email">Email</label>
+              <input type="email" id="forgot-email" placeholder="Enter your email" />
+            </div>
+            <button type="submit" class="btn btn--primary">Send OTP</button>
+          </form>
+          <p class="forgot-back">
+            Remember your password? <a href="#" id="back-to-login">Back to Log In</a>
+          </p>
+        </div>
+
+        <!-- step 2: OTP -->
+        <div id="forgot-step-2" hidden>
+          <h2>Enter OTP</h2>
+          <p>We sent a code to <strong id="forgot-email-display"></strong>. Enter it here.</p>
+          <form id="forgot-otp-form">
+            <div class="form-group">
+              <label for="forgot-otp">OTP</label>
+              <input type="text" id="forgot-otp" placeholder="6-digit code" maxlength="6" />
+            </div>
+            <button type="submit" class="btn btn--primary">Verify OTP</button>
+          </form>
+          <p class="forgot-back">
+            Didn't receive it? <a href="#" id="resend-otp">Resend OTP</a>
+          </p>
+        </div>
+
+        <!-- step 3: new password -->
+        <div id="forgot-step-3" hidden>
+          <h2>Set New Password</h2>
+          <p>Create a new password for your account.</p>
+          <form id="forgot-password-form">
+            <div class="form-group">
+              <label for="new-password">New Password</label>
+              <input type="password" id="new-password" placeholder="New password" />
+            </div>
+            <div class="form-group">
+              <label for="confirm-new-password">Confirm Password</label>
+              <input type="password" id="confirm-new-password" placeholder="Confirm new password" />
+            </div>
+            <button type="submit" class="btn btn--primary">Reset Password</button>
+          </form>
+          <p class="forgot-back">
+            <a href="#" id="back-to-otp">Back</a>
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 
