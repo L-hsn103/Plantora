@@ -289,6 +289,8 @@
     } catch (error) {
       const messages = {
         'wrong-password': ['pf-current-password', 'That password is incorrect.'],
+        'invalid-credential': ['pf-current-password', 'That password is incorrect.'],
+        'invalid-login-credentials': ['pf-current-password', 'That password is incorrect.'],
         'weak-password': ['pf-new-password', 'Choose a stronger password.']
       };
       const mapped = error && messages[error.code];

@@ -216,7 +216,7 @@
 
   <script>
     // Connect the profile page to Plantora's existing Firebase auth and data layer.
-    window.PlantoraProfileConfig = { loginUrl: "login.html" };
+    window.PlantoraProfileConfig = { loginUrl: "login.html", passwordMinLength: 6 };
 
     window.PlantoraProfileAdapter = (function () {
       'use strict';
@@ -347,8 +347,7 @@
         return getCurrentUser().then(function (user) {
           if (!user) throw codedError('Not signed in.', 'unauthenticated');
           if (!input.currentPassword) throw codedError('Enter your current password.', 'wrong-password');
-          return normalise(window.__plantoraAuth.signInWithEmailAndPassword(user.email, input.currentPassword))
-            .then(function (cred) { return cred.user.updatePassword(input.newPassword); });
+          return normalise(window.__plantoraAuth.changePassword(user, input.currentPassword, input.newPassword));
         });
       }
 

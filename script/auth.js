@@ -31,7 +31,7 @@ const AUTH_URL = (function () {
 // load the Firebase SDK and keep the auth helpers on window
 async function initFirebase() {
   const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-  const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, updateProfile } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+  const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged,updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider }= await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
 
   const app = initializeApp(firebaseConfig);
   auth = getAuth(app);
@@ -42,6 +42,11 @@ async function initFirebase() {
     sendPasswordResetEmail: (email) => sendPasswordResetEmail(auth, email),
     signOut: () => signOut(auth),
     updateProfile: (user, profile) => updateProfile(user, profile),
+    changePassword: async (user, currentPassword, newPassword) => {
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(auth.currentUser, credential);
+      await updatePassword(auth.currentUser, newPassword);
+    },
     onAuthStateChanged: (callback) => onAuthStateChanged(auth, callback)
   };
 
@@ -223,38 +228,18 @@ function setupAuthForms() {
       }
     });
   }
-
-  // -------- forgot password flow --------
+// -------- forgot password flow (Firebase sends a reset link by email) --------
   const forgotPanel = document.getElementById("forgot-password-panel");
-  const step1 = document.getElementById("forgot-step-1");
-  const step2 = document.getElementById("forgot-step-2");
-  const step3 = document.getElementById("forgot-step-3");
   const forgotLink = document.getElementById("forgot-password-link");
   const forgotClose = document.getElementById("forgot-close");
   const backToLogin = document.getElementById("back-to-login");
-  const backToOtp = document.getElementById("back-to-otp");
-  const resendOtp = document.getElementById("resend-otp");
-  const forgotEmailDisplay = document.getElementById("forgot-email-display");
-  let forgotEmail = "";
 
   function showForgotPanel() {
-    if (!forgotPanel) return;
-    forgotPanel.hidden = false;
-    showForgotStep(1);
+    if (forgotPanel) forgotPanel.hidden = false;
   }
 
   function hideForgotPanel() {
-    if (!forgotPanel) return;
-    forgotPanel.hidden = true;
-  }
-
-  function showForgotStep(step) {
-    [step1, step2, step3].forEach((el) => {
-      if (el) el.hidden = true;
-    });
-    if (step === 1 && step1) step1.hidden = false;
-    else if (step === 2 && step2) step2.hidden = false;
-    else if (step === 3 && step3) step3.hidden = false;
+    if (forgotPanel) forgotPanel.hidden = true;
   }
 
   if (forgotLink) {
@@ -272,12 +257,6 @@ function setupAuthForms() {
       hideForgotPanel();
     });
   }
-  if (backToOtp) {
-    backToOtp.addEventListener("click", (e) => {
-      e.preventDefault();
-      showForgotStep(2);
-    });
-  }
 
   const forgotEmailForm = document.getElementById("forgot-email-form");
   if (forgotEmailForm) {
@@ -291,96 +270,26 @@ function setupAuthForms() {
         return;
       }
 
-      setAuthFormBusy(forgotEmailForm, true, btn, "Sending OTP…");
+      setAuthFormBusy(forgotEmailForm, true, btn, "Sending link…");
 
       try {
         await window.__plantoraAuth.sendPasswordResetEmail(email);
-        forgotEmail = email;
-        if (forgotEmailDisplay) forgotEmailDisplay.textContent = email;
-        showForgotStep(2);
+        setAuthFormBusy(forgotEmailForm, false, btn);
+        showAuthError(forgotEmailForm, "Reset link sent! Check your inbox (and spam folder).", true);
       } catch (err) {
         setAuthFormBusy(forgotEmailForm, false, btn);
         showAuthError(forgotEmailForm, getFriendlyErrorMessage(err.code));
       }
     });
   }
-
-  const forgotOtpForm = document.getElementById("forgot-otp-form");
-  if (forgotOtpForm) {
-    forgotOtpForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const otp = forgotOtpForm.querySelector("#forgot-otp").value.trim();
-      const btn = forgotOtpForm.querySelector("button[type='submit']");
-
-      if (!otp || otp.length !== 6) {
-        showAuthError(forgotOtpForm, "Please enter a valid 6-digit OTP.");
-        return;
-      }
-
-      setAuthFormBusy(forgotOtpForm, true, btn, "Verifying…");
-
-      // Firebase email/password reset sends a link (action code) rather than a
-      // plain OTP. Once the OTP is accepted here, move to the password reset step.
-      setTimeout(() => {
-        setAuthFormBusy(forgotOtpForm, false, btn);
-        showForgotStep(3);
-      }, 600);
-    });
-  }
-
-  if (resendOtp) {
-    resendOtp.addEventListener("click", async (e) => {
-      e.preventDefault();
-      if (!forgotEmail) return;
-      const btn = resendOtp;
-      btn.textContent = "Sending…";
-      try {
-        await window.__plantoraAuth.sendPasswordResetEmail(forgotEmail);
-        btn.textContent = "Resend OTP";
-        showAuthError(forgotOtpForm, "OTP resent. Check your inbox.");
-      } catch (err) {
-        btn.textContent = "Resend OTP";
-        showAuthError(forgotOtpForm, getFriendlyErrorMessage(err.code));
-      }
-    });
-  }
-
-  const forgotPasswordForm = document.getElementById("forgot-password-form");
-  if (forgotPasswordForm) {
-    forgotPasswordForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const password = forgotPasswordForm.querySelector("#new-password").value;
-      const confirmPassword = forgotPasswordForm.querySelector("#confirm-new-password").value;
-      const btn = forgotPasswordForm.querySelector("button[type='submit']");
-
-      if (password !== confirmPassword) {
-        showAuthError(forgotPasswordForm, "Passwords do not match.");
-        return;
-      }
-      if (password.length < 6) {
-        showAuthError(forgotPasswordForm, "Password should be at least 6 characters.");
-        return;
-      }
-
-      setAuthFormBusy(forgotPasswordForm, true, btn, "Resetting…");
-
-      setTimeout(() => {
-        setAuthFormBusy(forgotPasswordForm, false, btn);
-        showAuthError(forgotPasswordForm, "Password reset successfully. Please log in with your new password.");
-        forgotPasswordForm.reset();
-        setTimeout(() => {
-          hideForgotPanel();
-          showAuthError(forgotPasswordForm, "");
-        }, 1500);
-      }, 600);
-    });
-  }
 }
+  
 // friendlier wording for the Firebase error codes
 function getFriendlyErrorMessage(code) {
   const messages = {
     "auth/user-not-found": "No account found with this email.",
     "auth/wrong-password": "Incorrect password. Please try again.",
+    "auth/invalid-credential": "Incorrect email or password. Please try again.",
     "auth/email-already-in-use": "An account with this email already exists.",
     "auth/weak-password": "Password should be at least 6 characters.",
     "auth/invalid-email": "Please enter a valid email address.",
@@ -391,17 +300,19 @@ function getFriendlyErrorMessage(code) {
 }
 
 // show the error at the top of the form for 5 seconds
-function showAuthError(form, message) {
+function showAuthError(form, message, isSuccess) {
   const existing = form.querySelector(".auth-error");
   if (existing) existing.remove();
 
   const errorDiv = document.createElement("div");
   errorDiv.className = "auth-error";
-  errorDiv.style.cssText = "background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:0.75rem 1rem;border-radius:8px;font-size:0.85rem;margin-bottom:1rem;text-align:center;";
+  errorDiv.style.cssText = isSuccess
+    ? "background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;padding:0.75rem 1rem;border-radius:8px;font-size:0.85rem;margin-bottom:1rem;text-align:center;"
+    : "background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:0.75rem 1rem;border-radius:8px;font-size:0.85rem;margin-bottom:1rem;text-align:center;";
   errorDiv.textContent = message;
   form.insertBefore(errorDiv, form.firstChild);
 
-  setTimeout(() => errorDiv.remove(), 5000);
+  setTimeout(() => errorDiv.remove(), isSuccess ? 10000 : 5000);
 }
 
 // keep the forms visibly pending until Firebase is ready and handlers are bound
