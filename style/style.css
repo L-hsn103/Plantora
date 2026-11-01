@@ -707,28 +707,12 @@ html.is-auth .cta-label--in {
 /* phone size */
 @media (max-width: 640px) {
   /* only the logo and button fit */
-  .nav-links {
-    display: none;
-  }
-
   .navbar__actions {
     gap: 0.4rem;
   }
 
   .navbar__actions .btn {
     padding: 0.65rem 0.9rem;
-    font-size: 0.82rem;
-  }
-
-  .navbar--landing .nav-links {
-    display: flex;
-    gap: 0.9rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .navbar--landing .nav-links a {
-    display: inline-block;
     font-size: 0.82rem;
   }
 
@@ -788,11 +772,11 @@ html.is-auth .cta-label--in {
 
 /* mobile navbar — hamburger menu below 768px */
 @media (max-width: 767px) {
-  .navbar--landing .nav-toggle {
+  .nav-toggle {
     display: inline-flex;
   }
 
-  .navbar--landing .nav-links {
+  .navbar .nav-links {
     position: absolute;
     top: 100%;
     left: 0;
@@ -807,11 +791,11 @@ html.is-auth .cta-label--in {
     z-index: 1;
   }
 
-  .navbar--landing .nav-links.open {
+  .navbar .nav-links.open {
     display: flex;
   }
 
-  .navbar--landing .nav-links a {
+  .navbar .nav-links a {
     display: block;
     padding: 0.85rem 1.5rem;
     font-size: 1rem;
@@ -819,21 +803,21 @@ html.is-auth .cta-label--in {
     border-bottom: 1px solid var(--color-border);
   }
 
-  .navbar--landing .nav-links a:hover,
-  .navbar--landing .nav-links a:focus-visible {
+  .navbar .nav-links a:hover,
+  .navbar .nav-links a:focus-visible {
     color: var(--color-primary);
     background-color: var(--color-bg-alt);
   }
 
-  .navbar--landing .nav-links a:last-child {
+  .navbar .nav-links a:last-child {
     border-bottom: none;
   }
 
-  .navbar--landing .navbar__actions {
+  .navbar .navbar__actions {
     gap: 0.4rem;
   }
 
-  .navbar--landing .navbar__actions .btn {
+  .navbar .navbar__actions .btn {
     padding: 0.65rem 0.9rem;
     font-size: 0.82rem;
   }

@@ -40,7 +40,12 @@
     <div class="container navbar__inner">
       <a href="../index.html" class="logo"><img class="logo__img" src="../assets/image/Plantora_log.png" alt="" />Plantora</a>
 
-      <nav class="nav-links">
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <i data-lucide="menu" class="toggle-icon--open"></i>
+        <i data-lucide="x" class="toggle-icon--close"></i>
+      </button>
+
+      <nav class="nav-links" id="nav-links">
         <a href="../index.html" data-nav-home><span class="nav-label nav-label--out">Home</span><span class="nav-label nav-label--in">Dashboard</span></a>
         <a href="explore.html" class="active" aria-current="page">Explore Plants</a>
         <a href="my-plants.html" data-nav-private hidden>My Plants</a>

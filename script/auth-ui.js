@@ -254,6 +254,33 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+function setupMobileMenu() {
+  const toggle = document.getElementById("nav-toggle");
+  const menu = document.getElementById("nav-links");
+  if (!toggle || !menu) return;
+
+  function setOpen(open) {
+    menu.classList.toggle("open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+  }
+
+  toggle.addEventListener("click", function () {
+    setOpen(!menu.classList.contains("open"));
+  });
+
+  menu.addEventListener("click", function (e) {
+    if (e.target.closest("a")) {
+      setOpen(false);
+    }
+  });
+
+  window.addEventListener("resize", function () {
+    if (window.innerWidth >= 768) {
+      setOpen(false);
+    }
+  });
+}
+
 window.PlantoraUI = {
   readCachedUser: readCachedUser,
   applyAuthUi: applyAuthUi,
@@ -265,3 +292,4 @@ window.PlantoraUI = {
 };
 
 updateNavbarForAuth(!!readCachedUser());
+setupMobileMenu();
