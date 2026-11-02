@@ -41,7 +41,7 @@ async function initFirebase() {
     createUserWithEmailAndPassword: (email, password) => createUserWithEmailAndPassword(auth, email, password),
     sendPasswordResetEmail: (email) => sendPasswordResetEmail(auth, email),
     signOut: () => signOut(auth),
-    updateProfile: (user, profile) => updateProfile(user, profile),
+    updateProfile: (user, profile) => updateProfile(auth.currentUser, profile),
     changePassword: async (user, currentPassword, newPassword) => {
       const credential = EmailAuthProvider.credential(user.email, currentPassword);
       await reauthenticateWithCredential(auth.currentUser, credential);
